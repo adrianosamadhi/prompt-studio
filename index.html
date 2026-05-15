@@ -459,9 +459,10 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
 
       const copyAll = () => {
         if (!prompts.length) return;
-        let content = prompts.map(p => p.prompt).join('\n\n\n');
+        // O código foi alterado aqui para adicionar "Prompt 1:", "Prompt 2:", etc.
+        let content = prompts.map((p, index) => `Prompt ${index + 1}:\n${p.prompt}`).join('\n\n\n');
         copyToClipboard(content.trim());
-        showToast('Todos os prompts copiados!');
+        showToast('Todos os prompts copiados na ordem!');
       };
 
       const toggleFavorite = (prompt) => {
