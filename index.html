@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Prompt Consistency Studio Pro</title>
+  
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0A0A0B" />
+  <link rel="icon" type="image/png" href="icone-192.png" />
+  <link rel="apple-touch-icon" href="icone-192.png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { background: '#0A0A0B' },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Merriweather', 'serif'] },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-background text-white selection:bg-orange-500/30 overflow-x-hidden antialiased">
+  
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    // ==========================================
+    // 1. CHAVES DO SISTEMA
+    // ==========================================
+    const SUPABASE_URL = "https://wvejrqpwmodgfjtxperb.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_Co_Sc9s65LlNw2L1a19EBw_enm2KWFp";
+    
+    // A chave do Gemini foi removida com segurança e vive apenas no Supabase.
+
+    // Inicializa o banco de dados
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ==========================================
+    // LÓGICA DE API GEMINI COM FALLBACK VIA SUPABASE
+    // ==========================================
+    const GEMINI_MODELS = [
+      "gemini-3.1-pro-preview",
+      "gemini-3.1-flash-lite"
+    ];
+
+    async function fetchWithRetry(payload, retries = 3) {
+      const delays = [1000, 2000, 4000];
+      const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/gerar-prompt`;
+
+      for (let m = 0; m < GEMINI_MODELS.length; m++) {
+        const currentModel = GEMINI_MODELS[m];
+        
+        for (let i = 0; i < retries; i++) {
+          try {
+            const response = await fetch(EDGE_FUNCTION_URL, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+              },
+              body: JSON.stringify({ model: currentModel, payload: payload })
+            });
+
+            if (response.status === 429 && m < GEMINI_MODELS.length - 1) {
+              console.warn(`Limite atingido no modelo ${currentModel}. Passando para reserva...`);
+              break; 
+            }
+
+            if (!response.ok) {
+              const errText = await response.text();
+              console.error(`Erro da API (${currentModel}):`, errText);
+              throw new Error(`Erro do sistema: ${response.status}`);
+            }
+
+            return await response.json();
+          } catch (e) {
+            if (i === retries - 1 && m === GEMINI_MODELS.length - 1) {
+              throw new Error(`Falha de conexão com a IA: ${e.message}`);
+            }
+            await new Promise(res => setTimeout(res, delays[i]));
+          }
+        }
+      }
+    }
+
+    async function generatePromptsAPI({ imagePreviews, niche, customNiche, extraDetails, visualStyle, aspectRatio, language, settings }) {
+      const targetNiche = customNiche.trim() !== '' ? customNiche : niche;
+      const qty = settings?.quantity || 10;
+      const realism = settings?.realismLevel || 'natural';
+      const creativity = settings?.creativeIntensity || 'média';
+      const targetGender = settings?.targetGender || 'auto';
+
+      let demographicInstruction = targetGender;
+      if (targetGender === 'auto') {
+        demographicInstruction = (imagePreviews && imagePreviews.length > 0) 
+          ? 'AUTO-DETECT exactly from reference image (e.g., adult man, adult woman, young boy, baby girl, elderly, etc.)'
+          : 'generic adult person (neutral)';
+      }
+
+      const systemInstruction = `ROLE & OBJECTIVE
+You are JsonPromptMaker, a deterministic Prompt-to-JSON Engine combined with a High-Fidelity Biometric Image Analyzer.
+Your task is to convert a user’s text prompt and uploaded reference image into a precise, production-ready JSON prompt array for SINGLE IMAGES.
+
+CORE RULES
+1. Granular Biometric Extraction (CRITICAL): If a reference image is provided, you MUST explicitly analyze and document specific body proportions. Pay extreme attention to the build, arm thickness, face shape, and overall silhouette. Do NOT generalize.
+2. No Micro-Features: Do not describe specific facial micro-features to avoid FaceID conflicts.
+3. Specific User Elements: If the user provides "Extra Details", you MUST integrate them into the environment.
+4. SINGLE IMAGE OUTPUT: Each JSON object must describe ONE single, distinct image. Absolutely NO collages.
+5. Determinism: Given the same input, always produce the same JSON structure.
+6. Output Discipline: You ONLY output valid JSON.`;
+
+      const clothesInstruction = settings?.keepClothes 
+        ? `"value": "reference image clothing exactly as shown", "allowed_sources": ["image"]`
+        : `"value": "Invent clothing matching the ${targetNiche} niche", "allowed_sources": ["text"]`;
+
+      const backgroundInstruction = settings?.keepBackground 
+        ? `"value": "reference image background", "allowed_sources": ["image"]`
+        : `"value": "Invent a background matching the ${targetNiche} niche", "allowed_sources": ["text"]`;
+
+      let promptText = `Generate EXACTLY ${qty} INDIVIDUAL JSON objects in an array. Each object is a prompt for a SINGLE image.
+
+Context for generation:
+- Target Niche: ${targetNiche}
+- Visual Style: ${visualStyle}
+- Aspect Ratio: ${aspectRatio}
+- Realism Level: ${realism}
+- Creative Intensity: ${creativity}
+- Target Demographic: ${demographicInstruction}
+${extraDetails && extraDetails.trim() !== '' ? `- CRITICAL USER DETAILS TO INCLUDE: "${extraDetails}".` : ''}
+
+CRITICAL INSTRUCTION: VARY the "subject.pose.value", "camera.framing.value", and "camera.angle.value" across the ${qty} items. DO NOT generate collages.
+
+REQUIRED JSON SCHEMA (this entire structure must be stringified inside the "prompt" value):
+{
+  "task": "build_image_prompt_json",
+  "subject_analysis": {
+    "primary_subject": "[Describe the main subject strictly matching the Target Demographic]",
+    "body_proportions": "[CRITICAL: Extract exact body build, weight, arm thickness, and silhouette from image.]",
+    "facial_frame": "[CRITICAL: Extract face shape and jawline from image.]",
+    "hair_and_skin": "[CRITICAL: Extract exact hair color, texture, length, part, and exact skin tone]",
+    "expression": "[Extract expression from image or invent fitting the niche]",
+    "clothing_description": "[Describe clothing based on settings]"
+  },
+  "reference_image_policy": { "used": true, "represents": "full character identity", "instructions": ["Identity lock active."] },
+  "subject": { "pose": { "value": "[INSERT SPECIFIC POSE]", "allowed_sources": ["text"] } },
+  "appearance": { "clothing": { ${clothesInstruction} }, "colors": { "primary_palette": { "value": "neutral balanced palette harmonized with clothing and scene", "allowed_sources": ["text"] } } },
+  "environment": { "location": { ${backgroundInstruction} }, "details": { "value": "${extraDetails || 'details matching the niche'}", "allowed_sources": ["text"] } },
+  "camera": { "framing": { "value": "[INSERT FRAMING]", "allowed_sources": ["text"] }, "angle": { "value": "[INSERT ANGLE]", "allowed_sources": ["text"] } },
+  "lighting": { "type": { "value": "[INSERT LIGHTING BASED ON REALISM: ${realism}]", "allowed_sources": ["text"] }, "direction": { "value": "[INSERT LIGHT DIRECTION]", "allowed_sources": ["text"] } },
+  "style": { "render_type": { "value": "${visualStyle}" } }
+}`;
+
+      const payload = {
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        contents: [{ role: "user", parts: [{ text: promptText }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { prompt: { type: "STRING" } }, required: ["prompt"] } }
+        }
+      };
+
+      if (imagePreviews && imagePreviews.length > 0) {
+        imagePreviews.forEach((preview) => {
+          const base64Data = preview.split(',')[1];
+          const mimeType = preview.split(';')[0].split(':')[1];
+          payload.contents[0].parts.push({ inlineData: { mimeType, data: base64Data } });
+        });
+      }
+      
+      payload.contents[0].parts.push({ text: promptText });
+
+      const data = await fetchWithRetry(payload);
+      try {
+        let textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+        const rawData = JSON.parse(textResult);
+        return rawData.map((item) => ({ prompt: item.prompt, id: crypto.randomUUID() }));
+      } catch (e) {
+        throw new Error("Falha ao interpretar a resposta da IA.");
+      }
+    }
+
+    async function generateAdCreativesAPI({ niche, customNiche, packagesText, extraDetails, visualStyle, language, quantity, realismLevel, creativeIntensity, targetGender }) {
+      const targetNiche = customNiche.trim() !== '' ? customNiche : niche;
+
+      const systemInstruction = `Você é um Estrategista de Marketing de Elite Especialista em Ads.
+Sua função é gerar ${quantity} ideias criativas para imagens de anúncios focadas em vender ensaios fotográficos. Foco no nicho: ${targetNiche}.
+O próprio PROMPT DA IMAGEM deve instruir a IA a escrever o texto de venda (oferta) DENTRO DA IMAGEM.
+Você DEVE extrair a oferta EXATAMENTE COMO ESCRITA pelo usuário na tabela de pacotes para criar a copy do banner.
+
+🚨 REGRA VISUAL DO ANÚNCIO: Crie prompts que gerem uma COLAGEM VERTICAL COM 3 FOTOS (vertical split-panel collage showing 3 different photo examples).
+Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful vertical collage of 3 photos showing [DESCRIÇÃO DA FOTO 1], [DESCRIÇÃO DA FOTO 2], and [DESCRIÇÃO DA FOTO 3]. The image features a HIGHLY STYLIZED TYPOGRAPHY OVERLAY placed over the images, looking like a professional ad design. The typography is bold, aesthetic, and spells exactly: 'SUA COPY DA OFERTA AQUI EM PT-BR'. High-end photography style, photorealistic."`;
+
+      let promptText = `Crie ${quantity} PROMPTS DE IMAGENS de Anúncio DE ALTA CONVERSÃO.\nNicho alvo: ${targetNiche}\nEstilo visual das fotos: ${visualStyle}\n\n`;
+      if (packagesText && packagesText.trim() !== '') promptText += `=== TABELA DE PACOTES E VALORES ===\n${packagesText}\n\n`;
+      else promptText += `Crie uma oferta irresistível no spelling da imagem, como 'FAÇA SEU ORÇAMENTO'.\n\n`;
+      if (extraDetails && extraDetails.trim() !== '') promptText += `=== DETALHES EXTRAS PARA A CENA ===\nO usuário informou: "${extraDetails}".\n\n`;
+
+      const payload = {
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        contents: [{ role: "user", parts: [{ text: promptText }] }],
+        generationConfig: {
+          temperature: 0.7, responseMimeType: "application/json",
+          responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { creativeIdea: { type: "STRING" }, imagePrompt: { type: "STRING" } }, required: ["creativeIdea", "imagePrompt"] } }
+        }
+      };
+
+      const data = await fetchWithRetry(payload);
+      try {
+        let textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+        const rawData = JSON.parse(textResult);
+        return rawData.map((item) => ({ ...item, id: crypto.randomUUID() }));
+      } catch (e) {
+        throw new Error("Falha ao interpretar a resposta da IA.");
+      }
+    }
+
+    // ==========================================
+    // CONSTANTES
+    // ==========================================
+    const NICHES = [
+      { id: 'aniversario', name: 'Aniversário', icon: '🎂', desc: 'Fotos comemorativas, bolo, balões, ensaio em estúdio ou externo.' },
+      { id: 'profissoes', name: 'Profissões', icon: '💼', desc: 'Fotos corporativas para médicos, advogados, empresários.' },
+      { id: 'influencer', name: 'Influencer', icon: '📱', desc: 'Fotos modernas para Instagram, lifestyle, viagens e looks.' },
+      { id: 'casamento', name: 'Casamento', icon: '💍', desc: 'Ensaios românticos, vestidos elegantes, cenário sofisticado.' },
+      { id: 'formatura', name: 'Formatura', icon: '🎓', desc: 'Beca, estúdio, celebração e retratos profissionais.' },
+      { id: 'gestante', name: 'Gestante', icon: '🤰', desc: 'Ensaio delicado, conexão familiar e estética premium.' },
+      { id: 'familia', name: 'Família', icon: '👨‍👩‍👧‍👦', desc: 'Casa, parque, estúdio, momentos espontâneos e naturais.' },
+      { id: 'infantil', name: 'Infantil', icon: '🎈', desc: 'Ambiente lúdico e seguro. Sem poses adultizadas.' },
+      { id: 'musculacao_dark', name: 'Musculação Dark', icon: '🏋️‍♂️', desc: 'Alto impacto, dark, cinematográfico, sombras dramáticas para feed.' },
+      { id: 'corporativo', name: 'Corporativo', icon: '👔', desc: 'LinkedIn, perfil profissional, roupa elegante, confiante.' },
+      { id: 'moda', name: 'Moda', icon: '👗', desc: 'Editorial fashion, poses criativas, fundo urbano ou estúdio.' },
+      { id: 'natal', name: 'Natal', icon: '🎄', desc: 'Cenário natalino, luzes, família, clima emocional.' }
+    ];
+
+    const VISUAL_STYLES = ['Ultra-realista', 'Editorial de revista', 'Cinematográfico', 'Luxo premium', 'Lifestyle natural', 'Estúdio profissional'];
+    const ASPECT_RATIOS = ['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Instagram Feed'];
+    const LANGUAGES = ['Inglês', 'Português'];
+
+    // ==========================================
+    // COMPONENTES UI
+    // ==========================================
+    function Toggle({ label, checked, onChange }) {
+      return (
+        <label className="flex items-center justify-between cursor-pointer group py-1">
+          <span className="text-[10px] uppercase tracking-widest text-zinc-400 group-hover:text-zinc-300 transition-colors">{label}</span>
+          <div className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-none border border-transparent transition-colors duration-200 ease-in-out ${checked ? 'bg-orange-500' : 'bg-zinc-800'}`}>
+            <span aria-hidden="true" className={`pointer-events-none inline-block h-3 w-3 transform bg-white shadow ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
+          </div>
+          <input type="checkbox" checked={checked} onChange={(e)=>onChange(e.target.checked)} className="hidden" />
+        </label>
+      );
+    }
+
+    // ==========================================
+    // TELA DE LOGIN REAL
+    // ==========================================
+    function LoginScreen() {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [showPassword, setShowPassword] = useState(false);
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState(null);
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+          setError(`Erro do Sistema: ${error.message}`);
+        }
+        setLoading(false);
+      };
+
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#0A0A0B] border border-white/10 p-8 animate-fade-in shadow-2xl rounded-2xl">
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-600 to-amber-400 flex items-center justify-center mb-4">
+                <i className="ph ph-lock-key text-2xl text-white"></i>
+              </div>
+              <h1 className="text-2xl font-bold tracking-tighter uppercase text-white text-center">Acesso Exclusivo</h1>
+              <p className="text-xs text-zinc-500 mt-2 text-center">Faça login para usar o Studio.</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="flex flex-col gap-5">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 block">E-mail</label>
+                <div className="relative">
+                  <i className="ph ph-envelope-simple absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-lg"></i>
+                  <input 
+                    type="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    required 
+                    className="w-full bg-[#0A0A0B] border border-white/10 focus:border-orange-500 outline-none pl-12 pr-4 py-3.5 text-sm text-white placeholder-zinc-600 transition-colors rounded-xl" 
+                    placeholder="Seu e-mail da Kiwify" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 block">Senha</label>
+                <div className="relative">
+                  <i className="ph ph-key absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-lg"></i>
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    required 
+                    className="w-full bg-[#0A0A0B] border border-white/10 focus:border-orange-500 outline-none pl-12 pr-12 py-3.5 text-sm text-white placeholder-zinc-600 transition-colors rounded-xl" 
+                    placeholder="Sua senha" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                  >
+                    <i className={`ph ${showPassword ? 'ph-eye-slash' : 'ph-eye'} text-xl`}></i>
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-2 mt-3 pl-1">
+                  <i className="ph ph-info text-orange-500 text-sm"></i>
+                  <p className="text-[11px] text-zinc-400">
+                    Aviso: Use o e-mail da compra. Senha: <span className="font-bold text-orange-400">Prompt@123</span>
+                  </p>
+                </div>
+              </div>
+
+              {error && <p className="text-red-500 text-xs text-center mt-1 font-medium">{error}</p>}
+
+              <button type="submit" disabled={loading} className="w-full mt-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-bold text-sm rounded-xl disabled:opacity-50 transition-all shadow-lg shadow-orange-500/20">
+                {loading ? 'Autenticando...' : 'Entrar no Sistema'}
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // APP PRINCIPAL
+    // ==========================================
+    function MainApp({ onLogout }) {
+      const [activeTab, setActiveTab] = useState('prompts');
+      const [referenceImages, setReferenceImages] = useState([]);
+      const [imagePreviews, setImagePreviews] = useState([]);
+      const [selectedNiche, setSelectedNiche] = useState('');
+      const [customNiche, setCustomNiche] = useState('');
+      const [freePrompt, setFreePrompt] = useState('');
+      const [extraDetails, setExtraDetails] = useState('');
+
+      const [adNiche, setAdNiche] = useState('');
+      const [adPackagesText, setAdPackagesText] = useState('');
+      const [adExtraDetails, setAdExtraDetails] = useState('');
+      const [adResults, setAdResults] = useState([]);
+      const [isGeneratingAds, setIsGeneratingAds] = useState(false);
+      
+      const [visualStyle, setVisualStyle] = useState(VISUAL_STYLES[0]);
+      const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
+      const [language, setLanguage] = useState(LANGUAGES[0]);
+      const [toastMessage, setToastMessage] = useState(null);
+
+      const [showSettings, setShowSettings] = useState(false);
+      const [settings, setSettings] = useState({
+        quantity: 10, realismLevel: 'natural', creativeIntensity: 'média',
+        keepClothes: false, keepBackground: false, allowOutfitChange: true,
+        allowSceneChange: true, targetGender: 'auto'
+      });
+
+      const [prompts, setPrompts] = useState([]);
+      const [history, setHistory] = useState([]);
+      const [favorites, setFavorites] = useState([]);
+      const [isGenerating, setIsGenerating] = useState(false);
+      const [error, setError] = useState(null);
+
+      const fileInputRef = useRef(null);
+
+      const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(null), 3000);
+      };
+
+      const handleImageUpload = (e) => {
+        const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+        if (!files.length) return showToast('Apenas imagens são permitidas.');
+        setReferenceImages(prev => [...prev, ...files]);
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onloadend = () => setImagePreviews(prev => [...prev, reader.result]);
+          reader.readAsDataURL(file);
+        });
+      };
+
+      const handleClearImages = () => {
+        setReferenceImages([]);
+        setImagePreviews([]);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      };
+
+      const handleRemoveImage = (index) => {
+        setReferenceImages(prev => prev.filter((_, i) => i !== index));
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+      };
+
+      const generateAds = async () => {
+        if (!adNiche) return showToast('Digite o nicho alvo.');
+        setError(null); setIsGeneratingAds(true); setAdResults([]);
+        try {
+          const result = await generateAdCreativesAPI({
+            niche: adNiche, customNiche: adNiche, packagesText: adPackagesText, extraDetails: adExtraDetails,
+            visualStyle, language, quantity: Math.min(settings.quantity, 10), realismLevel: settings.realismLevel,
+            creativeIntensity: settings.creativeIntensity, targetGender: settings.targetGender
+          });
+          setAdResults(result);
+        } catch (err) { setError(err.message); } finally { setIsGeneratingAds(false); }
+      };
+
+      const generate = async () => {
+        if (!selectedNiche && !customNiche && !freePrompt) return showToast('Selecione ou digite um nicho.');
+        setError(null); setIsGenerating(true); setPrompts([]);
+        try {
+          const result = await generatePromptsAPI({
+            imagePreviews, niche: freePrompt ? 'free_prompt' : (NICHES.find(n => n.id === selectedNiche)?.name || ''),
+            customNiche: freePrompt ? freePrompt : customNiche, extraDetails, visualStyle, aspectRatio, language, settings
+          });
+          setPrompts(result);
+          setHistory(prev => [{ date: new Date().toLocaleString(), data: result }, ...prev].slice(0, 10));
+        } catch (err) { setError(err.message); } finally { setIsGenerating(false); }
+      };
+
+      const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => showToast('Copiado!')).catch(e => console.error(e));
+      };
+
+      const copyAll = () => {
+        if (!prompts.length) return;
+        let content = prompts.map(p => p.prompt).join('\n\n\n');
+        copyToClipboard(content.trim());
+        showToast('Todos os prompts copiados!');
+      };
+
+      const toggleFavorite = (prompt) => {
+        if (favorites.find(f => f.id === prompt.id)) {
+          setFavorites(favorites.filter(f => f.id !== prompt.id));
+        } else {
+          setFavorites([...favorites, prompt]);
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-background text-white font-sans overflow-x-hidden animate-fade-in">
+          <header className="sticky top-0 z-40 bg-[#0A0A0B]/90 backdrop-blur-md border-b border-white/10 flex flex-col">
+            <div className="p-6 lg:px-8 pb-4 flex items-end justify-between">
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold tracking-tighter uppercase italic text-white flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-600 to-amber-400 flex items-center justify-center">
+                    <i className="ph ph-camera text-white"></i>
+                  </div>
+                  Prompt Consistency Studio
+                </h1>
+                <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest hidden sm:block">Motor Multi-Modelo: Gemini 3.1 Pro & Flash</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowSettings(!showSettings)} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-white/20 hover:bg-white/5 text-white transition-colors flex items-center gap-2" title="Configurações e Histórico">
+                  <i className="ph ph-faders"></i> Configs
+                </button>
+                <button onClick={onLogout} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-red-500/20 hover:bg-red-500/10 text-red-400 transition-colors" title="Sair do Sistema">
+                  <i className="ph ph-sign-out"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex px-6 lg:px-8 gap-6 border-t border-white/5 bg-[#0A0A0B]">
+              <button onClick={() => setActiveTab('prompts')} className={`py-4 text-[11px] uppercase tracking-widest font-bold border-b-2 transition-colors ${activeTab === 'prompts' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-500 hover:text-white'}`}>Ensaios / Prompts</button>
+              <button onClick={() => setActiveTab('ads')} className={`py-4 text-[11px] uppercase tracking-widest font-bold border-b-2 transition-colors ${activeTab === 'ads' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-500 hover:text-white'}`}>Anúncios (Copys)</button>
+            </div>
+          </header>
+
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12 grid grid-cols-1 lg:grid-cols-12 gap-12 relative">
+            <div className="lg:col-span-8 flex flex-col gap-10">
+              
+              {activeTab === 'prompts' ? (
+                <>
+                  <section className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-[10px] uppercase tracking-widest text-zinc-500">1. Biometria do Cliente / Referência (Recomendado)</label>
+                    </div>
+                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-2">
+                      Faça o upload da foto do cliente. A IA irá atuar como um Scanner Biométrico.
+                    </p>
+                    <div className="relative group flex-1 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center bg-zinc-900/40 overflow-hidden hover:border-orange-500/30 transition-colors p-6 sm:p-8">
+                      <input ref={fileInputRef} type="file" multiple accept="image/jpeg, image/png, image/webp" onChange={handleImageUpload} className="hidden" id="file-upload" />
+                      {imagePreviews.length === 0 ? (
+                        <label htmlFor="file-upload" className="flex flex-col items-center justify-center w-full h-full cursor-pointer py-6 z-10 relative">
+                          <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center mb-4 bg-[#0A0A0B]">
+                            <i className="ph ph-cloud-arrow-up text-xl text-zinc-400"></i>
+                          </div>
+                          <p className="text-sm font-medium text-white mb-1">Adicionar Foto do Cliente</p>
+                          <div className="mt-4 px-4 py-2 bg-white/5 rounded-full text-[10px] text-zinc-300 border border-white/10 uppercase tracking-widest">Clique ou Arraste arquivos aqui</div>
+                        </label>
+                      ) : (
+                        <div className="flex flex-col w-full z-10 gap-6">
+                          <div className="flex flex-wrap gap-4">
+                            {imagePreviews.map((preview, index) => (
+                              <div key={index} className="relative shrink-0">
+                                <img src={preview} alt="Preview" className="h-24 w-24 sm:h-32 sm:w-32 object-cover rounded-xl border border-white/10 shadow-lg" />
+                                <button onClick={() => handleRemoveImage(index)} className="absolute -top-3 -right-3 w-7 h-7 bg-zinc-900 border border-white/20 rounded-full flex items-center justify-center hover:bg-zinc-800 transition-colors shadow-lg">
+                                  <i className="ph ph-x text-zinc-400 text-xs"></i>
+                                </button>
+                              </div>
+                            ))}
+                            <label htmlFor="file-upload" className="cursor-pointer h-24 w-24 sm:h-32 sm:w-32 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-xl hover:border-orange-500/50 transition-colors bg-white/5 group">
+                              <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center mb-2 bg-zinc-900 group-hover:bg-orange-500 transition-colors">
+                                <i className="ph ph-plus text-zinc-400 group-hover:text-white"></i>
+                              </div>
+                            </label>
+                          </div>
+                          <button onClick={handleClearImages} className="text-[9px] uppercase font-bold text-red-500/80 hover:text-red-400 tracking-wider py-1.5 px-3 bg-red-500/10 rounded-full w-full">
+                            Remover Imagens
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
+                  <section className="flex flex-col gap-4 border-t border-white/10 pt-6">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-[10px] uppercase tracking-widest text-zinc-500">2. Nicho e Cenário Desejado</label>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {NICHES.map((niche) => (
+                        <button key={niche.id} onClick={() => { setSelectedNiche(niche.id); setCustomNiche(''); setFreePrompt(''); }} className={`relative p-4 rounded-xl border flex flex-col items-center justify-center gap-3 transition-all ${selectedNiche === niche.id && !customNiche && !freePrompt ? 'bg-orange-500/10 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.1)]' : 'bg-[#0A0A0B] border-white/10 hover:bg-white/5'}`}>
+                          <div className="text-2xl mb-1">{niche.icon}</div>
+                          <div className="text-center">
+                            <span className={`block text-[11px] font-medium uppercase tracking-widest mb-1 ${selectedNiche === niche.id && !customNiche ? 'text-orange-100' : 'text-white'}`}>{niche.name}</span>
+                            <span className="block text-[9px] text-zinc-500 uppercase tracking-widest line-clamp-1">{niche.desc}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="w-full">
+                      <input type="text" value={customNiche} onChange={(e) => { setCustomNiche(e.target.value); setSelectedNiche(''); setFreePrompt(''); }} placeholder="Ou digite um nicho específico... (ex: Odontopediatria)" className="w-full bg-[#0A0A0B] border-b border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-white placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
+                    </div>
+
+                    <div className="w-full mt-4 bg-orange-950/20 border border-orange-500/20 p-4 rounded-xl">
+                      <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-orange-400 flex items-center gap-2 mb-3">✨ Elementos Específicos na Imagem (Opcional)</label>
+                      <input type="text" value={extraDetails} onChange={(e) => setExtraDetails(e.target.value)} placeholder="Ex: Balões chiques dourados, bolo com velas..." className="w-full bg-[#0A0A0B]/50 border-b border-orange-500/50 focus:border-orange-500 outline-none px-4 py-3 text-sm text-white placeholder-zinc-500 transition-colors rounded-none font-serif italic" />
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-white/10 w-full">
+                      <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 flex items-center gap-2 mb-3">✍️ Modo Alternativo: Prompt Livre</label>
+                      <textarea value={freePrompt} onChange={(e) => { setFreePrompt(e.target.value); setSelectedNiche(''); setCustomNiche(''); }} placeholder="Descreva a cena livremente (ex: Em Paris à noite...)" className="w-full h-32 bg-[#0A0A0B] border border-white/20 focus:border-orange-500 outline-none p-4 text-sm text-white placeholder-zinc-600 transition-colors resize-none font-serif italic" />
+                    </div>
+                  </section>
+
+                  <section className="flex flex-col gap-4 pt-6 border-t border-white/10">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-[10px] uppercase tracking-widest text-zinc-500">3. Configuração da Geração</label>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#0A0A0B] border border-white/10 p-4 sm:p-6">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">Estilo Visual</label>
+                        <div className="relative">
+                          <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)} className="w-full appearance-none bg-zinc-900/50 border border-white/10 rounded-none px-4 py-3 text-[11px] text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                            {VISUAL_STYLES.map(s => <option key={s} value={s} className="bg-[#0A0A0B]">{s}</option>)}
+                          </select>
+                          <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">Formato</label>
+                        <div className="relative">
+                          <select value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value)} className="w-full appearance-none bg-zinc-900/50 border border-white/10 rounded-none px-4 py-3 text-[11px] text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                            {ASPECT_RATIOS.map(a => <option key={a} value={a} className="bg-[#0A0A0B]">{a}</option>)}
+                          </select>
+                          <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">Idioma</label>
+                        <div className="relative">
+                          <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full appearance-none bg-zinc-900/50 border border-white/10 rounded-none px-4 py-3 text-[11px] text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                            {LANGUAGES.map(l => <option key={l} value={l} className="bg-[#0A0A0B]">{l}</option>)}
+                          </select>
+                          <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-6 flex flex-col items-center gap-4">
+                      <button onClick={generate} disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)} className="group relative w-full md:w-auto px-12 py-5 bg-white text-zinc-950 hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden">
+                        <div className="flex items-center justify-center gap-3 relative z-10">
+                          {isGenerating ? (
+                            <><i className="ph ph-spinner ph-spin text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-widest">Gerando {settings.quantity} Prompts...</span></>
+                          ) : (
+                            <><i className="ph ph-magic-wand text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Prompts Otimizados</span></>
+                          )}
+                        </div>
+                      </button>
+                      {error && <p className="text-red-400 text-sm">{error}</p>}
+                    </div>
+                  </section>
+
+                  {prompts.length > 0 && (
+                    <section className="pt-12 border-t border-white/10" id="results">
+                      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+                        <h2 className="text-2xl font-serif italic text-white tracking-tight">Resultados</h2>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button onClick={copyAll} className="flex items-center gap-2 px-3 py-1.5 bg-white text-zinc-950 text-[10px] uppercase tracking-widest font-bold hover:bg-zinc-200 transition-colors"><i className="ph ph-copy"></i> Copiar Todos</button>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-6">
+                        {prompts.map((p, i) => (
+                          <div key={p.id} className="bg-[#0A0A0B] border border-white/10 p-4 sm:p-8 hover:border-white/20 transition-colors animate-fade-in" style={{ animationDelay: `${i * 0.05}s` }}>
+                            <div className="flex flex-col lg:flex-row gap-6">
+                              <div className="lg:w-1/3 flex flex-col gap-4">
+                                <div className="flex items-start justify-between">
+                                  <h3 className="text-lg font-serif italic text-white tracking-tight">{String(i+1).padStart(2, '0')}. Prompt {i + 1}</h3>
+                                  <button onClick={() => toggleFavorite(p)} className="p-1 text-zinc-500 hover:text-orange-500 transition-colors">
+                                    <i className={`ph ph-heart text-lg ${favorites.find(f=>f.id===p.id) ? 'ph-fill text-orange-500' : ''}`}></i>
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="lg:w-full flex flex-col gap-4">
+                                <div className="bg-zinc-900/30 p-4 sm:p-6 border border-white/5 overflow-hidden">
+                                  <div className="flex items-center justify-between mb-4">
+                                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 hidden sm:block">Prompt Principal</span>
+                                    <button onClick={() => copyToClipboard(p.prompt)} className="text-[9px] font-bold px-3 py-1.5 uppercase tracking-widest bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/20 transition-colors flex items-center gap-1.5 justify-center sm:w-auto">
+                                      <i className="ph ph-copy"></i> Copiar Prompt
+                                    </button>
+                                  </div>
+                                  <p className="text-xs text-zinc-300 font-mono leading-relaxed select-all selection:bg-orange-500/30 whitespace-pre-wrap overflow-x-auto">{p.prompt}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col gap-10">
+                   <section className="flex flex-col gap-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">1. Nicho do Criativo</label>
+                      </div>
+                      <input type="text" value={adNiche} onChange={(e) => setAdNiche(e.target.value)} placeholder="Ex: Aniversário, Profissões..." className="w-full bg-[#0A0A0B] border-b border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-white placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
+                   </section>
+
+                   <section className="flex flex-col gap-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">2. Tabela de Valores / Promoção</label>
+                      </div>
+                      <textarea value={adPackagesText} onChange={(e) => setAdPackagesText(e.target.value)} placeholder="Cole aqui sua tabela de valores..." className="w-full bg-zinc-900/40 border border-white/10 focus:border-orange-500 outline-none p-4 text-sm text-zinc-300 resize-none h-40 font-mono transition-colors" />
+                   </section>
+
+                   <section className="flex flex-col gap-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">3. Foco Específico (Opcional)</label>
+                      </div>
+                      <input type="text" value={adExtraDetails} onChange={(e) => setAdExtraDetails(e.target.value)} placeholder="Ex: Focar no Dia das Mães..." className="w-full bg-[#0A0A0B] border-b border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-white placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
+                   </section>
+
+                   <div className="pt-6 border-t border-white/10 flex flex-col items-center gap-4">
+                      <button onClick={generateAds} disabled={isGeneratingAds || !adNiche} className="group relative w-full md:w-auto px-12 py-5 bg-white text-zinc-950 hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden">
+                        <div className="flex items-center justify-center gap-3 relative z-10">
+                          {isGeneratingAds ? (
+                            <><i className="ph ph-spinner ph-spin text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-widest">Escrevendo...</span></>
+                          ) : (
+                            <><i className="ph ph-magic-wand text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Anúncios de Alta Conversão</span></>
+                          )}
+                        </div>
+                      </button>
+                      {error && <p className="text-red-400 text-sm">{error}</p>}
+                   </div>
+
+                   {adResults.length > 0 && (
+                     <section className="pt-12 border-t border-white/10" id="results">
+                       <div className="flex items-end justify-between mb-8">
+                         <h2 className="text-2xl font-serif italic text-white tracking-tight">Criativos Gerados</h2>
+                       </div>
+                       <div className="flex flex-col gap-12">
+                         {adResults.map((ad, idx) => (
+                           <div key={ad.id} className="relative border-l-2 border-orange-500/50 pl-6 md:pl-8">
+                              <div className="absolute -left-[5px] top-0 w-2 h-2 rounded-full border-2 border-[#0A0A0B] bg-orange-500 shrink-0 mt-1.5"></div>
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pr-2">
+                                <h3 className="text-lg font-serif italic text-white flex-1">Ideia {idx + 1}: {ad.creativeIdea}</h3>
+                              </div>
+                              <div className="flex flex-col gap-6 mb-6">
+                                 <div className="w-full">
+                                   <div className="bg-zinc-900/30 p-4 sm:p-6 border border-white/5">
+                                     <div className="flex items-center justify-between mb-4">
+                                       <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 hidden sm:block">Prompt do Anúncio</span>
+                                       <button onClick={() => copyToClipboard(ad.imagePrompt)} className="text-[9px] font-bold px-3 py-2 uppercase tracking-widest bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 transition-colors flex items-center justify-center gap-1.5 w-full sm:w-auto">
+                                         <i className="ph ph-copy"></i> Copiar Prompt
+                                       </button>
+                                     </div>
+                                     <p className="text-sm text-zinc-300 font-mono leading-relaxed select-all selection:bg-orange-500/30 overflow-x-auto">{ad.imagePrompt}</p>
+                                   </div>
+                                 </div>
+                              </div>
+                           </div>
+                         ))}
+                       </div>
+                     </section>
+                   )}
+                </div>
+              )}
+            </div>
+
+            <div className={`lg:col-span-4 transition-all duration-300 ${showSettings ? 'opacity-100 block' : 'hidden lg:block'}`}>
+              <div className="sticky top-24 flex flex-col gap-6">
+                <div className="bg-[#0A0A0B] border border-white/10 p-6">
+                  <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
+                    <i className="ph ph-faders"></i> Ajustes Finos
+                  </h3>
+                  <div className="flex flex-col gap-6">
+                    <div>
+                      <label className="flex justify-between text-[11px] uppercase tracking-widest text-zinc-400 mb-3">Volume <span>{settings.quantity}</span></label>
+                      <input type="range" min="1" max="20" value={settings.quantity} onChange={(e)=>setSettings({...settings, quantity: parseInt(e.target.value)})} className="w-full accent-orange-500" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Realismo</label>
+                        <select value={settings.realismLevel} onChange={(e)=>setSettings({...settings, realismLevel: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-white outline-none focus:border-orange-500/50">
+                          <option value="natural" className="bg-[#0A0A0B]">Natural</option>
+                          <option value="premium" className="bg-[#0A0A0B]">Premium</option>
+                          <option value="cinematográfico" className="bg-[#0A0A0B]">Cine</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Criatividade</label>
+                        <select value={settings.creativeIntensity} onChange={(e)=>setSettings({...settings, creativeIntensity: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-white outline-none focus:border-orange-500/50">
+                          <option value="baixa" className="bg-[#0A0A0B]">Baixa</option>
+                          <option value="média" className="bg-[#0A0A0B]">Média</option>
+                          <option value="alta" className="bg-[#0A0A0B]">Alta</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Gênero da Pessoa</label>
+                      <select value={settings.targetGender} onChange={(e)=>setSettings({...settings, targetGender: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-white outline-none focus:border-orange-500/50">
+                        <option value="auto" className="bg-[#0A0A0B]">Auto (Detectar)</option>
+                        <option value="feminino" className="bg-[#0A0A0B]">Feminino</option>
+                        <option value="masculino" className="bg-[#0A0A0B]">Masculino</option>
+                        <option value="criança" className="bg-[#0A0A0B]">Criança</option>
+                      </select>
+                    </div>
+                    {imagePreviews.length > 0 && (
+                      <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
+                          <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 mb-1">Preservação da Imagem</span>
+                          <Toggle label="Roupa original" checked={settings.keepClothes} onChange={(v)=>setSettings({...settings, keepClothes: v})} />
+                          <Toggle label="Fundo original" checked={settings.keepBackground} onChange={(v)=>setSettings({...settings, keepBackground: v})} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {history.length > 0 && (
+                  <div className="bg-[#0A0A0B] border border-white/10 p-6">
+                    <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"><i className="ph ph-clock-counter-clockwise"></i> Arquivo</h3>
+                    <div className="flex flex-col gap-3">
+                      {history.slice(0, 3).map((h, i) => (
+                        <div key={i} className="flex justify-between items-center bg-zinc-900/30 p-3 border border-white/5 hover:border-white/10 transition-colors">
+                          <div className="overflow-hidden">
+                            <p className="text-[11px] text-zinc-300 font-medium truncate tracking-wider">{h.data[0]?.id ? 'Geração de Prompts' : 'Anúncios'}</p>
+                            <p className="text-[9px] text-zinc-600 uppercase tracking-widest mt-1">{h.date}</p>
+                          </div>
+                          <button onClick={() => setPrompts(h.data)} className="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 bg-white/5 text-white hover:bg-white/10 transition-colors ml-2">Abrir</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </main>
+
+          {toastMessage && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900 border border-white/20 text-white px-6 py-3 shadow-2xl z-50 flex items-center gap-3">
+              <i className="ph ph-check text-orange-500"></i>
+              <span className="text-[11px] font-bold uppercase tracking-widest">{toastMessage}</span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ==========================================
+    // INICIALIZAÇÃO DE AUTH E RENDERIZAÇÃO
+    // ==========================================
+    function App() {
+      const [session, setSession] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          setSession(session);
+          setLoading(false);
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+      }, []);
+
+      const handleLogout = async () => {
+        await supabase.auth.signOut();
+      };
+
+      if (loading) return <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center"><i className="ph ph-spinner ph-spin text-3xl text-orange-500"></i></div>;
+      
+      return session ? <MainApp onLogout={handleLogout} /> : <LoginScreen />;
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+
+    // ==========================================
+    // REGISTRO DO SERVICE WORKER (PWA)
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(registration => {
+          console.log('SW registrado com sucesso:', registration.scope);
+        }).catch(err => {
+          console.log('Falha ao registrar SW:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
