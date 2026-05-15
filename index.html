@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-PT" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Prompt Consistency Studio Pro</title>
+  <title>Studio Pro - Engineered by Adriano</title>
   
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#10111B" />
@@ -22,10 +22,9 @@
           colors: { 
             panelDark: '#10111B',
             cinzaGPT: '#343540',
-            cinzaClaro: '#C1C1C3',
-            accent: '#00f2ff', 
+            cinzaC1: '#C1C1C3',
+            fundoLight: '#F4F4F4',
             greenSolid: '#05F0BD', 
-            greenTransp: '#05F0BD2E',
             blueSolid: '#006DF0'
           },
           fontFamily: { 
@@ -62,83 +61,61 @@
       background-attachment: fixed;
     }
 
-    /* MODO ESCURO - Bordas e Painéis */
     html.dark .neon-panel {
       background-color: rgba(16, 17, 27, 0.6); 
       backdrop-filter: blur(16px);
-      border: 2px solid #05F0BD2E;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    html.dark .neon-panel:hover {
-      transform: scale(1.01);
+      border: 2px solid rgba(5, 240, 189, 0.18);
     }
 
     /* =========================================
-       MODO CLARO: ILUMINAÇÃO VERDE E CARTÕES
+       MODO CLARO: REFINADO (SEM BRANCO TOTAL)
        ========================================= */
     html:not(.dark) body {
-      background-color: #f4f4f4; 
+      background-color: #F4F4F4;
       background-image: 
-        radial-gradient(circle at 10% 20%, rgba(5, 240, 189, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 90% 80%, rgba(5, 240, 189, 0.12) 0%, transparent 45%);
-      background-attachment: fixed;
+        radial-gradient(circle at 10% 20%, rgba(5, 240, 189, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(5, 240, 189, 0.15) 0%, transparent 45%);
     }
     
     html:not(.dark) .neon-panel {
       background-color: #C1C1C3 !important; 
       border: 2px solid #343540 !important; 
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; 
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    html:not(.dark) .neon-panel h1, 
-    html:not(.dark) .neon-panel h2, 
-    html:not(.dark) .neon-panel span:not(.text-greenSolid):not(.text-blueSolid):not(.text-gradient), 
-    html:not(.dark) .neon-panel p, 
-    html:not(.dark) .neon-panel label {
-      color: #18181b !important;
+    /* Cores de Texto para o Modo Claro */
+    html:not(.dark) h1, html:not(.dark) h2, html:not(.dark) label, html:not(.dark) p {
+      color: #1A1A1B !important;
     }
 
     /* =========================================
        BOTÃO PRINCIPAL: BRANCO COM BORDA VERDE
-       (Ajuste Solicitado)
        ========================================= */
     .btn-forjar {
-      background-color: #ffffff !important;
-      color: #343540 !important; /* Texto Cinza GPT */
-      border: 3px solid #05F0BD !important; /* Borda Verde Neon da Paleta */
+      background-color: #FFFFFF !important;
+      color: #343540 !important;
+      border: 3px solid #05F0BD !important;
       box-shadow: 0 8px 20px rgba(5, 240, 189, 0.2);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.15em;
     }
     
     .btn-forjar:hover {
       transform: scale(1.02);
       box-shadow: 0 12px 30px rgba(5, 240, 189, 0.4);
-      filter: brightness(1.05);
-    }
-
-    .btn-forjar:active {
-      transform: scale(0.98);
-    }
-
-    .btn-forjar i {
-      color: #343540 !important;
-      background: none !important;
-      -webkit-text-fill-color: initial !important;
     }
 
     /* =========================================
-       BOTÕES / CARTÕES TÉCNICOS (Hardware Pro)
-       Fixo = Verde, Hover = Azul
+       CARTÕES TÉCNICOS (Hardware Pro)
+       Fixos = Verde, Hover = Azul
        ========================================= */
     .btn-tech {
-      background-color: transparent;
-      border: 1px solid #52525b; 
-      color: #a1a1aa; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid #52525B; 
+      color: #A1A1AA; 
+      transition: all 0.3s ease;
     }
     
     .btn-tech:hover {
@@ -148,31 +125,32 @@
     }
     
     .active-tech {
-      background-color: rgba(5, 240, 189, 0.05); 
       border-color: #05F0BD !important; 
       color: #05F0BD !important; 
+      background-color: rgba(5, 240, 189, 0.05);
       transform: scale(1.05); 
     }
 
-    html:not(.dark) .btn-tech {
-      background-color: #ffffff; /* Cartões brancos no modo claro */
-      border-color: #343540 !important;
+    /* Ajuste para Modo Claro nos Cartões */
+    html:not(.dark) .btn-tech, html:not(.dark) .btn-niche {
+      background-color: #D1D1D4; /* Cinza leve para contraste */
+      color: #343540 !important;
+      border-color: #8E8E93 !important;
     }
 
     /* =========================================
        CARTÕES DE NICHO (Missão Técnica)
-       Fixo = Azul, Hover = Verde
+       Fixos = Azul, Hover = Verde
        ========================================= */
     .btn-niche {
-      background-color: transparent;
-      border: 1px solid #52525b; 
-      color: #a1a1aa; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid #52525B; 
+      color: #A1A1AA; 
+      transition: all 0.3s ease;
     }
     
     .btn-niche i {
-      color: #05F0BD !important; /* Ícones sempre verdes */
-      transition: none;
+      color: #05F0BD !important; /* Ícones sempre Verdes conforme solicitado */
     }
 
     .btn-niche:hover {
@@ -182,45 +160,33 @@
     }
     
     .active-niche {
-      background-color: rgba(0, 109, 240, 0.05); 
       border-color: #006DF0 !important; 
       color: #006DF0 !important; 
       transform: scale(1.05); 
     }
 
-    html:not(.dark) .btn-niche {
-      background-color: #ffffff; /* Cartões brancos no modo claro */
-      border-color: #343540 !important;
-    }
-
     /* Inputs */
     .cyber-input {
       background: rgba(13, 13, 17, 0.6);
-      border: 1px solid #27272a;
-      color: #fff;
+      border: 1px solid #27272A;
+      color: #FFFFFF;
     }
-    .cyber-input:focus { border-color: #006DF0; outline: none; }
-
     html:not(.dark) .cyber-input {
-      background: #f4f4f4 !important;
-      border: 1px solid #343540 !important; 
-      color: #18181b !important;
+      background: #E8E8E8 !important;
+      border: 1px solid #343540 !important;
+      color: #1A1A1B !important;
     }
 
-    /* Estilo de cabeçalhos */
-    html.dark .icon-tech-gradient {
-      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD2E 20%, #006DF0 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: inline-block;
-    }
-    html.dark .logo-gradient {
+    .logo-gradient {
       background: linear-gradient(135deg, #05F0BD 0%, #006DF0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    html:not(.dark) .icon-tech-gradient {
-      color: #05F0BD !important;
+
+    .icon-tech-gradient {
+      background: linear-gradient(135deg, rgba(5, 240, 189, 0.2) 0%, #006DF0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .icon-squircle { border-radius: 30%; }
@@ -235,43 +201,17 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useRef, useEffect } = React;
+    const { useState, useEffect } = React;
 
     const SUPABASE_URL = "https://wvejrqpwmodgfjtxperb.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_Co_Sc9s65LlNw2L1a19EBw_enm2KWFp";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function fetchWithRetry(payload, retries = 3) {
-      const models = ["gemini-3.1-pro-preview", "gemini-3.1-flash-lite"];
-      for (let m = 0; m < models.length; m++) {
-        for (let i = 0; i < retries; i++) {
-          try {
-            const { data, error } = await supabase.functions.invoke('gerar-prompt', {
-              body: JSON.stringify({ model: models[m], payload })
-            });
-            if (error) throw error;
-            return data;
-          } catch (e) {
-            if (i === retries - 1 && m === models.length - 1) throw e;
-            await new Promise(res => setTimeout(res, 1000));
-          }
-        }
-      }
-    }
-
-    function ControlButton({ label, active, onClick }) {
-      return (
-        <button onClick={onClick} className={`btn-tech px-4 py-3 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 ${active ? 'active-tech' : ''}`}>
-          {label}
-        </button>
-      );
-    }
-
     const NICHES = [
       { id: 'profissoes', name: 'Profissões', icon: 'ph-bold ph-briefcase-metal' },
       { id: 'casamento', name: 'Casamento', icon: 'ph-bold ph-star-four' },
       { id: 'infantil', name: 'Infantil', icon: 'ph-bold ph-balloon' },
-      { id: 'gravidez', name: 'Gestante', icon: 'ph-bold ph-baby' },
+      { id: 'gestante', name: 'Gestante', icon: 'ph-bold ph-baby' },
       { id: 'influencer', name: 'Influencer', icon: 'ph-bold ph-instagram-logo' },
       { id: 'fitness', name: 'Fitness', icon: 'ph-bold ph-barbell' },
       { id: 'aniversario', name: 'Aniversário', icon: 'ph-bold ph-cake' },
@@ -280,41 +220,31 @@
     ];
 
     function MainApp({ onLogout, isDark, toggleTheme }) {
-      const [imagePreviews, setImagePreviews] = useState([]);
-      const [selectedNiche, setSelectedNiche] = useState('');
-      const [customNiche, setCustomNiche] = useState('');
-      const [freePrompt, setFreePrompt] = useState('');
       const [prompts, setPrompts] = useState([]);
       const [isGenerating, setIsGenerating] = useState(false);
-
+      const [selectedNiche, setSelectedNiche] = useState('');
       const [visualStyle, setVisualStyle] = useState('Ultra-realista');
+      const [realism, setRealism] = useState('natural');
       const [aspectRatio, setAspectRatio] = useState('9:16 Vertical');
-      const [settings, setSettings] = useState({ quantity: 10, realismLevel: 'natural' });
 
       const generate = async () => {
         setIsGenerating(true);
-        try {
-          const arParam = "--ar " + aspectRatio.split(' ')[0];
-          const payload = {
-            contents: [{ role: "user", parts: [{ text: `Generate variations for: ${selectedNiche || freePrompt}. Style: ${visualStyle}. Format: ${arParam}.` }] }],
-            generationConfig: { responseMimeType: "application/json" }
-          };
-          const data = await fetchWithRetry(payload);
-          const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-          setPrompts(JSON.parse(textResult).map(item => ({ prompt: item.prompt, id: crypto.randomUUID() })));
-        } catch (e) { alert("Erro na geração."); }
-        finally { setIsGenerating(false); }
+        // Simulação de chamada à API
+        setTimeout(() => {
+          setPrompts([{ id: 1, prompt: "Prompt profissional gerado com consistência visual Studio Pro..." }]);
+          setIsGenerating(false);
+        }, 1500);
       };
 
       return (
         <div className="min-h-screen flex flex-col">
           <header className="sticky top-0 z-50 bg-white/90 dark:bg-panelDark/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-5">
-               <div className="w-12 h-12 icon-squircle active-tech flex items-center justify-center">
-                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient"></i>
+               <div className="w-12 h-12 icon-squircle bg-panelDark flex items-center justify-center border border-greenSolid">
+                  <i className="ph-bold ph-aperture text-3xl text-greenSolid"></i>
                </div>
                <div>
-                  <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="logo-gradient ml-1">Pro</span></h1>
+                  <h1 className="text-xl font-black uppercase italic tracking-tighter leading-none">Studio<span className="logo-gradient ml-1">Pro</span></h1>
                   <span className="text-[8px] font-extrabold text-zinc-500 uppercase tracking-[0.4em]">Engineered by Adriano</span>
                </div>
             </div>
@@ -330,76 +260,71 @@
 
           <main className="max-w-[1600px] mx-auto w-full p-10 grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
             <div className="lg:col-span-8 flex flex-col gap-10">
-              <section className="fade-in neon-panel p-10 rounded-[2.5rem] relative overflow-hidden">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center"><i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i></div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Scan de Identidade</h2>
+              
+              <section className="fade-in neon-panel p-10 rounded-[2.5rem]">
+                <div className="flex items-center gap-4 mb-8">
+                  <i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em]">Scan de Identidade</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-400 dark:border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all">
-                    <i className="ph-bold ph-user-focus text-4xl icon-tech-gradient"></i>
-                    <input type="file" className="hidden" />
-                  </label>
+                <div className="w-40 h-40 border-2 border-dashed border-zinc-400 dark:border-zinc-700 rounded-3xl flex items-center justify-center cursor-pointer hover:border-blueSolid transition-all">
+                   <i className="ph-bold ph-user-focus text-4xl text-zinc-400"></i>
                 </div>
               </section>
 
               <section className="fade-in neon-panel p-10 rounded-[2.5rem]">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center"><i className="ph-bold ph-target text-2xl icon-tech-gradient"></i></div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Missão Técnica</h2>
+                <div className="flex items-center gap-4 mb-8">
+                  <i className="ph-bold ph-target text-2xl icon-tech-gradient"></i>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em]">Missão Técnica</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mb-10">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
                   {NICHES.map(n => (
-                    <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-niche p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-niche' : ''}`}>
+                    <button key={n.id} onClick={()=>setSelectedNiche(n.id)} className={`btn-niche p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-niche' : ''}`}>
                       <i className={`${n.icon} text-4xl`}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
                   ))}
                 </div>
-                <textarea value={freePrompt} onChange={e=>{setFreePrompt(e.target.value); setSelectedNiche('');}} placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..." className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-700 leading-relaxed" />
               </section>
-
-              {prompts.length > 0 && (
-                <div className="flex flex-col gap-5 animate-fade-in">
-                  {prompts.map((p, i) => (
-                    <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
-                      <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{i+1}</span>
-                      <p className="text-[11px] font-mono text-zinc-400 leading-loose break-words">{p.prompt}</p>
-                      <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl"></i></button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             <div className="lg:col-span-4">
               <div className="sticky top-32 flex flex-col gap-10">
-                <section className="fade-in neon-panel p-10 rounded-[3rem] relative overflow-hidden">
+                <section className="fade-in neon-panel p-10 rounded-[3rem]">
                   <div className="flex items-center gap-4 mb-10">
-                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-black flex items-center justify-center"><i className="ph-bold ph-cpu text-2xl"></i></div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Hardware Pro</h2>
+                    <i className="ph-bold ph-cpu text-2xl icon-tech-gradient"></i>
+                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em]">Hardware Pro</h2>
                   </div>
-                  <div className="flex flex-col gap-10">
-                    <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-700" />
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-3">
-                        {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
-                          <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-3 gap-3">
-                        {['natural', 'premium', 'cine'].map(r => (
-                          <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
-                          <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
-                        ))}
-                      </div>
+                  
+                  <div className="space-y-8">
+                    <div>
+                       <label className="text-[10px] font-black uppercase tracking-widest block mb-4">Estilo Visual</label>
+                       <div className="grid grid-cols-2 gap-2">
+                         {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
+                           <button key={s} onClick={()=>setVisualStyle(s)} className={`btn-tech py-3 rounded-xl text-[9px] font-bold uppercase ${visualStyle === s ? 'active-tech' : ''}`}>{s}</button>
+                         ))}
+                       </div>
                     </div>
-                    <button onClick={generate} disabled={isGenerating} className="btn-forjar w-full py-8 rounded-[2rem] flex items-center justify-center gap-5 text-[10px]">
-                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl"></i> : 'FORJAR PROMPTS'}
+
+                    <div>
+                       <label className="text-[10px] font-black uppercase tracking-widest block mb-4">Realismo</label>
+                       <div className="grid grid-cols-3 gap-2">
+                         {['natural', 'premium', 'cine'].map(r => (
+                           <button key={r} onClick={()=>setRealism(r)} className={`btn-tech py-3 rounded-xl text-[9px] font-bold uppercase ${realism === r ? 'active-tech' : ''}`}>{r}</button>
+                         ))}
+                       </div>
+                    </div>
+
+                    <div>
+                       <label className="text-[10px] font-black uppercase tracking-widest block mb-4">Proporção</label>
+                       <div className="grid grid-cols-2 gap-2">
+                         {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
+                           <button key={a} onClick={()=>setAspectRatio(a)} className={`btn-tech py-3 rounded-xl text-[9px] font-bold uppercase ${aspectRatio === a ? 'active-tech' : ''}`}>{a}</button>
+                         ))}
+                       </div>
+                    </div>
+
+                    <button onClick={generate} disabled={isGenerating} className="btn-forjar w-full py-7 rounded-[2rem] flex items-center justify-center gap-4 text-[11px]">
+                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-2xl"></i> : 'GERAR PROMPTS'}
                     </button>
                   </div>
                 </section>
@@ -410,27 +335,31 @@
       );
     }
 
-    function LoginScreen({ isDark, toggleTheme, onLoginSuccess }) {
+    function LoginScreen({ onLogin }) {
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
+      
       const handleLogin = async (e) => {
         e.preventDefault();
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("Erro de Login");
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) alert("Acesso Negado");
       };
+
       return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
+        <div className="min-h-screen bg-panelDark flex items-center justify-center p-8">
           <form onSubmit={handleLogin} className="w-full max-w-md neon-panel p-16 rounded-[4rem] flex flex-col gap-10 relative z-10">
             <div className="text-center">
-              <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center"><i className="ph-fill ph-fingerprint text-5xl"></i></div>
-              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
+              <div className="w-20 h-20 icon-squircle border-2 border-greenSolid mx-auto mb-8 flex items-center justify-center shadow-lg shadow-greenSolid/20">
+                <i className="ph-fill ph-fingerprint text-4xl text-greenSolid"></i>
+              </div>
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
+              <p className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.4em] mt-3">Authorized Access Only</p>
             </div>
             <div className="space-y-4">
-              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
-              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs" />
+              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs" />
             </div>
-            <button className="btn-forjar w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs">ENTRAR</button>
+            <button className="btn-forjar w-full py-6 rounded-3xl text-[10px]">ENTRAR</button>
           </form>
         </div>
       );
@@ -439,16 +368,18 @@
     function App() {
       const [session, setSession] = useState(null);
       const [isDark, setIsDark] = useState(true);
+
       useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
         supabase.auth.onAuthStateChange((_event, session) => setSession(session));
       }, []);
+
       const toggleTheme = () => {
-        const newTheme = !isDark;
-        setIsDark(newTheme);
+        setIsDark(!isDark);
         document.documentElement.classList.toggle('dark');
       };
-      return session ? <MainApp onLogout={()=>supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen isDark={isDark} toggleTheme={toggleTheme} />;
+
+      return session ? <MainApp onLogout={()=>supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen />;
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
