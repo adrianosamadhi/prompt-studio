@@ -13,7 +13,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class', // Ativa o modo escuro por classe
+      darkMode: 'class',
       theme: {
         extend: {
           colors: { background: '#0A0A0B' },
@@ -50,14 +50,11 @@
     // ==========================================
     const SUPABASE_URL = "https://wvejrqpwmodgfjtxperb.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_Co_Sc9s65LlNw2L1a19EBw_enm2KWFp";
-    
-    // A chave do Gemini foi removida com segurança e vive apenas no Supabase.
 
-    // Inicializa o banco de dados
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ==========================================
-    // LÓGICA DE API GEMINI COM FALLBACK VIA SUPABASE
+    // LÓGICA DE API
     // ==========================================
     const GEMINI_MODELS = [
       "gemini-3.1-pro-preview",
@@ -72,13 +69,11 @@
         
         for (let i = 0; i < retries; i++) {
           try {
-            // Utilizamos o cliente Supabase nativo em vez do 'fetch' direto para garantir os cabeçalhos corretos de autenticação
             const { data, error } = await supabase.functions.invoke('gerar-prompt', {
               body: JSON.stringify({ model: currentModel, payload: payload })
             });
 
             if (error) {
-               // Verifica se o erro é de limite (Too Many Requests) para trocar de modelo
                if (error.message && error.message.includes('429') && m < GEMINI_MODELS.length - 1) {
                   console.warn(`Limite atingido no modelo ${currentModel}. Passando para reserva...`);
                   break;
@@ -133,6 +128,8 @@ CORE RULES
         ? `"value": "reference image background", "allowed_sources": ["image"]`
         : `"value": "Invent a background matching the ${targetNiche} niche", "allowed_sources": ["text"]`;
 
+      const arParam = "--ar " + aspectRatio.split(' ')[0];
+
       let promptText = `Generate EXACTLY ${qty} INDIVIDUAL JSON objects in an array. Each object is a prompt for a SINGLE image.
 
 Context for generation:
@@ -144,7 +141,8 @@ Context for generation:
 - Target Demographic: ${demographicInstruction}
 ${extraDetails && extraDetails.trim() !== '' ? `- CRITICAL USER DETAILS TO INCLUDE: "${extraDetails}".` : ''}
 
-CRITICAL INSTRUCTION: VARY the "subject.pose.value", "camera.framing.value", and "camera.angle.value" across the ${qty} items. DO NOT generate collages.
+CRITICAL INSTRUCTION 1: VARY the "subject.pose.value", "camera.framing.value", and "camera.angle.value" across the ${qty} items. DO NOT generate collages.
+CRITICAL INSTRUCTION 2: You MUST append the exact parameter "${arParam}" at the very end of the final string in the "prompt" field.
 
 REQUIRED JSON SCHEMA (this entire structure must be stringified inside the "prompt" value):
 {
@@ -459,7 +457,6 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
 
       const copyAll = () => {
         if (!prompts.length) return;
-        // O código foi alterado aqui para adicionar "Prompt 1:", "Prompt 2:", etc.
         let content = prompts.map((p, index) => `Prompt ${index + 1}:\n${p.prompt}`).join('\n\n\n');
         copyToClipboard(content.trim());
         showToast('Todos os prompts copiados na ordem!');
@@ -490,8 +487,8 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                 <button onClick={toggleTheme} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-zinc-200 dark:border-white/20 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-white transition-colors flex items-center gap-2" title="Alternar Tema">
                   {isDark ? <i className="ph ph-sun"></i> : <i className="ph ph-moon"></i>}
                 </button>
-                <button onClick={() => setShowSettings(!showSettings)} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-zinc-200 dark:border-white/20 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-white transition-colors flex items-center gap-2" title="Configurações e Histórico">
-                  <i className="ph ph-faders"></i> Configs
+                <button onClick={() => setShowSettings(!showSettings)} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-zinc-200 dark:border-white/20 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-white transition-colors flex items-center gap-2" title="Histórico de Geração">
+                  <i className="ph ph-clock-counter-clockwise"></i> Histórico
                 </button>
                 <button onClick={onLogout} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 dark:text-red-400 transition-colors" title="Sair do Sistema">
                   <i className="ph ph-sign-out"></i>
@@ -588,33 +585,78 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                     <div className="flex justify-between items-center mb-1">
                       <label className="text-[10px] uppercase tracking-widest text-zinc-500">3. Configuração da Geração</label>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-4 sm:p-6 transition-colors duration-300">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">Estilo Visual</label>
-                        <div className="relative">
-                          <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
-                            {VISUAL_STYLES.map(s => <option key={s} value={s} className="bg-white dark:bg-[#0A0A0B]">{s}</option>)}
-                          </select>
-                          <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                    <div className="bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-4 sm:p-6 transition-colors duration-300 flex flex-col gap-6">
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] uppercase tracking-widest text-zinc-500">Estilo Visual</label>
+                          <div className="relative">
+                            <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                              {VISUAL_STYLES.map(s => <option key={s} value={s} className="bg-white dark:bg-[#0A0A0B]">{s}</option>)}
+                            </select>
+                            <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] uppercase tracking-widest text-zinc-500">Formato</label>
+                          <div className="relative">
+                            <select value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                              {ASPECT_RATIOS.map(a => <option key={a} value={a} className="bg-white dark:bg-[#0A0A0B]">{a}</option>)}
+                            </select>
+                            <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] uppercase tracking-widest text-zinc-500">Idioma</label>
+                          <div className="relative">
+                            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                              {LANGUAGES.map(l => <option key={l} value={l} className="bg-white dark:bg-[#0A0A0B]">{l}</option>)}
+                            </select>
+                            <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">Formato</label>
-                        <div className="relative">
-                          <select value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
-                            {ASPECT_RATIOS.map(a => <option key={a} value={a} className="bg-white dark:bg-[#0A0A0B]">{a}</option>)}
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-zinc-100 dark:border-white/5">
+                        <div>
+                          <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Realismo</label>
+                          <select value={settings.realismLevel} onChange={(e)=>setSettings({...settings, realismLevel: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                            <option value="natural" className="bg-white dark:bg-[#0A0A0B]">Natural</option>
+                            <option value="premium" className="bg-white dark:bg-[#0A0A0B]">Premium</option>
+                            <option value="cinematográfico" className="bg-white dark:bg-[#0A0A0B]">Cine</option>
                           </select>
-                          <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                        </div>
+                        <div>
+                          <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Criatividade</label>
+                          <select value={settings.creativeIntensity} onChange={(e)=>setSettings({...settings, creativeIntensity: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                            <option value="baixa" className="bg-white dark:bg-[#0A0A0B]">Baixa</option>
+                            <option value="média" className="bg-white dark:bg-[#0A0A0B]">Média</option>
+                            <option value="alta" className="bg-white dark:bg-[#0A0A0B]">Alta</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Gênero da Pessoa</label>
+                          <select value={settings.targetGender} onChange={(e)=>setSettings({...settings, targetGender: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                            <option value="auto" className="bg-white dark:bg-[#0A0A0B]">Auto (Detectar)</option>
+                            <option value="feminino" className="bg-white dark:bg-[#0A0A0B]">Feminino</option>
+                            <option value="masculino" className="bg-white dark:bg-[#0A0A0B]">Masculino</option>
+                            <option value="criança" className="bg-white dark:bg-[#0A0A0B]">Criança</option>
+                          </select>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] uppercase tracking-widest text-zinc-500">Idioma</label>
-                        <div className="relative">
-                          <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
-                            {LANGUAGES.map(l => <option key={l} value={l} className="bg-white dark:bg-[#0A0A0B]">{l}</option>)}
-                          </select>
-                          <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-zinc-100 dark:border-white/5">
+                        <div className="flex flex-col justify-center">
+                          <label className="flex justify-between text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Volume de Prompts <span>{settings.quantity}</span></label>
+                          <input type="range" min="1" max="20" value={settings.quantity} onChange={(e)=>setSettings({...settings, quantity: parseInt(e.target.value)})} className="w-full accent-orange-500" />
                         </div>
+                        {imagePreviews.length > 0 && (
+                          <div className="animate-in fade-in flex flex-col gap-2">
+                            <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 mb-1">Preservação da Imagem Base</span>
+                            <Toggle label="Manter Roupa Original" checked={settings.keepClothes} onChange={(v)=>setSettings({...settings, keepClothes: v})} />
+                            <Toggle label="Manter Fundo Original" checked={settings.keepBackground} onChange={(v)=>setSettings({...settings, keepBackground: v})} />
+                          </div>
+                        )}
                       </div>
                     </div>
                     
@@ -695,18 +737,60 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                       <input type="text" value={adExtraDetails} onChange={(e) => setAdExtraDetails(e.target.value)} placeholder="Ex: Focar no Dia das Mães..." className="w-full bg-white dark:bg-[#0A0A0B] border-b border-zinc-300 dark:border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
                    </section>
 
-                   <div className="pt-6 border-t border-zinc-200 dark:border-white/10 flex flex-col items-center gap-4">
-                      <button onClick={generateAds} disabled={isGeneratingAds || !adNiche} className="group relative w-full md:w-auto px-12 py-5 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden shadow-lg">
-                        <div className="flex items-center justify-center gap-3 relative z-10">
-                          {isGeneratingAds ? (
-                            <><i className="ph ph-spinner ph-spin text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-widest">Escrevendo...</span></>
-                          ) : (
-                            <><i className="ph ph-magic-wand text-orange-500 dark:text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Anúncios de Alta Conversão</span></>
-                          )}
+                   <section className="flex flex-col gap-4 pt-6 border-t border-zinc-200 dark:border-white/10">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-[10px] uppercase tracking-widest text-zinc-500">4. Configuração da Geração</label>
+                    </div>
+                    <div className="bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-4 sm:p-6 transition-colors duration-300 flex flex-col gap-6">
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] uppercase tracking-widest text-zinc-500">Estilo Visual</label>
+                          <div className="relative">
+                            <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                              {VISUAL_STYLES.map(s => <option key={s} value={s} className="bg-white dark:bg-[#0A0A0B]">{s}</option>)}
+                            </select>
+                            <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
+                          </div>
                         </div>
-                      </button>
-                      {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
-                   </div>
+                        <div className="flex flex-col justify-center pt-2">
+                          <label className="flex justify-between text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Volume de Prompts <span>{settings.quantity}</span></label>
+                          <input type="range" min="1" max="20" value={settings.quantity} onChange={(e)=>setSettings({...settings, quantity: parseInt(e.target.value)})} className="w-full accent-orange-500" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-zinc-100 dark:border-white/5">
+                        <div>
+                          <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Realismo</label>
+                          <select value={settings.realismLevel} onChange={(e)=>setSettings({...settings, realismLevel: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                            <option value="natural" className="bg-white dark:bg-[#0A0A0B]">Natural</option>
+                            <option value="premium" className="bg-white dark:bg-[#0A0A0B]">Premium</option>
+                            <option value="cinematográfico" className="bg-white dark:bg-[#0A0A0B]">Cine</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Criatividade</label>
+                          <select value={settings.creativeIntensity} onChange={(e)=>setSettings({...settings, creativeIntensity: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                            <option value="baixa" className="bg-white dark:bg-[#0A0A0B]">Baixa</option>
+                            <option value="média" className="bg-white dark:bg-[#0A0A0B]">Média</option>
+                            <option value="alta" className="bg-white dark:bg-[#0A0A0B]">Alta</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-zinc-200 dark:border-white/10 flex flex-col items-center gap-4">
+                        <button onClick={generateAds} disabled={isGeneratingAds || !adNiche} className="group relative w-full md:w-auto px-12 py-5 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden shadow-lg">
+                          <div className="flex items-center justify-center gap-3 relative z-10">
+                            {isGeneratingAds ? (
+                              <><i className="ph ph-spinner ph-spin text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-widest">Escrevendo...</span></>
+                            ) : (
+                              <><i className="ph ph-magic-wand text-orange-500 dark:text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Anúncios de Alta Conversão</span></>
+                            )}
+                          </div>
+                        </button>
+                        {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
+                    </div>
+                   </section>
 
                    {adResults.length > 0 && (
                      <section className="pt-12 border-t border-zinc-200 dark:border-white/10" id="results">
@@ -744,58 +828,11 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
 
             <div className={`lg:col-span-4 transition-all duration-300 ${showSettings ? 'opacity-100 block' : 'hidden lg:block'}`}>
               <div className="sticky top-24 flex flex-col gap-6">
-                <div className="bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-6 transition-colors duration-300">
-                  <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
-                    <i className="ph ph-faders"></i> Ajustes Finos
-                  </h3>
-                  <div className="flex flex-col gap-6">
-                    <div>
-                      <label className="flex justify-between text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Volume <span>{settings.quantity}</span></label>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={(e)=>setSettings({...settings, quantity: parseInt(e.target.value)})} className="w-full accent-orange-500" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Realismo</label>
-                        <select value={settings.realismLevel} onChange={(e)=>setSettings({...settings, realismLevel: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
-                          <option value="natural" className="bg-white dark:bg-[#0A0A0B]">Natural</option>
-                          <option value="premium" className="bg-white dark:bg-[#0A0A0B]">Premium</option>
-                          <option value="cinematográfico" className="bg-white dark:bg-[#0A0A0B]">Cine</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Criatividade</label>
-                        <select value={settings.creativeIntensity} onChange={(e)=>setSettings({...settings, creativeIntensity: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
-                          <option value="baixa" className="bg-white dark:bg-[#0A0A0B]">Baixa</option>
-                          <option value="média" className="bg-white dark:bg-[#0A0A0B]">Média</option>
-                          <option value="alta" className="bg-white dark:bg-[#0A0A0B]">Alta</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Gênero da Pessoa</label>
-                      <select value={settings.targetGender} onChange={(e)=>setSettings({...settings, targetGender: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
-                        <option value="auto" className="bg-white dark:bg-[#0A0A0B]">Auto (Detectar)</option>
-                        <option value="feminino" className="bg-white dark:bg-[#0A0A0B]">Feminino</option>
-                        <option value="masculino" className="bg-white dark:bg-[#0A0A0B]">Masculino</option>
-                        <option value="criança" className="bg-white dark:bg-[#0A0A0B]">Criança</option>
-                      </select>
-                    </div>
-                    {imagePreviews.length > 0 && (
-                      <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div className="flex flex-col gap-3 pt-4 border-t border-zinc-200 dark:border-white/10">
-                          <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 mb-1">Preservação da Imagem</span>
-                          <Toggle label="Roupa original" checked={settings.keepClothes} onChange={(v)=>setSettings({...settings, keepClothes: v})} />
-                          <Toggle label="Fundo original" checked={settings.keepBackground} onChange={(v)=>setSettings({...settings, keepBackground: v})} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
                 {history.length > 0 && (
                   <div className="bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-6 transition-colors duration-300">
-                    <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"><i className="ph ph-clock-counter-clockwise"></i> Arquivo</h3>
+                    <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"><i className="ph ph-clock-counter-clockwise"></i> Arquivo de Consultas</h3>
                     <div className="flex flex-col gap-3">
-                      {history.slice(0, 3).map((h, i) => (
+                      {history.slice(0, 5).map((h, i) => (
                         <div key={i} className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/30 p-3 border border-zinc-200 dark:border-white/5 hover:border-zinc-300 dark:hover:border-white/10 transition-colors">
                           <div className="overflow-hidden">
                             <p className="text-[11px] text-zinc-800 dark:text-zinc-300 font-medium truncate tracking-wider">{h.data[0]?.id ? 'Geração de Prompts' : 'Anúncios'}</p>
@@ -828,11 +865,9 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
       const [session, setSession] = useState(null);
       const [loading, setLoading] = useState(true);
       
-      // Controle do Modo Claro/Escuro
       const [isDark, setIsDark] = useState(true);
 
       useEffect(() => {
-        // Carrega a preferência do usuário ou usa Dark como padrão
         const storedTheme = localStorage.getItem('theme');
         if (storedTheme === 'light') {
           setIsDark(false);
@@ -877,9 +912,6 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
 
-    // ==========================================
-    // REGISTRO DO SERVICE WORKER (PWA)
-    // ==========================================
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then(registration => {
