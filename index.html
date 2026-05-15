@@ -20,8 +20,7 @@
       theme: {
         extend: {
           colors: { 
-            /* Nova Paleta Refinada */
-            panelDark: '#10111B', // Cinza Acento
+            panelDark: '#10111B',
             cinzaGPT: '#343540',
             accent: '#00f2ff', 
             greenSolid: '#05F0BD', 
@@ -56,10 +55,8 @@
     html.dark body {
       background-color: #10111B;
       background-image: 
-        /* Pontos de luz verde transparente (#05F0BD2E) bem suaves */
         radial-gradient(circle at 15% 20%, rgba(5, 240, 189, 0.08) 0%, transparent 35%),
         radial-gradient(circle at 85% 75%, rgba(5, 240, 189, 0.08) 0%, transparent 35%),
-        /* Gradiente Central: Cinza GPT -> Cinza Acento */
         radial-gradient(circle at center, #343540 0%, #10111B 80%);
       background-attachment: fixed;
     }
@@ -76,16 +73,16 @@
     }
 
     /* =========================================
-       MODO CLARO: CINZA GPT E SOMBRAS 15%
+       MODO CLARO: CINZA GPT E SOMBRAS ESCURAS
        ========================================= */
     html:not(.dark) body {
       background: #fafafa;
     }
     
     html:not(.dark) .neon-panel {
-      background-color: #ffffff;
-      border: 2px solid #343540 !important; 
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; 
+      background-color: #343540 !important; /* Cinza GPT cravado nas sessões */
+      border: 2px solid #27272a !important; 
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; /* Sombra mais densa */
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
@@ -95,23 +92,23 @@
     }
 
     html:not(.dark) .btn-tech {
-      border-color: #d4d4d8;
+      border-color: #52525b;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
-      color: #52525b;
-    }
-    html:not(.dark) .btn-tech:hover {
-      border-color: #006DF0 !important;
-      color: #006DF0 !important;
+      color: #a1a1aa;
     }
     
+    /* MODO CLARO - Ícones em Verde Sólido (#05F0BD) sem gradiente */
     html:not(.dark) .icon-tech-gradient,
     html:not(.dark) .icon-transp {
       background: none !important;
       -webkit-text-fill-color: initial !important;
       color: #05F0BD !important;
     }
+    
+    /* Contraste do Ícone Ativo no Modo Claro */
     html:not(.dark) .active-tech .icon-tech-gradient,
-    html:not(.dark) .active-tech .icon-transp {
+    html:not(.dark) .active-tech .icon-transp,
+    html:not(.dark) .active-tech i {
       color: #ffffff !important; 
     }
 
@@ -135,7 +132,7 @@
       background: none !important;
     }
 
-    /* GRADIENTES ORIGINAIS DOS ÍCONES (Modo Escuro) */
+    /* GRADIENTES ESTÁTICOS DOS CABEÇALHOS (Modo Escuro) */
     html.dark .icon-tech-gradient {
       background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD2E 20%, #006DF0 100%);
       -webkit-background-clip: text;
@@ -147,12 +144,9 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    html.dark .icon-transp {
-      color: #05F0BD2E;
-    }
 
     /* =========================================
-       BOTÕES / CARTÕES TÉCNICOS (INVERTIDO)
+       BOTÕES / CARTÕES TÉCNICOS
        ========================================= */
     .btn-tech {
       background-color: transparent;
@@ -163,14 +157,14 @@
     
     .btn-tech:hover {
       border-color: #006DF0 !important; /* Azul no Hover */
-      color: #006DF0 !important; /* Texto/Ícone Azul no Hover */
+      color: #006DF0 !important; 
       transform: scale(1.05);
     }
     
     .active-tech {
-      background-color: rgba(5, 240, 189, 0.05); /* Fundo Verde super sutil */
+      background-color: rgba(5, 240, 189, 0.05); 
       border-color: #05F0BD !important; /* Verde Fixo no Selecionado */
-      color: #05F0BD !important; /* Texto/Ícone Verde no Selecionado */
+      color: #05F0BD !important; 
       transform: scale(1.05); 
     }
 
@@ -187,6 +181,7 @@
       outline: none;
     }
 
+    /* Inputs em Modo Claro */
     html:not(.dark) .cyber-input {
       background: #f4f4f5;
       border: 1px solid #d4d4d8;
@@ -361,7 +356,7 @@
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
                     <i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i>
                   </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Scan de Identidade</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Scan de Identidade</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {imagePreviews.map((src, i) => (
@@ -383,13 +378,12 @@
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
                     <i className="ph-bold ph-target text-2xl icon-tech-gradient"></i>
                   </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Missão Técnica</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Missão Técnica</h2>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mb-10">
                   {NICHES.map(n => (
                     <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-tech p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-tech' : ''}`}>
-                      {/* O ícone não tem mais classe de gradiente aqui para que herde a cor correta dos cartões */}
                       <i className={`${n.icon} text-4xl`} style={selectedNiche === n.id ? {} : { color: 'inherit' }}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
@@ -402,6 +396,17 @@
                   placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..."
                   className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-700 leading-relaxed"
                 />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-2">Nicho Customizado</label>
+                     <input type="text" value={customNiche} onChange={e=>setCustomNiche(e.target.value)} placeholder="EX: ODONTOPEDIATRA" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-greenSolid" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-2">Elementos Específicos</label>
+                     <input type="text" value={extraDetails} onChange={e=>setExtraDetails(e.target.value)} placeholder="EX: BALÕES, NEON, ESTETOSCÓPIO" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-zinc-400" />
+                  </div>
+                </div>
               </section>
 
               {/* RESULTADOS */}
@@ -418,7 +423,7 @@
                       <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
                         <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
                         <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
-                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl"></i></button>
+                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
                       </div>
                     ))}
                   </div>
@@ -434,13 +439,13 @@
                     <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
                       <i className="ph-bold ph-cpu text-2xl icon-tech-gradient" style={{color: '#000', background: 'none', webkitTextFillColor: 'initial'}}></i>
                     </div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
+                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Hardware Pro</h2>
                   </div>
 
                   <div className="flex flex-col gap-10">
                     <div>
                       <div className="flex justify-between mb-5">
-                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
+                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">Volume</label>
                         <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
                       </div>
                       <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-panelDark" />
@@ -448,7 +453,7 @@
 
                     <div className="space-y-8">
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Estilo Visual</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 block mb-4">Estilo Visual</label>
                         <div className="grid grid-cols-2 gap-3">
                           {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
                             <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
@@ -457,7 +462,7 @@
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Realismo</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 block mb-4">Realismo</label>
                         <div className="grid grid-cols-3 gap-3">
                           {['natural', 'premium', 'cine'].map(r => (
                             <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
@@ -466,7 +471,7 @@
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Proporção</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 block mb-4">Proporção</label>
                         <div className="grid grid-cols-2 gap-3">
                           {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
                             <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
@@ -512,7 +517,7 @@
                 <i className="ph-fill ph-fingerprint text-5xl"></i>
               </div>
               <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
+              <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
             </div>
             <div className="space-y-4">
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
@@ -523,7 +528,7 @@
             </button>
             <div className="flex justify-center mt-2">
               <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-blueSolid transition-all">
-                {isDark ? <i className="ph-bold ph-sun-dim text-3xl"></i> : <i className="ph-bold ph-moon-stars text-3xl"></i>}
+                {isDark ? <i className="ph-bold ph-sun-dim text-3xl icon-tech-gradient"></i> : <i className="ph-bold ph-moon-stars text-3xl icon-tech-gradient"></i>}
               </button>
             </div>
           </form>
