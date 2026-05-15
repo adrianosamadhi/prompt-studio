@@ -218,7 +218,6 @@
       const targetNiche = customNiche.trim() !== '' ? customNiche : niche;
       const arParam = "--ar " + aspectRatio.split(' ')[0];
 
-      // RESTAURADO: A sua instrução gigante e blindada de JSON para Nano Banana / GPT Image 2
       const systemInstruction = `ROLE & OBJECTIVE
 You are JsonPromptMaker, a deterministic Prompt-to-JSON Engine combined with a High-Fidelity Biometric Image Analyzer.
 Your task is to convert a user’s text prompt and uploaded reference image into a precise, production-ready JSON prompt array for SINGLE IMAGES, specifically tailored for tools like Nano Banana and GPT Image wrappers.
@@ -277,7 +276,6 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
       const data = await fetchWithRetry(payload);
       let textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
       
-      // FILTRO PARA IMPEDIR QUEBRA DO JSON
       textResult = textResult.replace(/```json/gi, '').replace(/```/g, '').trim();
       
       let parsedData = [];
@@ -290,7 +288,6 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
          parsedData = [{ prompt: textResult }]; 
       }
 
-      // Converte o objeto de volta para String JSON para mostrar bonitinho na tela
       return parsedData.map(item => {
         let displayPrompt = item.prompt;
         if (typeof item === 'object' && !item.prompt) {
@@ -335,7 +332,16 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
       const [prompts, setPrompts] = useState([]);
       const [isGenerating, setIsGenerating] = useState(false);
       
+      // ESTADO DO TOAST ADICIONADO AQUI
+      const [toastMessage, setToastMessage] = useState(null);
+
       const scrollRef = useRef(null);
+
+      // FUNÇÃO DO TOAST
+      const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(null), 3000);
+      };
 
       const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
@@ -381,14 +387,15 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
         }
       };
 
+      // COPY ALL ATUALIZADO PARA USAR O TOAST
       const copyAll = () => {
         const text = prompts.map(p => p.prompt).join('\n\n');
         navigator.clipboard.writeText(text);
-        alert("Todos os JSON copiados!");
+        showToast("Todos os JSON copiados!");
       };
 
       return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col h-screen relative">
           <header className="px-6 py-4 flex items-center justify-between border-b border-zinc-800/50 dark:border-white/5 bg-white/50 dark:bg-black/50 backdrop-blur-md shrink-0 z-50">
             <div className="flex items-center gap-4">
                <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-black flex items-center justify-center border border-greenSolid shadow-sm">
@@ -479,11 +486,11 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
                     <div key={p.id} className="neon-panel relative group !p-6 !border-l-4 !border-l-blueSolid bg-zinc-50 dark:bg-black/50">
                       <div className="flex justify-between items-start mb-3">
                         <span className="text-[11px] font-black text-blueSolid uppercase tracking-widest">Codex #{i+1}</span>
-                        <button onClick={() => {navigator.clipboard.writeText(p.prompt); alert("JSON Copiado!")}} className="text-zinc-500 hover:text-greenSolid transition-colors">
+                        {/* BOTÃO INDIVIDUAL ATUALIZADO PARA USAR O TOAST */}
+                        <button onClick={() => {navigator.clipboard.writeText(p.prompt); showToast("JSON Copiado!")}} className="text-zinc-500 hover:text-greenSolid transition-colors">
                           <i className="ph-bold ph-copy text-2xl"></i>
                         </button>
                       </div>
-                      {/* Usando a tag PRE para manter a formatação do JSON intacta e bonita */}
                       <pre className="text-[11px] font-mono leading-relaxed text-zinc-700 dark:text-zinc-300 overflow-x-auto whitespace-pre-wrap bg-zinc-200 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-300 dark:border-white/5">
                         {p.prompt}
                       </pre>
@@ -550,6 +557,14 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
               </section>
             </div>
           </main>
+
+          {/* TOAST DE NOTIFICAÇÃO DISCRETO ADICIONADO AQUI */}
+          {toastMessage && (
+            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-zinc-900 border-2 border-greenSolid px-6 py-3 shadow-[0_10px_40px_rgba(5,240,189,0.3)] z-[100] flex items-center gap-3 rounded-full animate-bounce">
+              <i className="ph-bold ph-check-circle text-greenSolid text-xl"></i>
+              <span className="text-[11px] font-black uppercase tracking-widest">{toastMessage}</span>
+            </div>
+          )}
         </div>
       );
     }
