@@ -48,7 +48,6 @@
       font-size: 13px; 
     }
 
-    /* MODO ESCURO - DARK PIANO */
     html.dark body {
       background-color: #000000;
       background-image: 
@@ -56,13 +55,11 @@
         radial-gradient(circle at 80% 100%, rgba(0, 109, 240, 0.04) 0%, transparent 25%);
     }
 
-    /* MODO CLARO */
     html:not(.dark) body {
       background-color: #E5E7EB; 
       color: #111827;
     }
 
-    /* PAINÉIS */
     .neon-panel {
       border-radius: 1.25rem;
       padding: 1.25rem;
@@ -71,7 +68,6 @@
       transition: all 0.3s ease;
     }
 
-    /* GLASSMORPHISM DARK PIANO */
     html.dark .neon-panel { 
       background: linear-gradient(180deg, rgba(24, 24, 27, 0.8) 0%, rgba(0, 0, 0, 0.95) 100%);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -91,7 +87,6 @@
       color: #1F2937 !important; 
     }
 
-    /* BOTÃO PRINCIPAL */
     .btn-forjar {
       background-color: #FFFFFF !important;
       color: #1F2937 !important; 
@@ -112,7 +107,6 @@
     }
     .btn-forjar:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* CARTÕES DE MISSÃO */
     .btn-niche {
       background-color: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -128,7 +122,6 @@
     .btn-niche:hover { border-color: #05F0BD !important; color: #05F0BD !important; transform: scale(1.02); }
     .active-niche { border-color: #006DF0 !important; color: #006DF0 !important; background-color: rgba(0, 109, 240, 0.1); }
 
-    /* BOTÕES TÉCNICOS */
     .btn-tech {
       background-color: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -142,14 +135,12 @@
     .btn-tech:hover { border-color: #006DF0 !important; color: #006DF0 !important; }
     .active-tech { border-color: #05F0BD !important; color: #05F0BD !important; background-color: rgba(5, 240, 189, 0.1); }
 
-    /* MODO CLARO BOTÕES INATIVOS */
     html:not(.dark) .btn-niche, html:not(.dark) .btn-tech {
       background-color: #F9FAFB !important;
       border-color: #D1D5DB !important;
       color: #374151 !important;
     }
 
-    /* INPUTS GERAIS */
     .cyber-input {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -214,30 +205,38 @@
       }
     }
 
-    async function generatePromptsAPI({ imagePreviews, niche, customNiche, freePrompt, extraDetails, visualStyle, aspectRatio, quantity, realismLevel }) {
+    async function generatePromptsAPI({ imagePreviews, niche, customNiche, freePrompt, extraDetails, visualStyle, aspectRatio, quantity, realismLevel, isRestoration, colorize }) {
       const targetNiche = customNiche.trim() !== '' ? customNiche : niche;
       const arParam = "--ar " + aspectRatio.split(' ')[0];
+      const actualQuantity = isRestoration ? 1 : quantity;
 
       const systemInstruction = `ROLE & OBJECTIVE
 You are JsonPromptMaker, a deterministic Prompt-to-JSON Engine combined with a High-Fidelity Biometric Image Analyzer.
-Your task is to convert a user’s text prompt and uploaded reference image into a precise, production-ready JSON prompt array for SINGLE IMAGES, specifically tailored for tools like Nano Banana and GPT Image wrappers.
+Your task is to convert a user's text prompt and uploaded reference image into a precise, production-ready JSON array for SINGLE IMAGES, specifically tailored for tools like Nano Banana and GPT Image wrappers.
 
 CORE RULES
 1. Granular Biometric Extraction (CRITICAL): explicitly analyze and document specific body proportions (build, arm thickness, face shape, silhouette). Do NOT generalize.
 2. No Micro-Features: Do not describe specific facial micro-features to avoid FaceID conflicts.
 3. Specific User Elements: Integrate "${extraDetails}" into the environment if provided.
 4. SINGLE IMAGE OUTPUT: Each JSON object must describe ONE single, distinct image.
-5. Determinism: Given the same input, always produce the exact same JSON structure.
-6. Output Discipline: YOU MUST RETURN ONLY A VALID JSON ARRAY. DO NOT USE MARKDOWN. DO NOT WRAP IN \`\`\`json.`;
+5. Output Discipline: YOU MUST RETURN ONLY A VALID JSON ARRAY. DO NOT USE MARKDOWN. DO NOT WRAP IN \`\`\`json.`;
 
-      let promptText = `Generate EXACTLY ${quantity} INDIVIDUAL JSON objects in an array.
+      const restorationInstruction = isRestoration 
+        ? `\n\nCRITICAL RESTORATION MODE: The user requested a PHOTO RESTORATION. You MUST generate exactly 1 prompt. 
+           Focus strictly on cleaning up noise, fixing scratches, and upscaling the image while maintaining the EXACT original scene, pose, and background.
+           COLOR POLICY: ${colorize ? 'COLORIZE the photo with realistic historical colors.' : 'PRESERVE ORIGINAL COLORS (Keep it Black and White or Sepia if the original is).'} 
+           DO NOT change the clothing or background.` 
+        : '';
+
+      let promptText = `Generate EXACTLY ${actualQuantity} INDIVIDUAL JSON objects in an array.
 
 Context for generation:
 - Target Niche: ${targetNiche}
 - Visual Style: ${visualStyle}
 - Aspect Ratio: ${aspectRatio}
 - Realism Level: ${realismLevel}
-- Extra details: ${extraDetails}
+- Extra details: ${extraDetails || 'None'}
+${restorationInstruction}
 
 REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in the array):
 {
@@ -251,10 +250,10 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
     "clothing_description": "[Describe clothing matching the niche]"
   },
   "reference_image_policy": { "used": true, "represents": "full character identity", "instructions": ["Identity lock active."] },
-  "subject": { "pose": { "value": "[INSERT POSE]" } },
-  "appearance": { "clothing": { "value": "[CLOTHING DETAILS]" }, "colors": { "primary_palette": { "value": "neutral palette" } } },
-  "environment": { "location": { "value": "background matching ${targetNiche}" }, "details": { "value": "${extraDetails || 'details matching the niche'}" } },
-  "camera": { "framing": { "value": "[INSERT FRAMING]" }, "angle": { "value": "[INSERT ANGLE]" } },
+  "subject": { "pose": { "value": "${isRestoration ? 'Maintain exact original pose' : '[INSERT POSE]'}" } },
+  "appearance": { "clothing": { "value": "${isRestoration ? 'Maintain exact original clothing' : '[CLOTHING DETAILS]'}" }, "colors": { "primary_palette": { "value": "${isRestoration ? (colorize ? 'Realistic colorized palette' : 'Original photo tones') : 'neutral palette'}" } } },
+  "environment": { "location": { "value": "${isRestoration ? 'Maintain exact original background' : 'background matching ' + targetNiche}" }, "details": { "value": "${extraDetails || 'details matching the niche'}" } },
+  "camera": { "framing": { "value": "${isRestoration ? 'Maintain exact original framing' : '[INSERT FRAMING]'}" }, "angle": { "value": "${isRestoration ? 'Maintain exact original angle' : '[INSERT ANGLE]'}" } },
   "lighting": { "type": { "value": "[INSERT LIGHTING]" }, "direction": { "value": "[INSERT LIGHT DIRECTION]" } },
   "style": { "render_type": { "value": "${visualStyle}" } }
 }`;
@@ -328,16 +327,14 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
       const [realismLevel, setRealismLevel] = useState('natural');
       const [aspectRatio, setAspectRatio] = useState('9:16 Vertical');
       const [quantity, setQuantity] = useState(10);
+      const [colorize, setColorize] = useState(false); // Estado para o botão de Colorir
       
       const [prompts, setPrompts] = useState([]);
       const [isGenerating, setIsGenerating] = useState(false);
       
-      // ESTADO DO TOAST ADICIONADO AQUI
       const [toastMessage, setToastMessage] = useState(null);
-
       const scrollRef = useRef(null);
 
-      // FUNÇÃO DO TOAST
       const showToast = (msg) => {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(null), 3000);
@@ -370,7 +367,9 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
             visualStyle, 
             aspectRatio, 
             quantity,
-            realismLevel
+            realismLevel,
+            isRestoration: selectedNiche === 'restauracao',
+            colorize
           });
           
           setPrompts(result);
@@ -387,7 +386,6 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
         }
       };
 
-      // COPY ALL ATUALIZADO PARA USAR O TOAST
       const copyAll = () => {
         const text = prompts.map(p => p.prompt).join('\n\n');
         navigator.clipboard.writeText(text);
@@ -486,7 +484,6 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
                     <div key={p.id} className="neon-panel relative group !p-6 !border-l-4 !border-l-blueSolid bg-zinc-50 dark:bg-black/50">
                       <div className="flex justify-between items-start mb-3">
                         <span className="text-[11px] font-black text-blueSolid uppercase tracking-widest">Codex #{i+1}</span>
-                        {/* BOTÃO INDIVIDUAL ATUALIZADO PARA USAR O TOAST */}
                         <button onClick={() => {navigator.clipboard.writeText(p.prompt); showToast("JSON Copiado!")}} className="text-zinc-500 hover:text-greenSolid transition-colors">
                           <i className="ph-bold ph-copy text-2xl"></i>
                         </button>
@@ -508,13 +505,27 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
                 </div>
                 
                 <div className="space-y-7 mb-8">
-                  <div>
-                    <div className="flex justify-between mb-3">
-                      <label className="text-[10px] font-black uppercase opacity-70">Volume</label>
-                      <span className="text-[10px] font-black text-blueSolid">{quantity}X UNIDADES</span>
+                  
+                  {/* CONDIÇÃO PARA MOSTRAR VOLUME OU OPÇÃO DE RESTAURAÇÃO */}
+                  {selectedNiche === 'restauracao' ? (
+                    <div className="p-5 border border-blueSolid/30 bg-blueSolid/5 rounded-xl animate-fade-in">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" checked={colorize} onChange={e=>setColorize(e.target.checked)} className="w-5 h-5 accent-blueSolid cursor-pointer" />
+                        <span className="text-[11px] font-black uppercase tracking-widest text-zinc-800 dark:text-zinc-300">Colorir Fotografia</span>
+                      </label>
+                      <p className="text-[9px] text-zinc-500 mt-3 uppercase tracking-widest leading-relaxed">
+                        Modo Restauração ativo. O volume foi forçado para 1 unidade. Marque a caixa se a foto for P&B e desejar cores realistas.
+                      </p>
                     </div>
-                    <input type="range" min="1" max="20" value={quantity} onChange={e=>setQuantity(parseInt(e.target.value))} className="w-full accent-blueSolid h-1.5 rounded-full cursor-pointer bg-zinc-300 dark:bg-zinc-700" />
-                  </div>
+                  ) : (
+                    <div>
+                      <div className="flex justify-between mb-3">
+                        <label className="text-[10px] font-black uppercase opacity-70">Volume</label>
+                        <span className="text-[10px] font-black text-blueSolid">{quantity}X UNIDADES</span>
+                      </div>
+                      <input type="range" min="1" max="20" value={quantity} onChange={e=>setQuantity(parseInt(e.target.value))} className="w-full accent-blueSolid h-1.5 rounded-full cursor-pointer bg-zinc-300 dark:bg-zinc-700" />
+                    </div>
+                  )}
 
                   <div>
                     <label className="text-[10px] font-black uppercase mb-3 block opacity-70">Estilo Visual</label>
@@ -558,9 +569,9 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
             </div>
           </main>
 
-          {/* TOAST DE NOTIFICAÇÃO DISCRETO ADICIONADO AQUI */}
+          {/* TOAST DE NOTIFICAÇÃO DISCRETO */}
           {toastMessage && (
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-zinc-900 border-2 border-greenSolid px-6 py-3 shadow-[0_10px_40px_rgba(5,240,189,0.3)] z-[100] flex items-center gap-3 rounded-full animate-bounce">
+            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white dark:bg-panelDark text-zinc-900 dark:text-white border-2 border-greenSolid px-6 py-3 shadow-[0_10px_40px_rgba(5,240,189,0.3)] z-[100] flex items-center gap-3 rounded-full animate-bounce">
               <i className="ph-bold ph-check-circle text-greenSolid text-xl"></i>
               <span className="text-[11px] font-black uppercase tracking-widest">{toastMessage}</span>
             </div>
