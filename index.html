@@ -215,7 +215,12 @@
     }
 
     async function generatePromptsAPI({ imagePreviews, niche, customNiche, freePrompt, extraDetails, visualStyle, aspectRatio, quantity, realismLevel, isRestoration, colorize }) {
-      const targetNiche = customNiche.trim() !== '' ? customNiche : niche;
+      // CORREÇÃO CRÍTICA 1: Evitar que a IA traduza "Restauração" como "Restaurante"
+      let targetNiche = customNiche.trim() !== '' ? customNiche : niche;
+      if (isRestoration && customNiche.trim() === '') {
+        targetNiche = "Vintage Photo Restoration"; 
+      }
+
       const arParam = "--ar " + aspectRatio.split(' ')[0];
       const actualQuantity = isRestoration ? 1 : quantity;
 
@@ -224,17 +229,17 @@ You are JsonPromptMaker, a deterministic Prompt-to-JSON Engine combined with a H
 Your task is to convert a user's text prompt and uploaded reference image into a precise, production-ready JSON array for SINGLE IMAGES, specifically tailored for tools like Nano Banana and GPT Image wrappers.
 
 CORE RULES
-1. Granular Biometric Extraction (CRITICAL): explicitly analyze and document specific body proportions (build, arm thickness, face shape, silhouette). Do NOT generalize.
+1. Granular Biometric Extraction (CRITICAL): explicitly analyze and document specific body proportions, face shapes, and exact clothing from the uploaded image.
 2. No Micro-Features: Do not describe specific facial micro-features to avoid FaceID conflicts.
-3. Specific User Elements: Integrate "${extraDetails}" into the environment if provided.
-4. SINGLE IMAGE OUTPUT: Each JSON object must describe ONE single, distinct image.
-5. Output Discipline: YOU MUST RETURN ONLY A VALID JSON ARRAY. DO NOT USE MARKDOWN. DO NOT WRAP IN \`\`\`json.`;
+3. SINGLE IMAGE OUTPUT: Each JSON object must describe ONE single, distinct image.
+4. Output Discipline: YOU MUST RETURN ONLY A VALID JSON ARRAY. DO NOT USE MARKDOWN. DO NOT WRAP IN \`\`\`json.`;
 
+      // CORREÇÃO CRÍTICA 2: Instruções agressivas para não inventar nada na restauração
       const restorationInstruction = isRestoration 
-        ? `\n\nCRITICAL RESTORATION MODE: The user requested a PHOTO RESTORATION. You MUST generate exactly 1 prompt. 
-           Focus strictly on cleaning up noise, fixing scratches, and upscaling the image while maintaining the EXACT original scene, pose, and background.
+        ? `\n\nCRITICAL RESTORATION MODE: The user requested a VINTAGE PHOTO RESTORATION. You MUST generate exactly 1 prompt. 
+           Focus STRICTLY on describing the EXACT people, poses, clothes, and background seen in the reference image. Do NOT invent new scenes or characters. Do NOT invent restaurant or chef concepts.
            COLOR POLICY: ${colorize ? 'COLORIZE the photo with realistic historical colors.' : 'PRESERVE ORIGINAL COLORS (Keep it Black and White or Sepia if the original is).'} 
-           DO NOT change the clothing or background.` 
+           Your prompt must instruct the engine to clean up noise, fix scratches, and upscale the image while maintaining the EXACT original scene.` 
         : '';
 
       let promptText = `Generate EXACTLY ${actualQuantity} INDIVIDUAL JSON objects in an array.
@@ -242,29 +247,27 @@ CORE RULES
 Context for generation:
 - Target Niche: ${targetNiche}
 - Visual Style: ${visualStyle}
-- Aspect Ratio: ${aspectRatio}
 - Realism Level: ${realismLevel}
 - Extra details: ${extraDetails || 'None'}
 ${restorationInstruction}
 
-REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in the array):
+REQUIRED JSON SCHEMA (this exact structure MUST be outputted for EACH item in the array):
 {
   "task": "build_image_prompt_json",
   "subject_analysis": {
-    "primary_subject": "[Describe the main subject]",
+    "primary_subject": "${isRestoration ? '[CRITICAL: Describe EXACTLY who is in the reference image]' : '[Describe the main subject]'}",
     "body_proportions": "[CRITICAL: Extract exact body build, weight, silhouette]",
     "facial_frame": "[CRITICAL: Extract face shape and jawline]",
     "hair_and_skin": "[CRITICAL: Extract hair color, length, and skin tone]",
-    "expression": "[Expression fitting the niche]",
-    "clothing_description": "[Describe clothing matching the niche]"
+    "expression": "[Expression fitting the scene]",
+    "clothing_description": "${isRestoration ? '[CRITICAL: Describe EXACTLY what they are wearing in the reference image]' : '[Describe clothing matching the niche]'}"
   },
-  "reference_image_policy": { "used": true, "represents": "full character identity", "instructions": ["Identity lock active."] },
-  "subject": { "pose": { "value": "${isRestoration ? 'Maintain exact original pose' : '[INSERT POSE]'}" } },
-  "appearance": { "clothing": { "value": "${isRestoration ? 'Maintain exact original clothing' : '[CLOTHING DETAILS]'}" }, "colors": { "primary_palette": { "value": "${isRestoration ? (colorize ? 'Realistic colorized palette' : 'Original photo tones') : 'neutral palette'}" } } },
-  "environment": { "location": { "value": "${isRestoration ? 'Maintain exact original background' : 'background matching ' + targetNiche}" }, "details": { "value": "${extraDetails || 'details matching the niche'}" } },
-  "camera": { "framing": { "value": "${isRestoration ? 'Maintain exact original framing' : '[INSERT FRAMING]'}" }, "angle": { "value": "${isRestoration ? 'Maintain exact original angle' : '[INSERT ANGLE]'}" } },
-  "lighting": { "type": { "value": "[INSERT LIGHTING]" }, "direction": { "value": "[INSERT LIGHT DIRECTION]" } },
-  "style": { "render_type": { "value": "${visualStyle}" } }
+  "subject": { "pose": { "value": "${isRestoration ? '[CRITICAL: Describe EXACT pose from reference image]' : '[INSERT POSE varied for this specific item]'}" } },
+  "appearance": { "clothing": { "value": "${isRestoration ? '[CRITICAL: Describe EXACT clothing from reference image]' : '[CLOTHING DETAILS]'}" }, "colors": { "primary_palette": { "value": "${isRestoration ? (colorize ? 'Realistic colorized palette' : 'Original photo tones') : 'neutral palette'}" } } },
+  "environment": { "location": { "value": "${isRestoration ? '[CRITICAL: Describe EXACT background from reference image]' : 'background matching the niche'}" }, "details": { "value": "${extraDetails || 'details matching the niche'}" } },
+  "camera": { "framing": { "value": "${isRestoration ? '[CRITICAL: Describe EXACT framing from reference image]' : '[INSERT FRAMING varied]'}" }, "angle": { "value": "${isRestoration ? '[CRITICAL: Describe EXACT angle from reference image]' : '[INSERT ANGLE varied]'}" } },
+  "lighting": { "type": { "value": "${isRestoration ? 'Restore original lighting, enhance clarity' : '[INSERT LIGHTING]'}" }, "direction": { "value": "${isRestoration ? 'Original light direction' : '[INSERT LIGHT DIRECTION]'}" } },
+  "style": { "render_type": { "value": "${isRestoration ? 'High-quality photo restoration, noise reduction, scratch removal' : visualStyle}" }, "aspect_ratio": { "value": "${arParam}" } }
 }`;
 
       const payload = {
@@ -293,23 +296,12 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
          else if (!Array.isArray(parsedData)) parsedData = [parsedData];
       } catch(e) {
          console.error("Erro no Parse do JSON:", e, textResult);
-         parsedData = [{ prompt: textResult }]; 
+         return [{ prompt: textResult, id: crypto.randomUUID() }];
       }
 
       return parsedData.map(item => {
-        let displayPrompt = item.prompt;
-        if (typeof item === 'object' && !item.prompt) {
-           displayPrompt = JSON.stringify(item, null, 2);
-        } else if (typeof item.prompt === 'object') {
-           displayPrompt = JSON.stringify(item.prompt, null, 2);
-        } else {
-           try {
-             displayPrompt = JSON.stringify(JSON.parse(item.prompt), null, 2);
-           } catch(e) {
-             displayPrompt = item.prompt;
-           }
-        }
-        return { prompt: displayPrompt || JSON.stringify(item, null, 2), id: crypto.randomUUID() };
+        const displayPrompt = JSON.stringify(item, null, 2);
+        return { prompt: displayPrompt, id: crypto.randomUUID() };
       });
     }
 
@@ -441,7 +433,6 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
                   <label className="w-28 h-28 shrink-0 rounded-2xl border-2 border-dashed border-zinc-400 dark:border-zinc-600 flex flex-col items-center justify-center cursor-pointer hover:border-greenSolid transition-all gap-2 bg-zinc-50 dark:bg-transparent">
                     <i className="ph-bold ph-upload-simple text-2xl text-zinc-500"></i>
                     <span className="text-[10px] font-black uppercase text-zinc-500 text-center leading-tight">Faça o<br/>Upload</span>
-                    {/* INPUT COM MULTIPLE ADICIONADO AQUI */}
                     <input type="file" className="hidden" multiple onChange={handleImageUpload} accept="image/*" />
                   </label>
                 </div>
