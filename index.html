@@ -22,9 +22,9 @@
           colors: { 
             background: '#000000',
             panel: '#090A11',
-            accent: '#00f2ff', // Azul Elétrico
-            neonGreen: '#05F0BD', // Verde Neon solicitado
-            darkGray: '#10111B'
+            accent: '#00f2ff', // Azul Neon
+            primaryBlue: '#006DF0', // Azul da Imagem
+            neonGreen: '#05F0BD', // Verde Neon das bordas
           },
           fontFamily: { 
             sans: ['Plus Jakarta Sans', 'sans-serif'],
@@ -44,53 +44,76 @@
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.4s ease; }
 
-    /* Efeito de Borda Neon Verde */
+    /* 1. Bordas Neon Verde Constantes */
     .neon-panel {
-      border: 1px solid rgba(5, 240, 189, 0.2);
-      box-shadow: 0 0 20px rgba(5, 240, 189, 0.05);
-      transition: all 0.3s ease;
-    }
-    .dark .neon-panel:hover {
-      border-color: #05F0BD;
-      box-shadow: 0 0 30px rgba(5, 240, 189, 0.15);
+      border: 2px solid #05F0BD;
+      box-shadow: 0 0 15px rgba(5, 240, 189, 0.15);
+      transition: transform 0.3s ease;
     }
 
-    /* Botão Estilo Black Piano com Brilho Azul */
-    .btn-piano {
-      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 100%);
-      background-color: #10111B;
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    /* 2. Botões e Cores (Gradiente da Cesta de Compras) */
+    .btn-tech {
+      background-color: transparent;
+      border: 1px solid rgba(0, 109, 240, 0.3);
+      color: #00f2ff;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    .active-blue {
-      background: linear-gradient(180deg, #00f2ff 0%, #0066ff 100%);
-      box-shadow: 0 0 25px rgba(0, 242, 255, 0.4), inset 0 1px 2px rgba(255,255,255,0.5);
-      border-color: #00f2ff !important;
-      color: #000 !important;
+    .active-tech {
+      background: linear-gradient(135deg, #00f2ff 0%, #006DF0 100%);
+      color: #ffffff !important;
+      box-shadow: 0 5px 15px rgba(0, 109, 240, 0.4);
+      border-color: transparent !important;
     }
 
-    .active-blue i { color: #000 !important; }
+    /* Ícones brancos quando o botão está ativo */
+    .active-tech i {
+        color: #ffffff !important;
+    }
+
+    /* 3. Efeito de Zoom nos Ícones */
+    .icon-zoom {
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .group:hover .icon-zoom, .active-tech .icon-zoom {
+      transform: scale(1.25);
+    }
 
     /* Estilo de Inputs */
     .cyber-input {
       background: #0d0d11;
       border: 1px solid #1e1e22;
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+      color: #fff;
+      transition: all 0.3s ease;
     }
     .cyber-input:focus {
-      border-color: #05F0BD;
-      box-shadow: 0 0 15px rgba(5, 240, 189, 0.1);
+      border-color: #006DF0;
+      box-shadow: 0 0 15px rgba(0, 109, 240, 0.15);
+      outline: none;
     }
 
-    .icon-squircle {
-      border-radius: 35%;
+    /* Ajustes Modo Claro */
+    html:not(.dark) .cyber-input {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      color: #18181b;
+    }
+    html:not(.dark) .neon-panel {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: #1e1e22; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #05F0BD; }
+    .icon-squircle { border-radius: 30%; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #05F0BD; border-radius: 10px; }
+    
+    /* Animação suave de entrada */
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body class="bg-zinc-50 dark:bg-background text-zinc-900 dark:text-zinc-100 selection:bg-accent/40 overflow-x-hidden antialiased">
@@ -100,7 +123,6 @@
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
-    // Configuração Supabase
     const SUPABASE_URL = "https://wvejrqpwmodgfjtxperb.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_Co_Sc9s65LlNw2L1a19EBw_enm2KWFp";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -132,7 +154,7 @@
 
       const systemInstruction = `ROLE: Deterministic Prompt-to-JSON Engine. Biometric Analyzer. Append "${arParam}" to all prompt strings.`;
       let promptText = freePrompt.trim() !== '' 
-        ? `Variations based on: "${freePrompt}". Style: ${visualStyle}. Format: ${arParam}.`
+        ? `Variations for: "${freePrompt}". Style: ${visualStyle}. Format: ${arParam}.`
         : `Niche: ${targetNiche}. Style: ${visualStyle}. Realism: ${settings.realismLevel}. Format: ${arParam}.`;
 
       const payload = {
@@ -158,8 +180,8 @@
       return (
         <button 
           onClick={onClick}
-          className={`btn-piano px-4 py-3 text-[9px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-300 transform active:scale-95 ${
-            active ? 'active-blue' : 'text-zinc-500 hover:text-accent'
+          className={`btn-tech px-4 py-3 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 transform active:scale-95 ${
+            active ? 'active-tech' : 'hover:text-primaryBlue hover:border-primaryBlue/50'
           }`}
         >
           {label}
@@ -168,13 +190,13 @@
     }
 
     const NICHES = [
-      { id: 'aniversario', name: 'Comemoração', icon: 'ph-duotone ph-cake' },
-      { id: 'profissoes', name: 'Executivo', icon: 'ph-duotone ph-briefcase-metal' },
-      { id: 'influencer', name: 'Lifestyle', icon: 'ph-duotone ph-instagram-logo' },
+      { id: 'profissoes', name: 'Profissões', icon: 'ph-duotone ph-briefcase-metal' },
       { id: 'casamento', name: 'Casamento', icon: 'ph-duotone ph-star-four' },
-      { id: 'gestante', name: 'Maternidade', icon: 'ph-duotone ph-baby' },
-      { id: 'familia', name: 'Legado', icon: 'ph-duotone ph-users-three' },
-      { id: 'musculacao', name: 'Performance', icon: 'ph-duotone ph-barbell' },
+      { id: 'infantil', name: 'Infantil', icon: 'ph-duotone ph-balloon' },
+      { id: 'gravidez', name: 'Gestante', icon: 'ph-duotone ph-baby' },
+      { id: 'influencer', name: 'Influencer', icon: 'ph-duotone ph-instagram-logo' },
+      { id: 'fitness', name: 'Fitness', icon: 'ph-duotone ph-barbell' },
+      { id: 'aniversario', name: 'Aniversário', icon: 'ph-duotone ph-cake' },
       { id: 'moda', name: 'Moda', icon: 'ph-duotone ph-coat-hanger' }
     ];
 
@@ -211,27 +233,27 @@
           });
           setPrompts(result);
           setHistory(prev => [{ date: new Date().toLocaleTimeString(), data: result }, ...prev]);
-        } catch (e) { console.error(e); }
+        } catch (e) { alert("Erro: " + e.message); }
         finally { setIsGenerating(false); }
       };
 
       return (
         <div className="min-h-screen flex flex-col">
-          <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/5 px-10 py-5 flex items-center justify-between shadow-2xl">
+          <header className="sticky top-0 z-50 bg-white/90 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-5">
-               <div className="w-12 h-12 icon-squircle bg-accent flex items-center justify-center shadow-[0_0_20px_rgba(0,242,255,0.4)]">
-                  <i className="ph-duotone ph-aperture text-3xl text-black"></i>
+               <div className="w-12 h-12 icon-squircle active-tech flex items-center justify-center">
+                  <i className="ph-duotone ph-aperture text-3xl"></i>
                </div>
                <div>
-                  <h1 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">Studio<span className="text-neonGreen">Pro</span></h1>
-                  <span className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em]">Engineered by Adriano</span>
+                  <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="text-primaryBlue">Pro</span></h1>
+                  <span className="text-[8px] font-extrabold text-zinc-500 uppercase tracking-[0.4em]">Consistency Control</span>
                </div>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={() => setShowHistory(!showHistory)} className="btn-piano px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+              <button onClick={() => setShowHistory(!showHistory)} className="btn-tech px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">
                 Arquivo de Consultas
               </button>
-              <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-white/5 flex items-center justify-center text-orange-500 hover:bg-accent/10 transition-all">
+              <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-primaryBlue transition-all">
                 {isDark ? <i className="ph-duotone ph-sun-dim text-2xl"></i> : <i className="ph-duotone ph-moon-stars text-2xl"></i>}
               </button>
               <button onClick={onLogout} className="w-11 h-11 rounded-xl bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center">
@@ -243,41 +265,41 @@
           <main className="max-w-[1600px] mx-auto w-full p-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
             
             <div className="lg:col-span-8 flex flex-col gap-10">
-              {/* PASSO 1: IDENTIDADE */}
-              <section className="bg-panel p-10 rounded-[3rem] neon-panel relative overflow-hidden">
+              {/* PASSO 1 */}
+              <section className="fade-in bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel relative overflow-hidden">
                 <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 icon-squircle bg-neonGreen/10 flex items-center justify-center text-neonGreen shadow-[0_0_15px_rgba(5,240,189,0.2)]">
+                  <div className="w-10 h-10 icon-squircle bg-neonGreen/10 flex items-center justify-center text-neonGreen">
                     <i className="ph-duotone ph-scan text-2xl"></i>
                   </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Scan de Identidade</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Scan de Identidade</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {imagePreviews.map((src, i) => (
-                    <div key={i} className="relative aspect-square rounded-[2rem] overflow-hidden border-2 border-neonGreen shadow-2xl">
-                      <img src={src} className="w-full h-full object-cover" />
-                      <button onClick={()=>setImagePreviews(prev=>prev.filter((_,idx)=>idx!==i))} className="absolute top-3 right-3 w-8 h-8 bg-red-600 text-white rounded-xl flex items-center justify-center shadow-lg"><i className="ph-bold ph-trash"></i></button>
+                    <div key={i} className="relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-neonGreen shadow-lg group">
+                      <img src={src} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                      <button onClick={()=>setImagePreviews(prev=>prev.filter((_,idx)=>idx!==i))} className="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center shadow-lg"><i className="ph-bold ph-trash-simple"></i></button>
                     </div>
                   ))}
-                  <label className="aspect-square rounded-[2rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-neonGreen transition-all group">
-                    <i className="ph-duotone ph-user-focus text-4xl text-zinc-800 group-hover:text-neonGreen"></i>
+                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-300 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-neonGreen transition-all group">
+                    <i className="ph-duotone ph-user-focus text-4xl text-zinc-400 dark:text-zinc-600 group-hover:text-neonGreen icon-zoom"></i>
                     <input type="file" className="hidden" onChange={handleImageUpload} />
                   </label>
                 </div>
               </section>
 
-              {/* PASSO 2: DIRETRIZES */}
-              <section className="bg-panel p-10 rounded-[3rem] neon-panel">
+              {/* PASSO 2 */}
+              <section className="fade-in bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel" style={{animationDelay: '0.1s'}}>
                 <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 icon-squircle bg-neonGreen/10 flex items-center justify-center text-neonGreen shadow-[0_0_15px_rgba(5,240,189,0.2)]">
+                  <div className="w-10 h-10 icon-squircle bg-neonGreen/10 flex items-center justify-center text-neonGreen">
                     <i className="ph-duotone ph-target text-2xl"></i>
                   </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Diretrizes da Missão</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Missão Técnica</h2>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                   {NICHES.map(n => (
-                    <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-piano p-6 rounded-[2rem] border transition-all flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-blue' : 'text-zinc-500'}`}>
-                      <i className={`${n.icon} text-4xl ${selectedNiche === n.id ? 'text-black' : 'text-accent'}`}></i>
+                    <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-tech p-6 rounded-[1.5rem] border transition-all flex flex-col items-center gap-4 group ${selectedNiche === n.id ? 'active-tech' : 'text-zinc-600 dark:text-zinc-500 hover:border-primaryBlue/50'}`}>
+                      <i className={`${n.icon} text-4xl icon-zoom`}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
                   ))}
@@ -286,18 +308,18 @@
                 <textarea 
                   value={freePrompt}
                   onChange={e=>{setFreePrompt(e.target.value); setSelectedNiche('');}}
-                  placeholder="DIGITE O PROMPT MANUAL AQUI..."
-                  className="cyber-input w-full rounded-[2rem] p-8 text-sm h-40 outline-none transition-all resize-none font-bold placeholder:text-zinc-800 leading-relaxed"
+                  placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..."
+                  className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-700 leading-relaxed"
                 />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                   <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest ml-2">Nicho Customizado</label>
-                     <input type="text" value={customNiche} onChange={e=>setCustomNiche(e.target.value)} placeholder="EX: ODONTOPEDIATRA" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black outline-none text-accent" />
+                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-600 uppercase tracking-widest ml-2">Nicho Customizado</label>
+                     <input type="text" value={customNiche} onChange={e=>setCustomNiche(e.target.value)} placeholder="EX: ODONTOPEDIATRA" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-primaryBlue" />
                   </div>
                   <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest ml-2">Elementos na Imagem</label>
-                     <input type="text" value={extraDetails} onChange={e=>setExtraDetails(e.target.value)} placeholder="EX: BALÕES, NEON, ESTETOSCÓPIO" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black outline-none text-zinc-400" />
+                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-600 uppercase tracking-widest ml-2">Elementos Específicos</label>
+                     <input type="text" value={extraDetails} onChange={e=>setExtraDetails(e.target.value)} placeholder="EX: BALÕES, NEON, ESTETOSCÓPIO" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-zinc-600 dark:text-zinc-400" />
                   </div>
                 </div>
               </section>
@@ -308,16 +330,18 @@
                   <button onClick={()=>{
                       const text = prompts.map((p,i)=>`Prompt ${i+1}:\n${p.prompt}`).join('\n\n');
                       navigator.clipboard.writeText(text);
-                    }} className="active-blue w-full py-6 rounded-[2rem] font-black uppercase tracking-[0.5em] text-xs">
+                    }} className="active-tech w-full py-6 rounded-[1.5rem] font-black uppercase tracking-[0.5em] text-xs transition-all hover:scale-[1.01]">
                     Copiar Todos na Ordem (Prompt 1, 2...)
                   </button>
-                  {prompts.map((p, i) => (
-                    <div key={p.id} className="bg-panel p-10 rounded-[3rem] neon-panel relative group">
-                      <span className="text-[9px] font-black text-accent uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
-                      <p className="text-[11px] font-mono text-zinc-400 leading-loose break-words bg-black/40 p-8 rounded-3xl border border-dashed border-white/5">{p.prompt}</p>
-                      <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-accent/5 text-accent flex items-center justify-center hover:bg-accent hover:text-black transition-all"><i className="ph-duotone ph-copy text-2xl"></i></button>
-                    </div>
-                  ))}
+                  <div className="flex flex-col gap-5">
+                    {prompts.map((p, i) => (
+                      <div key={p.id} className="bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel relative group">
+                        <span className="text-[10px] font-black text-primaryBlue uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
+                        <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
+                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-primaryBlue/10 text-primaryBlue flex items-center justify-center hover:bg-primaryBlue hover:text-white transition-all"><i className="ph-duotone ph-copy text-2xl icon-zoom"></i></button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -325,26 +349,26 @@
             {/* COLUNA DIREITA FIXA */}
             <div className="lg:col-span-4">
               <div className="sticky top-32 flex flex-col gap-10">
-                <section className="bg-panel p-10 rounded-[3.5rem] neon-panel relative overflow-hidden">
+                <section className="fade-in bg-white dark:bg-panel p-10 rounded-[3rem] neon-panel relative overflow-hidden" style={{animationDelay: '0.2s'}}>
                   <div className="flex items-center gap-4 mb-10">
-                    <div className="w-10 h-10 icon-squircle bg-white text-black flex items-center justify-center">
+                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
                       <i className="ph-duotone ph-cpu text-2xl"></i>
                     </div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600">Hardware Pro</h2>
+                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
                   </div>
 
                   <div className="flex flex-col gap-10">
                     <div>
                       <div className="flex justify-between mb-5">
                         <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
-                        <span className="text-[10px] font-black text-accent italic tracking-widest">{settings.quantity}X UNIDADES</span>
+                        <span className="text-[10px] font-black text-primaryBlue italic tracking-widest">{settings.quantity}X UNIDADES</span>
                       </div>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-accent h-1.5 rounded-full appearance-none cursor-pointer bg-black" />
+                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-primaryBlue h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-black" />
                     </div>
 
                     <div className="space-y-8">
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 block mb-4">Estilo Visual</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Estilo Visual</label>
                         <div className="grid grid-cols-2 gap-3">
                           {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
                             <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
@@ -353,7 +377,7 @@
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 block mb-4">Realismo</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Realismo</label>
                         <div className="grid grid-cols-3 gap-3">
                           {['natural', 'premium', 'cine'].map(r => (
                             <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
@@ -362,7 +386,7 @@
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 block mb-4">Proporção</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Proporção</label>
                         <div className="grid grid-cols-2 gap-3">
                           {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
                             <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
@@ -374,12 +398,28 @@
                     <button 
                       onClick={generate}
                       disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)}
-                      className="active-blue w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-20 transition-all hover:scale-[1.02] shadow-[0_20px_40px_rgba(0,242,255,0.3)]"
+                      className="active-tech w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 transition-all hover:scale-[1.02]"
                     >
-                      {isGenerating ? <i className="ph ph-spinner-gap ph-spin text-3xl"></i> : 'FORJAR PROMPTS'}
+                      {isGenerating ? <i className="ph-duotone ph-arrows-clockwise ph-spin text-3xl"></i> : 'FORJAR PROMPTS'}
                     </button>
                   </div>
                 </section>
+
+                {showHistory && history.length > 0 && (
+                  <div className="fade-in bg-white dark:bg-panel p-8 rounded-[2.5rem] border-2 border-primaryBlue shadow-2xl max-h-[300px] overflow-y-auto">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] mb-6 flex items-center gap-2 text-zinc-900 dark:text-white">
+                      <i className="ph-duotone ph-clock-counter-clockwise text-primaryBlue text-xl"></i> Histórico Recente
+                    </h3>
+                    <div className="flex flex-col gap-2">
+                      {history.map((h, i) => (
+                        <div key={i} className="p-3 bg-zinc-50 dark:bg-black/40 rounded-xl flex justify-between items-center border border-zinc-200 dark:border-white/5 hover:border-primaryBlue/50 transition-all">
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase">{h.date}</span>
+                          <button onClick={()=>setPrompts(h.data)} className="text-primaryBlue text-[9px] font-black uppercase hover:underline">Abrir</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </main>
@@ -387,7 +427,7 @@
       );
     }
 
-    function LoginScreen() {
+    function LoginScreen({ isDark, toggleTheme }) {
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
       const [loading, setLoading] = useState(false);
@@ -396,27 +436,32 @@
         e.preventDefault();
         setLoading(true);
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("NEGADO: SISTEMA PROTEGIDO");
+        if (error) alert("NEGADO");
         setLoading(false);
       };
 
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-8">
-          <form onSubmit={handleLogin} className="w-full max-w-md bg-panel p-16 rounded-[4rem] flex flex-col gap-10 shadow-[0_0_100px_rgba(0,0,0,1)] border border-white/5 relative overflow-hidden">
+        <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
+          <form onSubmit={handleLogin} className="w-full max-w-md bg-white dark:bg-panel p-16 rounded-[4rem] flex flex-col gap-10 shadow-2xl border-2 border-neonGreen relative z-10">
             <div className="text-center">
-              <div className="w-24 h-24 icon-squircle bg-accent rounded-[2.5rem] mx-auto mb-10 flex items-center justify-center shadow-[0_0_50px_rgba(0,242,255,0.4)]">
-                <i className="ph-duotone ph-fingerprint text-5xl text-black"></i>
+              <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center">
+                <i className="ph-fill ph-fingerprint text-5xl"></i>
               </div>
-              <h1 className="text-3xl font-black uppercase text-white italic tracking-tighter">STUDIO<span className="text-neonGreen">PRO</span></h1>
-              <p className="text-zinc-700 text-[10px] font-black uppercase tracking-[0.5em] mt-4 leading-none">authorized access only</p>
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="text-neonGreen">PRO</span></h1>
+              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
             </div>
             <div className="space-y-4">
-              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="IDENTIFICAÇÃO" className="cyber-input w-full p-6 rounded-2xl outline-none font-black text-white" />
-              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-6 rounded-2xl outline-none font-black text-white" />
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
+              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
             </div>
-            <button className="active-blue w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs transition-all hover:scale-105 active:scale-95">
+            <button className="active-tech w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs transition-all hover:scale-105 active:scale-95">
               ENTRAR
             </button>
+            <div className="flex justify-center mt-2">
+              <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-primaryBlue transition-all">
+                {isDark ? <i className="ph-duotone ph-sun-dim text-3xl icon-zoom"></i> : <i className="ph-duotone ph-moon-stars text-3xl icon-zoom"></i>}
+              </button>
+            </div>
           </form>
         </div>
       );
@@ -428,7 +473,14 @@
       const [isDark, setIsDark] = useState(true);
 
       useEffect(() => {
-        document.documentElement.classList.add('dark');
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'light') {
+          setIsDark(false);
+          document.documentElement.classList.remove('dark');
+        } else {
+          setIsDark(true);
+          document.documentElement.classList.add('dark');
+        }
         supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setLoading(false); });
         supabase.auth.onAuthStateChange((_event, session) => setSession(session));
       }, []);
@@ -438,13 +490,15 @@
         setIsDark(newTheme);
         if (newTheme) {
           document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
         } else {
           document.documentElement.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
         }
       };
 
       if (loading) return null;
-      return session ? <MainApp onLogout={()=>supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen />;
+      return session ? <MainApp onLogout={()=>supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen isDark={isDark} toggleTheme={toggleTheme} />;
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
