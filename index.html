@@ -23,7 +23,7 @@
             background: '#000000',
             panel: '#090A11',
             accent: '#00f2ff', 
-            greenSolid: '#05F0BD',
+            greenTransp: '#05F0BD2E',
             blueSolid: '#006DF0'
           },
           fontFamily: { 
@@ -44,56 +44,47 @@
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.4s ease; }
 
-    /* 1. Bordas das sessões na cor Transparente exata (#05F0BD2E) */
+    /* 1. Bordas das sessões na cor Transparente solicitada */
     .neon-panel {
-      border: 2px solid rgba(5, 240, 189, 0.18);
+      border: 2px solid #05F0BD2E;
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .neon-panel:hover {
       transform: scale(1.01);
     }
 
-    /* 2. Cores dos Ícones dinâmicas com GRADIENTE */
-    .icon-transp {
-      color: rgba(5, 240, 189, 0.18); /* Cor inativa idêntica à borda */
-      transition: all 0.3s ease;
+    /* 2. GRADIENTE ESTÁTICO NOS ÍCONES (Verde Transp + Azul) */
+    .icon-tech-gradient {
+      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD2E 20%, #006DF0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: none; /* Mantém a cor estática mesmo no zoom */
+      display: inline-block;
     }
-    
-    .neon-panel:hover .icon-transp, 
-    .btn-tech:hover .icon-transp, 
-    .active-tech .icon-transp {
+
+    /* Logo principal também segue o padrão */
+    .logo-gradient {
       background: linear-gradient(135deg, #05F0BD 0%, #006DF0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      color: transparent !important; /* Esconde a cor sólida para mostrar o gradiente */
     }
 
-    /* Classe utilitária para aplicar gradiente fixo em textos/logos */
-    .text-gradient {
-      background: linear-gradient(135deg, #05F0BD 0%, #006DF0 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: transparent !important;
-    }
-
-    /* 3. Botões/Cartões Técnicos (Zoom no Cartão) */
+    /* 3. Botões/Cartões Técnicos (Zoom no Cartão Inteiro) */
     .btn-tech {
       background-color: transparent;
-      border: 1px solid #52525b; /* Borda Cinza Claro inicial */
+      border: 1px solid #52525b; /* Borda Cinza Claro */
       color: #a1a1aa; 
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .btn-tech:hover {
       border-color: #05F0BD;
-      color: #05F0BD; 
-      transform: scale(1.05); /* Zoom no Cartão Inteiro */
+      transform: scale(1.05); /* Zoom no Cartão */
     }
     
     .active-tech {
-      background-color: rgba(5, 240, 189, 0.05); /* Fundo levíssimo para não roubar a cena do ícone */
-      color: #05F0BD !important;
-      border-color: #05F0BD !important;
+      background-color: rgba(0, 109, 240, 0.05); /* Fundo azul levíssimo */
+      border-color: #006DF0 !important;
       transform: scale(1.05); /* Mantém o zoom quando ativo */
     }
 
@@ -105,8 +96,8 @@
       transition: all 0.3s ease;
     }
     .cyber-input:focus {
-      border-color: #05F0BD;
-      box-shadow: 0 0 15px rgba(5, 240, 189, 0.15);
+      border-color: #006DF0;
+      box-shadow: 0 0 15px rgba(0, 109, 240, 0.15);
       outline: none;
     }
 
@@ -128,7 +119,6 @@
     .icon-squircle { border-radius: 30%; }
 
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #05F0BD; border-radius: 10px; }
     
     .fade-in { animation: fadeIn 0.4s ease-out forwards; }
@@ -138,7 +128,7 @@
     }
   </style>
 </head>
-<body class="bg-zinc-50 dark:bg-background text-zinc-900 dark:text-zinc-100 selection:bg-greenSolid/40 overflow-x-hidden antialiased">
+<body class="bg-zinc-50 dark:bg-background text-zinc-900 dark:text-zinc-100 selection:bg-blueSolid/40 overflow-x-hidden antialiased">
   
   <div id="root"></div>
 
@@ -211,7 +201,6 @@
       );
     }
 
-    // Trocado para ph-bold para o gradiente aplicar perfeitamente
     const NICHES = [
       { id: 'profissoes', name: 'Profissões', icon: 'ph-bold ph-briefcase-metal' },
       { id: 'casamento', name: 'Casamento', icon: 'ph-bold ph-star-four' },
@@ -266,18 +255,18 @@
           <header className="sticky top-0 z-50 bg-white/90 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-5">
                <div className="w-12 h-12 icon-squircle active-tech flex items-center justify-center">
-                  <i className="ph-bold ph-aperture text-3xl icon-transp"></i>
+                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient"></i>
                </div>
                <div>
-                  <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="text-gradient ml-1">Pro</span></h1>
-                  <span className="text-[8px] font-extrabold text-zinc-500 uppercase tracking-[0.4em]">Consistency Control</span>
+                  <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="logo-gradient ml-1">Pro</span></h1>
+                  <span className="text-[8px] font-extrabold text-zinc-500 uppercase tracking-[0.4em]">Engineered by Adriano</span>
                </div>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={() => setShowHistory(!showHistory)} className="btn-tech px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] !border-zinc-500 hover:text-greenSolid">
+              <button onClick={() => setShowHistory(!showHistory)} className="btn-tech px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] !border-zinc-500">
                 Arquivo de Consultas
               </button>
-              <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-greenSolid transition-all">
+              <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-blueSolid transition-all">
                 {isDark ? <i className="ph-bold ph-sun-dim text-2xl"></i> : <i className="ph-bold ph-moon-stars text-2xl"></i>}
               </button>
               <button onClick={onLogout} className="w-11 h-11 rounded-xl bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center">
@@ -289,33 +278,33 @@
           <main className="max-w-[1600px] mx-auto w-full p-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
             
             <div className="lg:col-span-8 flex flex-col gap-10">
-              {/* PASSO 1 */}
+              {/* PASSO 1: SCAN DE IDENTIDADE */}
               <section className="fade-in bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel relative overflow-hidden">
                 <div className="flex items-center gap-4 mb-10">
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
-                    <i className="ph-bold ph-scan text-2xl icon-transp"></i>
+                    <i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i>
                   </div>
                   <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Scan de Identidade</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {imagePreviews.map((src, i) => (
-                    <div key={i} className="relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-greenSolid shadow-lg group">
+                    <div key={i} className="relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-blueSolid shadow-lg group">
                       <img src={src} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                       <button onClick={()=>setImagePreviews(prev=>prev.filter((_,idx)=>idx!==i))} className="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center shadow-lg"><i className="ph-bold ph-trash-simple"></i></button>
                     </div>
                   ))}
-                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-300 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-greenSolid transition-all group">
-                    <i className="ph-bold ph-user-focus text-4xl icon-transp transition-colors duration-300"></i>
+                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-300 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all group">
+                    <i className="ph-bold ph-user-focus text-4xl icon-tech-gradient"></i>
                     <input type="file" className="hidden" onChange={handleImageUpload} />
                   </label>
                 </div>
               </section>
 
-              {/* PASSO 2 */}
+              {/* PASSO 2: MISSÃO TÉCNICA */}
               <section className="fade-in bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel" style={{animationDelay: '0.1s'}}>
                 <div className="flex items-center gap-4 mb-10">
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
-                    <i className="ph-bold ph-target text-2xl icon-transp"></i>
+                    <i className="ph-bold ph-target text-2xl icon-tech-gradient"></i>
                   </div>
                   <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Missão Técnica</h2>
                 </div>
@@ -323,7 +312,7 @@
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mb-10">
                   {NICHES.map(n => (
                     <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-tech p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-tech' : ''}`}>
-                      <i className={`${n.icon} text-4xl icon-transp`}></i>
+                      <i className={`${n.icon} text-4xl icon-tech-gradient`}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
                   ))}
@@ -335,17 +324,6 @@
                   placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..."
                   className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-700 leading-relaxed"
                 />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-600 uppercase tracking-widest ml-2">Nicho Customizado</label>
-                     <input type="text" value={customNiche} onChange={e=>setCustomNiche(e.target.value)} placeholder="EX: ODONTOPEDIATRA" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-greenSolid" />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-600 uppercase tracking-widest ml-2">Elementos Específicos</label>
-                     <input type="text" value={extraDetails} onChange={e=>setExtraDetails(e.target.value)} placeholder="EX: BALÕES, NEON, ESTETOSCÓPIO" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-zinc-600 dark:text-zinc-400" />
-                  </div>
-                </div>
               </section>
 
               {/* RESULTADOS */}
@@ -354,15 +332,15 @@
                   <button onClick={()=>{
                       const text = prompts.map((p,i)=>`Prompt ${i+1}:\n${p.prompt}`).join('\n\n');
                       navigator.clipboard.writeText(text);
-                    }} className="active-tech w-full py-6 rounded-[1.5rem] font-black uppercase tracking-[0.5em] text-xs transition-all">
+                    }} className="active-tech w-full py-6 rounded-[1.5rem] font-black uppercase tracking-[0.5em] text-xs transition-all hover:scale-[1.01]">
                     Copiar Todos na Ordem (Prompt 1, 2...)
                   </button>
                   <div className="flex flex-col gap-5">
                     {prompts.map((p, i) => (
                       <div key={p.id} className="bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel relative group">
-                        <span className="text-[10px] font-black text-gradient uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
+                        <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
                         <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
-                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center transition-all hover:scale-110"><i className="ph-bold ph-copy text-2xl icon-transp"></i></button>
+                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
                       </div>
                     ))}
                   </div>
@@ -370,13 +348,13 @@
               )}
             </div>
 
-            {/* COLUNA DIREITA FIXA */}
+            {/* COLUNA DIREITA FIXA: HARDWARE PRO */}
             <div className="lg:col-span-4">
               <div className="sticky top-32 flex flex-col gap-10">
                 <section className="fade-in bg-white dark:bg-panel p-10 rounded-[3rem] neon-panel relative overflow-hidden" style={{animationDelay: '0.2s'}}>
                   <div className="flex items-center gap-4 mb-10">
-                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
-                      <i className="ph-bold ph-cpu text-2xl icon-transp"></i>
+                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
+                      <i className="ph-bold ph-cpu text-2xl icon-tech-gradient"></i>
                     </div>
                     <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
                   </div>
@@ -385,9 +363,9 @@
                     <div>
                       <div className="flex justify-between mb-5">
                         <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
-                        <span className="text-[10px] font-black text-gradient italic tracking-widest">{settings.quantity}X UNIDADES</span>
+                        <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
                       </div>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-greenSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-black" />
+                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-black" />
                     </div>
 
                     <div className="space-y-8">
@@ -422,28 +400,12 @@
                     <button 
                       onClick={generate}
                       disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)}
-                      className="active-tech w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 transition-all"
+                      className="active-tech w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 transition-all hover:scale-[1.02]"
                     >
-                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl icon-transp"></i> : 'FORJAR PROMPTS'}
+                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl icon-tech-gradient"></i> : 'FORJAR PROMPTS'}
                     </button>
                   </div>
                 </section>
-
-                {showHistory && history.length > 0 && (
-                  <div className="fade-in bg-white dark:bg-panel p-8 rounded-[2.5rem] neon-panel max-h-[300px] overflow-y-auto">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] mb-6 flex items-center gap-2 text-zinc-900 dark:text-white">
-                      <i className="ph-bold ph-clock-counter-clockwise text-xl icon-transp"></i> Histórico Recente
-                    </h3>
-                    <div className="flex flex-col gap-2">
-                      {history.map((h, i) => (
-                        <div key={i} className="p-3 bg-zinc-50 dark:bg-black/40 rounded-xl flex justify-between items-center border border-zinc-200 dark:border-white/5 hover:border-greenSolid/50 transition-all">
-                          <span className="text-[10px] font-bold text-zinc-500 uppercase">{h.date}</span>
-                          <button onClick={()=>setPrompts(h.data)} className="text-greenSolid text-[9px] font-black uppercase hover:underline">Abrir</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </main>
@@ -466,12 +428,12 @@
 
       return (
         <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
-          <form onSubmit={handleLogin} className="w-full max-w-md bg-white dark:bg-panel p-16 rounded-[4rem] flex flex-col gap-10 neon-panel relative z-10">
+          <form onSubmit={handleLogin} className="w-full max-w-md bg-white dark:bg-panel p-16 rounded-[4rem] flex flex-col gap-10 shadow-2xl border-2 border-blueSolid relative z-10">
             <div className="text-center">
               <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center">
-                <i className="ph-bold ph-fingerprint text-5xl icon-transp"></i>
+                <i className="ph-fill ph-fingerprint text-5xl"></i>
               </div>
-              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="text-gradient">PRO</span></h1>
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient">PRO</span></h1>
               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
             </div>
             <div className="space-y-4">
@@ -482,8 +444,8 @@
               ENTRAR
             </button>
             <div className="flex justify-center mt-2">
-              <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-greenSolid transition-all">
-                {isDark ? <i className="ph-bold ph-sun-dim text-3xl icon-transp"></i> : <i className="ph-bold ph-moon-stars text-3xl icon-transp"></i>}
+              <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-blueSolid transition-all">
+                {isDark ? <i className="ph-bold ph-sun-dim text-3xl icon-tech-gradient"></i> : <i className="ph-bold ph-moon-stars text-3xl icon-tech-gradient"></i>}
               </button>
             </div>
           </form>
