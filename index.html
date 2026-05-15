@@ -66,34 +66,29 @@
 
     async function fetchWithRetry(payload, retries = 3) {
       const delays = [1000, 2000, 4000];
-      const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/gerar-prompt`;
 
       for (let m = 0; m < GEMINI_MODELS.length; m++) {
         const currentModel = GEMINI_MODELS[m];
         
         for (let i = 0; i < retries; i++) {
           try {
-            const response = await fetch(EDGE_FUNCTION_URL, {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-              },
+            // Utilizamos o cliente Supabase nativo em vez do 'fetch' direto para garantir os cabeçalhos corretos de autenticação
+            const { data, error } = await supabase.functions.invoke('gerar-prompt', {
               body: JSON.stringify({ model: currentModel, payload: payload })
             });
 
-            if (response.status === 429 && m < GEMINI_MODELS.length - 1) {
-              console.warn(`Limite atingido no modelo ${currentModel}. Passando para reserva...`);
-              break; 
+            if (error) {
+               // Verifica se o erro é de limite (Too Many Requests) para trocar de modelo
+               if (error.message && error.message.includes('429') && m < GEMINI_MODELS.length - 1) {
+                  console.warn(`Limite atingido no modelo ${currentModel}. Passando para reserva...`);
+                  break;
+               }
+               console.error(`Erro da API (${currentModel}):`, error);
+               throw new Error(`Erro do sistema: ${error.message || 'Falha na função'}`);
             }
 
-            if (!response.ok) {
-              const errText = await response.text();
-              console.error(`Erro da API (${currentModel}):`, errText);
-              throw new Error(`Erro do sistema: ${response.status}`);
-            }
+            return data;
 
-            return await response.json();
           } catch (e) {
             if (i === retries - 1 && m === GEMINI_MODELS.length - 1) {
               throw new Error(`Falha de conexão com a IA: ${e.message}`);
