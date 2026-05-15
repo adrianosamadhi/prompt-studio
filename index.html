@@ -74,15 +74,20 @@
     }
 
     /* =========================================
-       MODO CLARO: REFINAÇÃO DE CONTRASTE EXTREMO
+       MODO CLARO: FUNDO F4F4F4 + GLOW VERDE
        ========================================= */
     html:not(.dark) body {
-      background: #f4f4f4; 
+      background-color: #f4f4f4; 
+      background-image: 
+        /* Iluminações suaves verdes solicitadas para o modo claro */
+        radial-gradient(circle at 10% 20%, rgba(5, 240, 189, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(5, 240, 189, 0.12) 0%, transparent 40%);
+      background-attachment: fixed;
     }
     
     html:not(.dark) .neon-panel {
       background-color: #C1C1C3 !important; 
-      border: 2px solid #343540 !important; /* Borda Escura (Cinza GPT) */
+      border: 2px solid #343540 !important; 
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; 
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -92,7 +97,6 @@
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
     }
 
-    /* Forçar textos a ficarem escuros no modo claro, exceto botões coloridos */
     html:not(.dark) .neon-panel h1, 
     html:not(.dark) .neon-panel h2, 
     html:not(.dark) .neon-panel span:not(.text-greenSolid):not(.text-blueSolid):not(.text-gradient), 
@@ -101,18 +105,70 @@
       color: #18181b !important;
     }
 
-    /* Refinação de Cartões (Botões Inativos) no Modo Claro */
+    /* =========================================
+       MODO CLARO: CARTÕES INATIVOS EM CINZA GPT
+       ========================================= */
     html:not(.dark) .btn-tech, 
     html:not(.dark) .btn-niche {
-      background-color: #e4e4e7; /* Fundo leve para o cartão destacar */
-      border-color: #343540 !important; /* Borda Escura */
-      color: #18181b !important; /* Letra Escura */
+      /* Gradiente Cinza GPT como solicitado */
+      background: linear-gradient(135deg, #343540 0%, #27272a 100%) !important; 
+      border-color: #1e1e22 !important; 
+      color: #ffffff !important; /* Textos brancos */
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
+    }
+    
+    /* Força os textos (spans) a ficarem brancos nos cartões inativos */
+    html:not(.dark) .btn-tech span, 
+    html:not(.dark) .btn-niche span {
+      color: #ffffff !important;
+    }
+    
+    /* Garante que o ícone do nicho continue verde na caixa Cinza GPT */
+    html:not(.dark) .btn-niche i {
+      color: #05F0BD !important;
     }
 
     /* =========================================
-       BOTÕES TÉCNICOS (Hardware Pro)
-       Regra: Fixo (Ativo) = Verde, Hover = Azul
+       MODO CLARO: HOVER / PASSAR O MOUSE (Mantido como estava)
+       ========================================= */
+    /* Hover Hardware Pro */
+    html:not(.dark) .btn-tech:hover {
+      border-color: #006DF0 !important;
+      color: #006DF0 !important;
+      background: #ffffff !important; /* Retorna ao visual limpo ao focar */
+    }
+    html:not(.dark) .btn-tech:hover span {
+      color: #006DF0 !important;
+    }
+    html:not(.dark) .active-tech {
+      background: #ffffff !important;
+      border-color: #05F0BD !important;
+      color: #05F0BD !important;
+    }
+    html:not(.dark) .active-tech span {
+      color: #05F0BD !important;
+    }
+
+    /* Hover Missão Técnica */
+    html:not(.dark) .btn-niche:hover {
+      border-color: #05F0BD !important;
+      color: #05F0BD !important;
+      background: #ffffff !important; 
+    }
+    html:not(.dark) .btn-niche:hover span {
+      color: #05F0BD !important;
+    }
+    html:not(.dark) .active-niche {
+      background: #ffffff !important;
+      border-color: #006DF0 !important;
+      color: #006DF0 !important;
+    }
+    html:not(.dark) .active-niche span {
+      color: #006DF0 !important;
+    }
+
+    /* =========================================
+       BOTÕES TÉCNICOS (Modo Escuro Padrão)
        ========================================= */
     .btn-tech {
       background-color: transparent;
@@ -122,33 +178,20 @@
     }
     
     .btn-tech:hover {
-      border-color: #006DF0 !important; /* Azul no Hover */
+      border-color: #006DF0 !important; 
       color: #006DF0 !important; 
       transform: scale(1.05);
     }
     
     .active-tech {
       background-color: rgba(5, 240, 189, 0.05); 
-      border-color: #05F0BD !important; /* Verde Fixo */
+      border-color: #05F0BD !important; 
       color: #05F0BD !important; 
       transform: scale(1.05); 
     }
 
-    /* Ajustes específicos de Hover/Ativo no MODO CLARO para Hardware Pro */
-    html:not(.dark) .btn-tech:hover {
-      border-color: #006DF0 !important;
-      color: #006DF0 !important;
-      background-color: #ffffff !important;
-    }
-    html:not(.dark) .active-tech {
-      background-color: #ffffff !important;
-      border-color: #05F0BD !important;
-      color: #05F0BD !important;
-    }
-
     /* =========================================
-       CARTÕES DE NICHO (Missão Técnica - Sem Alteração)
-       Regra: Fixo (Ativo) = Azul, Hover = Verde
+       CARTÕES DE NICHO (Modo Escuro Padrão)
        ========================================= */
     .btn-niche {
       background-color: transparent;
@@ -175,26 +218,14 @@
       transform: scale(1.05); 
     }
 
-    /* Ajustes específicos de Hover/Ativo no MODO CLARO para Missão Técnica */
-    html:not(.dark) .btn-niche:hover {
-      border-color: #05F0BD !important;
-      color: #05F0BD !important;
-      background-color: #ffffff !important;
-    }
-    html:not(.dark) .active-niche {
-      background-color: #ffffff !important;
-      border-color: #006DF0 !important;
-      color: #006DF0 !important;
-    }
-
     /* =========================================
-       BOTÃO FORJAR PROMPTS E INPUTS
+       BOTÃO FORJAR PROMPTS (Gradiente Verde + Texto Cinza GPT)
        ========================================= */
     .btn-forjar {
-      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD 40%, #006DF0 100%);
-      color: #ffffff !important;
+      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD 100%);
+      color: #343540 !important; 
       border: none !important;
-      box-shadow: 0 10px 25px rgba(0, 109, 240, 0.3);
+      box-shadow: 0 10px 25px rgba(5, 240, 189, 0.2);
       transition: all 0.3s ease;
     }
     .btn-forjar:hover {
@@ -202,7 +233,7 @@
       box-shadow: 0 15px 35px rgba(5, 240, 189, 0.4);
     }
     .btn-forjar i {
-      color: #ffffff !important;
+      color: #343540 !important; 
       -webkit-text-fill-color: initial !important;
       background: none !important;
     }
@@ -222,7 +253,7 @@
 
     html:not(.dark) .cyber-input {
       background: #f4f4f4 !important;
-      border: 1px solid #343540 !important; /* Bordas escuras também no input */
+      border: 1px solid #343540 !important; 
       color: #18181b !important;
     }
     html:not(.dark) .cyber-input::placeholder {
@@ -328,7 +359,7 @@
             active ? 'active-tech' : ''
           }`}
         >
-          {label}
+          <span>{label}</span>
         </button>
       );
     }
@@ -386,8 +417,8 @@
         <div className="min-h-screen flex flex-col">
           <header className="sticky top-0 z-50 bg-white/90 dark:bg-panelDark/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-5">
-               <div className="w-12 h-12 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
-                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient"></i>
+               <div className="w-12 h-12 icon-squircle active-tech flex items-center justify-center">
+                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient" style={selectedNiche ? {} : {color: '#ffffff', background: 'none', webkitTextFillColor: 'initial'}}></i>
                </div>
                <div>
                   <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="logo-gradient ml-1">Pro</span></h1>
@@ -396,7 +427,7 @@
             </div>
             <div className="flex items-center gap-4">
               <button onClick={() => setShowHistory(!showHistory)} className="btn-tech px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] !border-zinc-500">
-                Arquivo de Consultas
+                <span>Arquivo de Consultas</span>
               </button>
               <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-blueSolid transition-all">
                 {isDark ? <i className="ph-bold ph-sun-dim text-2xl"></i> : <i className="ph-bold ph-moon-stars text-2xl"></i>}
@@ -444,7 +475,7 @@
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mb-10">
                   {NICHES.map(n => (
                     <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-niche p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-niche' : ''}`}>
-                      <i className={`${n.icon} text-4xl`}></i>
+                      <i className={`${n.icon} text-4xl`} style={selectedNiche === n.id ? {} : { color: 'inherit' }}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
                   ))}
@@ -480,157 +511,3 @@
                   </button>
                   <div className="flex flex-col gap-5">
                     {prompts.map((p, i) => (
-                      <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
-                        <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
-                        <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
-                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* COLUNA DIREITA FIXA: HARDWARE PRO */}
-            <div className="lg:col-span-4">
-              <div className="sticky top-32 flex flex-col gap-10">
-                <section className="fade-in neon-panel p-10 rounded-[3rem] relative overflow-hidden" style={{animationDelay: '0.2s'}}>
-                  <div className="flex items-center gap-4 mb-10">
-                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
-                      <i className="ph-bold ph-cpu text-2xl icon-tech-gradient" style={{color: '#000', background: 'none', webkitTextFillColor: 'initial'}}></i>
-                    </div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
-                  </div>
-
-                  <div className="flex flex-col gap-10">
-                    <div>
-                      <div className="flex justify-between mb-5">
-                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
-                        <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
-                      </div>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-panelDark" />
-                    </div>
-
-                    <div className="space-y-8">
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Estilo Visual</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
-                            <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Realismo</label>
-                        <div className="grid grid-cols-3 gap-3">
-                          {['natural', 'premium', 'cine'].map(r => (
-                            <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Proporção</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
-                            <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={generate}
-                      disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)}
-                      className="btn-forjar w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 disabled:grayscale transition-all"
-                    >
-                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl icon-tech-gradient"></i> : 'FORJAR PROMPTS'}
-                    </button>
-                  </div>
-                </section>
-              </div>
-            </div>
-          </main>
-        </div>
-      );
-    }
-
-    function LoginScreen({ isDark, toggleTheme }) {
-      const [email, setEmail] = useState('');
-      const [password, setPassword] = useState('');
-      const [loading, setLoading] = useState(false);
-
-      const handleLogin = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("NEGADO");
-        setLoading(false);
-      };
-
-      return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
-          <form onSubmit={handleLogin} className="w-full max-w-md neon-panel p-16 rounded-[4rem] flex flex-col gap-10 relative z-10">
-            <div className="text-center">
-              <div className="w-24 h-24 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 mx-auto mb-10 flex items-center justify-center">
-                <i className="ph-fill ph-fingerprint text-5xl icon-tech-gradient"></i>
-              </div>
-              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
-            </div>
-            <div className="space-y-4">
-              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
-              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
-            </div>
-            <button className="btn-forjar w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs transition-all">
-              ENTRAR
-            </button>
-            <div className="flex justify-center mt-2">
-              <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-blueSolid transition-all">
-                {isDark ? <i className="ph-bold ph-sun-dim text-3xl icon-tech-gradient"></i> : <i className="ph-bold ph-moon-stars text-3xl icon-tech-gradient"></i>}
-              </button>
-            </div>
-          </form>
-        </div>
-      );
-    }
-
-    function App() {
-      const [session, setSession] = useState(null);
-      const [loading, setLoading] = useState(true);
-      const [isDark, setIsDark] = useState(true);
-
-      useEffect(() => {
-        const storedTheme = localStorage.getItem('theme');
-        if (storedTheme === 'light') {
-          setIsDark(false);
-          document.documentElement.classList.remove('dark');
-        } else {
-          setIsDark(true);
-          document.documentElement.classList.add('dark');
-        }
-        supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setLoading(false); });
-        supabase.auth.onAuthStateChange((_event, session) => setSession(session));
-      }, []);
-
-      const toggleTheme = () => {
-        const newTheme = !isDark;
-        setIsDark(newTheme);
-        if (newTheme) {
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('theme', 'dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-          localStorage.setItem('theme', 'light');
-        }
-      };
-
-      if (loading) return null;
-      return session ? <MainApp onLogout={()=>supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen isDark={isDark} toggleTheme={toggleTheme} />;
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
-</body>
-</html>
