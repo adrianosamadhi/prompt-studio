@@ -74,15 +74,15 @@
     }
 
     /* =========================================
-       MODO CLARO: FUNDO F4F4F4 E SESSÕES C1C1C3
+       MODO CLARO: REFINAÇÃO DE CONTRASTE EXTREMO
        ========================================= */
     html:not(.dark) body {
-      background: #f4f4f4; /* Fundo geral do app */
+      background: #f4f4f4; 
     }
     
     html:not(.dark) .neon-panel {
-      background-color: #C1C1C3 !important; /* Fundo das sessões */
-      border: 2px solid #343540 !important; /* Bordas Cinza GPT */
+      background-color: #C1C1C3 !important; 
+      border: 2px solid #343540 !important; /* Borda Escura (Cinza GPT) */
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; 
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -92,53 +92,63 @@
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
     }
 
-    html:not(.dark) .btn-tech, html:not(.dark) .btn-niche {
-      border-color: #d4d4d8;
+    /* Forçar textos a ficarem escuros no modo claro, exceto botões coloridos */
+    html:not(.dark) .neon-panel h1, 
+    html:not(.dark) .neon-panel h2, 
+    html:not(.dark) .neon-panel span:not(.text-greenSolid):not(.text-blueSolid):not(.text-gradient), 
+    html:not(.dark) .neon-panel p, 
+    html:not(.dark) .neon-panel label {
+      color: #18181b !important;
+    }
+
+    /* Refinação de Cartões (Botões Inativos) no Modo Claro */
+    html:not(.dark) .btn-tech, 
+    html:not(.dark) .btn-niche {
+      background-color: #e4e4e7; /* Fundo leve para o cartão destacar */
+      border-color: #343540 !important; /* Borda Escura */
+      color: #18181b !important; /* Letra Escura */
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
-      color: #52525b;
+    }
+
+    /* =========================================
+       BOTÕES TÉCNICOS (Hardware Pro)
+       Regra: Fixo (Ativo) = Verde, Hover = Azul
+       ========================================= */
+    .btn-tech {
+      background-color: transparent;
+      border: 1px solid #52525b; 
+      color: #a1a1aa; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    /* =========================================
-       BOTÃO FORJAR PROMPTS
-       ========================================= */
-    .btn-forjar {
-      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD 40%, #006DF0 100%);
-      color: #ffffff !important;
-      border: none !important;
-      box-shadow: 0 10px 25px rgba(0, 109, 240, 0.3);
-      transition: all 0.3s ease;
+    .btn-tech:hover {
+      border-color: #006DF0 !important; /* Azul no Hover */
+      color: #006DF0 !important; 
+      transform: scale(1.05);
     }
-    .btn-forjar:hover {
-      transform: scale(1.02);
-      box-shadow: 0 15px 35px rgba(5, 240, 189, 0.4);
-    }
-    .btn-forjar i {
-      color: #ffffff !important;
-      -webkit-text-fill-color: initial !important;
-      background: none !important;
+    
+    .active-tech {
+      background-color: rgba(5, 240, 189, 0.05); 
+      border-color: #05F0BD !important; /* Verde Fixo */
+      color: #05F0BD !important; 
+      transform: scale(1.05); 
     }
 
-    /* GRADIENTES ESTÁTICOS DOS CABEÇALHOS (Modo Escuro) */
-    html.dark .icon-tech-gradient {
-      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD2E 20%, #006DF0 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: inline-block;
+    /* Ajustes específicos de Hover/Ativo no MODO CLARO para Hardware Pro */
+    html:not(.dark) .btn-tech:hover {
+      border-color: #006DF0 !important;
+      color: #006DF0 !important;
+      background-color: #ffffff !important;
     }
-    html.dark .logo-gradient {
-      background: linear-gradient(135deg, #05F0BD 0%, #006DF0 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    html:not(.dark) .icon-tech-gradient {
-      background: none !important;
-      -webkit-text-fill-color: initial !important;
+    html:not(.dark) .active-tech {
+      background-color: #ffffff !important;
+      border-color: #05F0BD !important;
       color: #05F0BD !important;
     }
 
     /* =========================================
-       CARTÕES DE NICHO (Missão Técnica)
+       CARTÕES DE NICHO (Missão Técnica - Sem Alteração)
+       Regra: Fixo (Ativo) = Azul, Hover = Verde
        ========================================= */
     .btn-niche {
       background-color: transparent;
@@ -165,27 +175,36 @@
       transform: scale(1.05); 
     }
 
-    /* =========================================
-       BOTÕES TÉCNICOS (Hardware Pro)
-       ========================================= */
-    .btn-tech {
-      background-color: transparent;
-      border: 1px solid #52525b; 
-      color: #a1a1aa; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .btn-tech:hover {
+    /* Ajustes específicos de Hover/Ativo no MODO CLARO para Missão Técnica */
+    html:not(.dark) .btn-niche:hover {
       border-color: #05F0BD !important;
       color: #05F0BD !important;
-      transform: scale(1.05);
+      background-color: #ffffff !important;
     }
-    
-    .active-tech {
-      background-color: rgba(0, 109, 240, 0.05); 
-      border-color: #006DF0 !important; 
-      color: #006DF0 !important; 
-      transform: scale(1.05); 
+    html:not(.dark) .active-niche {
+      background-color: #ffffff !important;
+      border-color: #006DF0 !important;
+      color: #006DF0 !important;
+    }
+
+    /* =========================================
+       BOTÃO FORJAR PROMPTS E INPUTS
+       ========================================= */
+    .btn-forjar {
+      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD 40%, #006DF0 100%);
+      color: #ffffff !important;
+      border: none !important;
+      box-shadow: 0 10px 25px rgba(0, 109, 240, 0.3);
+      transition: all 0.3s ease;
+    }
+    .btn-forjar:hover {
+      transform: scale(1.02);
+      box-shadow: 0 15px 35px rgba(5, 240, 189, 0.4);
+    }
+    .btn-forjar i {
+      color: #ffffff !important;
+      -webkit-text-fill-color: initial !important;
+      background: none !important;
     }
 
     /* Inputs */
@@ -201,11 +220,32 @@
       outline: none;
     }
 
-    /* Inputs em Modo Claro */
     html:not(.dark) .cyber-input {
-      background: #f4f4f4; /* Ajustado para mesclar suavemente com o C1C1C3 */
-      border: 1px solid #a1a1aa;
-      color: #18181b;
+      background: #f4f4f4 !important;
+      border: 1px solid #343540 !important; /* Bordas escuras também no input */
+      color: #18181b !important;
+    }
+    html:not(.dark) .cyber-input::placeholder {
+      color: #52525b !important;
+    }
+
+    /* GRADIENTES ESTÁTICOS DOS CABEÇALHOS (Modo Escuro) */
+    html.dark .icon-tech-gradient {
+      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD2E 20%, #006DF0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+    html.dark .logo-gradient {
+      background: linear-gradient(135deg, #05F0BD 0%, #006DF0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    html:not(.dark) .icon-tech-gradient {
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+      color: #05F0BD !important;
     }
 
     .icon-squircle { border-radius: 30%; }
@@ -346,8 +386,8 @@
         <div className="min-h-screen flex flex-col">
           <header className="sticky top-0 z-50 bg-white/90 dark:bg-panelDark/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-5">
-               <div className="w-12 h-12 icon-squircle active-tech flex items-center justify-center">
-                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient" style={selectedNiche ? {} : {color: '#ffffff', background: 'none', webkitTextFillColor: 'initial'}}></i>
+               <div className="w-12 h-12 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
+                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient"></i>
                </div>
                <div>
                   <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="logo-gradient ml-1">Pro</span></h1>
@@ -385,7 +425,7 @@
                       <button onClick={()=>setImagePreviews(prev=>prev.filter((_,idx)=>idx!==i))} className="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center shadow-lg"><i className="ph-bold ph-trash-simple"></i></button>
                     </div>
                   ))}
-                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-400 dark:border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all group">
+                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-300 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all group">
                     <i className="ph-bold ph-user-focus text-4xl icon-tech-gradient"></i>
                     <input type="file" className="hidden" onChange={handleImageUpload} />
                   </label>
@@ -414,7 +454,7 @@
                   value={freePrompt}
                   onChange={e=>{setFreePrompt(e.target.value); setSelectedNiche('');}}
                   placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..."
-                  className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-500 dark:placeholder:text-zinc-700 leading-relaxed"
+                  className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-700 leading-relaxed"
                 />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
@@ -442,7 +482,7 @@
                     {prompts.map((p, i) => (
                       <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
                         <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
-                        <p className="text-[11px] font-mono text-zinc-700 dark:text-zinc-400 leading-loose break-words bg-white dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-300 dark:border-white/5">{p.prompt}</p>
+                        <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
                         <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
                       </div>
                     ))}
@@ -468,7 +508,7 @@
                         <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
                         <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
                       </div>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-300 dark:bg-panelDark" />
+                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-panelDark" />
                     </div>
 
                     <div className="space-y-8">
@@ -533,7 +573,7 @@
         <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
           <form onSubmit={handleLogin} className="w-full max-w-md neon-panel p-16 rounded-[4rem] flex flex-col gap-10 relative z-10">
             <div className="text-center">
-              <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center">
+              <div className="w-24 h-24 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 mx-auto mb-10 flex items-center justify-center">
                 <i className="ph-fill ph-fingerprint text-5xl icon-tech-gradient"></i>
               </div>
               <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
