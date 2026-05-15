@@ -22,6 +22,7 @@
           colors: { 
             panelDark: '#10111B',
             cinzaGPT: '#343540',
+            cinzaClaro: '#C1C1C3',
             accent: '#00f2ff', 
             greenSolid: '#05F0BD', 
             greenTransp: '#05F0BD2E',
@@ -73,16 +74,16 @@
     }
 
     /* =========================================
-       MODO CLARO: CINZA GPT E SOMBRAS ESCURAS
+       MODO CLARO: FUNDO F4F4F4 E SESSÕES C1C1C3
        ========================================= */
     html:not(.dark) body {
-      background: #fafafa;
+      background: #f4f4f4; /* Fundo geral do app */
     }
     
     html:not(.dark) .neon-panel {
-      background-color: #343540 !important; /* Cinza GPT cravado nas sessões */
-      border: 2px solid #27272a !important; 
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; /* Sombra mais densa */
+      background-color: #C1C1C3 !important; /* Fundo das sessões */
+      border: 2px solid #343540 !important; /* Bordas Cinza GPT */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; 
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
@@ -91,29 +92,14 @@
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
     }
 
-    html:not(.dark) .btn-tech {
-      border-color: #52525b;
+    html:not(.dark) .btn-tech, html:not(.dark) .btn-niche {
+      border-color: #d4d4d8;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
-      color: #a1a1aa;
+      color: #52525b;
     }
     
-    /* MODO CLARO - Ícones em Verde Sólido (#05F0BD) sem gradiente */
-    html:not(.dark) .icon-tech-gradient,
-    html:not(.dark) .icon-transp {
-      background: none !important;
-      -webkit-text-fill-color: initial !important;
-      color: #05F0BD !important;
-    }
-    
-    /* Contraste do Ícone Ativo no Modo Claro */
-    html:not(.dark) .active-tech .icon-tech-gradient,
-    html:not(.dark) .active-tech .icon-transp,
-    html:not(.dark) .active-tech i {
-      color: #ffffff !important; 
-    }
-
     /* =========================================
-       BOTÃO FORJAR PROMPTS (Gradiente Triplo)
+       BOTÃO FORJAR PROMPTS
        ========================================= */
     .btn-forjar {
       background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD 40%, #006DF0 100%);
@@ -145,8 +131,42 @@
       -webkit-text-fill-color: transparent;
     }
 
+    html:not(.dark) .icon-tech-gradient {
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+      color: #05F0BD !important;
+    }
+
     /* =========================================
-       BOTÕES / CARTÕES TÉCNICOS
+       CARTÕES DE NICHO (Missão Técnica)
+       ========================================= */
+    .btn-niche {
+      background-color: transparent;
+      border: 1px solid #52525b; 
+      color: #a1a1aa; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .btn-niche i {
+      color: #05F0BD !important; 
+      transition: none;
+    }
+
+    .btn-niche:hover {
+      border-color: #05F0BD !important; 
+      color: #05F0BD !important; 
+      transform: scale(1.05);
+    }
+    
+    .active-niche {
+      background-color: rgba(0, 109, 240, 0.05); 
+      border-color: #006DF0 !important; 
+      color: #006DF0 !important; 
+      transform: scale(1.05); 
+    }
+
+    /* =========================================
+       BOTÕES TÉCNICOS (Hardware Pro)
        ========================================= */
     .btn-tech {
       background-color: transparent;
@@ -156,15 +176,15 @@
     }
     
     .btn-tech:hover {
-      border-color: #006DF0 !important; /* Azul no Hover */
-      color: #006DF0 !important; 
+      border-color: #05F0BD !important;
+      color: #05F0BD !important;
       transform: scale(1.05);
     }
     
     .active-tech {
-      background-color: rgba(5, 240, 189, 0.05); 
-      border-color: #05F0BD !important; /* Verde Fixo no Selecionado */
-      color: #05F0BD !important; 
+      background-color: rgba(0, 109, 240, 0.05); 
+      border-color: #006DF0 !important; 
+      color: #006DF0 !important; 
       transform: scale(1.05); 
     }
 
@@ -183,8 +203,8 @@
 
     /* Inputs em Modo Claro */
     html:not(.dark) .cyber-input {
-      background: #f4f4f5;
-      border: 1px solid #d4d4d8;
+      background: #f4f4f4; /* Ajustado para mesclar suavemente com o C1C1C3 */
+      border: 1px solid #a1a1aa;
       color: #18181b;
     }
 
@@ -356,7 +376,7 @@
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
                     <i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i>
                   </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Scan de Identidade</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Scan de Identidade</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {imagePreviews.map((src, i) => (
@@ -365,7 +385,7 @@
                       <button onClick={()=>setImagePreviews(prev=>prev.filter((_,idx)=>idx!==i))} className="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center shadow-lg"><i className="ph-bold ph-trash-simple"></i></button>
                     </div>
                   ))}
-                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-300 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all group">
+                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-400 dark:border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all group">
                     <i className="ph-bold ph-user-focus text-4xl icon-tech-gradient"></i>
                     <input type="file" className="hidden" onChange={handleImageUpload} />
                   </label>
@@ -378,13 +398,13 @@
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
                     <i className="ph-bold ph-target text-2xl icon-tech-gradient"></i>
                   </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Missão Técnica</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Missão Técnica</h2>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mb-10">
                   {NICHES.map(n => (
-                    <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-tech p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-tech' : ''}`}>
-                      <i className={`${n.icon} text-4xl`} style={selectedNiche === n.id ? {} : { color: 'inherit' }}></i>
+                    <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-niche p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-niche' : ''}`}>
+                      <i className={`${n.icon} text-4xl`}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
                   ))}
@@ -394,17 +414,17 @@
                   value={freePrompt}
                   onChange={e=>{setFreePrompt(e.target.value); setSelectedNiche('');}}
                   placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..."
-                  className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-700 leading-relaxed"
+                  className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-500 dark:placeholder:text-zinc-700 leading-relaxed"
                 />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                   <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-2">Nicho Customizado</label>
+                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-2">Nicho Customizado</label>
                      <input type="text" value={customNiche} onChange={e=>setCustomNiche(e.target.value)} placeholder="EX: ODONTOPEDIATRA" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-greenSolid" />
                   </div>
                   <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-2">Elementos Específicos</label>
-                     <input type="text" value={extraDetails} onChange={e=>setExtraDetails(e.target.value)} placeholder="EX: BALÕES, NEON, ESTETOSCÓPIO" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-zinc-400" />
+                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-2">Elementos Específicos</label>
+                     <input type="text" value={extraDetails} onChange={e=>setExtraDetails(e.target.value)} placeholder="EX: BALÕES, NEON, ESTETOSCÓPIO" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-zinc-500 dark:text-zinc-400" />
                   </div>
                 </div>
               </section>
@@ -422,7 +442,7 @@
                     {prompts.map((p, i) => (
                       <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
                         <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
-                        <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
+                        <p className="text-[11px] font-mono text-zinc-700 dark:text-zinc-400 leading-loose break-words bg-white dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-300 dark:border-white/5">{p.prompt}</p>
                         <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
                       </div>
                     ))}
@@ -439,21 +459,21 @@
                     <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
                       <i className="ph-bold ph-cpu text-2xl icon-tech-gradient" style={{color: '#000', background: 'none', webkitTextFillColor: 'initial'}}></i>
                     </div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Hardware Pro</h2>
+                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
                   </div>
 
                   <div className="flex flex-col gap-10">
                     <div>
                       <div className="flex justify-between mb-5">
-                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">Volume</label>
+                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
                         <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
                       </div>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-panelDark" />
+                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-300 dark:bg-panelDark" />
                     </div>
 
                     <div className="space-y-8">
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 block mb-4">Estilo Visual</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Estilo Visual</label>
                         <div className="grid grid-cols-2 gap-3">
                           {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
                             <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
@@ -462,7 +482,7 @@
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 block mb-4">Realismo</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Realismo</label>
                         <div className="grid grid-cols-3 gap-3">
                           {['natural', 'premium', 'cine'].map(r => (
                             <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
@@ -471,7 +491,7 @@
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 block mb-4">Proporção</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Proporção</label>
                         <div className="grid grid-cols-2 gap-3">
                           {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
                             <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
@@ -485,7 +505,7 @@
                       disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)}
                       className="btn-forjar w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 disabled:grayscale transition-all"
                     >
-                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl"></i> : 'FORJAR PROMPTS'}
+                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl icon-tech-gradient"></i> : 'FORJAR PROMPTS'}
                     </button>
                   </div>
                 </section>
@@ -514,10 +534,10 @@
           <form onSubmit={handleLogin} className="w-full max-w-md neon-panel p-16 rounded-[4rem] flex flex-col gap-10 relative z-10">
             <div className="text-center">
               <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center">
-                <i className="ph-fill ph-fingerprint text-5xl"></i>
+                <i className="ph-fill ph-fingerprint text-5xl icon-tech-gradient"></i>
               </div>
               <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
-              <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
+              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
             </div>
             <div className="space-y-4">
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
