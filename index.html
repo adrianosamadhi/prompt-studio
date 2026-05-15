@@ -511,3 +511,157 @@
                   </button>
                   <div className="flex flex-col gap-5">
                     {prompts.map((p, i) => (
+                      <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
+                        <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
+                        <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
+                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* COLUNA DIREITA FIXA: HARDWARE PRO */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-32 flex flex-col gap-10">
+                <section className="fade-in neon-panel p-10 rounded-[3rem] relative overflow-hidden" style={{animationDelay: '0.2s'}}>
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
+                      <i className="ph-bold ph-cpu text-2xl icon-tech-gradient" style={{color: '#000', background: 'none', webkitTextFillColor: 'initial'}}></i>
+                    </div>
+                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
+                  </div>
+
+                  <div className="flex flex-col gap-10">
+                    <div>
+                      <div className="flex justify-between mb-5">
+                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
+                        <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
+                      </div>
+                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-panelDark" />
+                    </div>
+
+                    <div className="space-y-8">
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Estilo Visual</label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
+                            <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Realismo</label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {['natural', 'premium', 'cine'].map(r => (
+                            <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Proporção</label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
+                            <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={generate}
+                      disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)}
+                      className="btn-forjar w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 disabled:grayscale transition-all"
+                    >
+                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl"></i> : 'FORJAR PROMPTS'}
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    function LoginScreen({ isDark, toggleTheme }) {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) alert("NEGADO");
+        setLoading(false);
+      };
+
+      return (
+        <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
+          <form onSubmit={handleLogin} className="w-full max-w-md neon-panel p-16 rounded-[4rem] flex flex-col gap-10 relative z-10">
+            <div className="text-center">
+              <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center">
+                <i className="ph-fill ph-fingerprint text-5xl icon-tech-gradient"></i>
+              </div>
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
+              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
+            </div>
+            <div className="space-y-4">
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
+              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
+            </div>
+            <button className="btn-forjar w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs transition-all">
+              ENTRAR
+            </button>
+            <div className="flex justify-center mt-2">
+              <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-blueSolid transition-all">
+                {isDark ? <i className="ph-bold ph-sun-dim text-3xl icon-tech-gradient"></i> : <i className="ph-bold ph-moon-stars text-3xl icon-tech-gradient"></i>}
+              </button>
+            </div>
+          </form>
+        </div>
+      );
+    }
+
+    function App() {
+      const [session, setSession] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [isDark, setIsDark] = useState(true);
+
+      useEffect(() => {
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'light') {
+          setIsDark(false);
+          document.documentElement.classList.remove('dark');
+        } else {
+          setIsDark(true);
+          document.documentElement.classList.add('dark');
+        }
+        supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setLoading(false); });
+        supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+      }, []);
+
+      const toggleTheme = () => {
+        const newTheme = !isDark;
+        setIsDark(newTheme);
+        if (newTheme) {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        }
+      };
+
+      if (loading) return null;
+      return session ? <MainApp onLogout={()=>supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen isDark={isDark} toggleTheme={toggleTheme} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
