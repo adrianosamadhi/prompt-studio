@@ -39,12 +39,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
-    /* COMPACTAÇÃO DE TELA GERAL */
     body { 
       font-family: 'Plus Jakarta Sans', sans-serif; 
       transition: background 0.5s ease;
       min-height: 100vh;
-      font-size: 12px; /* Fonte base reduzida para compactação */
+      font-size: 12px;
     }
 
     html.dark body {
@@ -56,14 +55,8 @@
       background-attachment: fixed;
     }
 
-    html:not(.dark) body {
-      background-color: #F4F4F4;
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(5, 240, 189, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(5, 240, 189, 0.1) 0%, transparent 40%);
-    }
+    html:not(.dark) body { background-color: #F4F4F4; }
 
-    /* PAINÉIS COMPACTOS */
     .neon-panel {
       border: 1px solid rgba(5, 240, 189, 0.15);
       backdrop-filter: blur(10px);
@@ -76,17 +69,12 @@
     html:not(.dark) .neon-panel {
       background-color: #C1C1C3 !important; 
       border: 2px solid #343540 !important; 
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important; 
     }
 
-    html:not(.dark) h1, html:not(.dark) h2, html:not(.dark) label, html:not(.dark) p { color: #18181B !important; }
-
-    /* BOTÃO GERAR PROMPTS (Fixo Branco com Borda Verde) */
     .btn-forjar {
       background-color: #FFFFFF !important;
       color: #343540 !important;
       border: 2px solid #05F0BD !important;
-      box-shadow: 0 5px 15px rgba(5, 240, 189, 0.2);
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -95,9 +83,9 @@
       transition: all 0.2s ease;
       width: 100%;
     }
-    .btn-forjar:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(5, 240, 189, 0.4); }
+    .btn-forjar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(5, 240, 189, 0.4); }
+    .btn-forjar:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* CARTÕES DE MISSÃO (Fixo Azul, Hover Verde) */
     .btn-niche {
       background-color: rgba(255, 255, 255, 0.03);
       border: 1px solid #52525B;
@@ -110,10 +98,9 @@
       transition: all 0.2s ease;
     }
     .btn-niche i { color: #05F0BD !important; font-size: 1.5rem; }
-    .btn-niche:hover { border-color: #05F0BD !important; color: #05F0BD !important; transform: scale(1.03); }
-    .active-niche { border-color: #006DF0 !important; color: #006DF0 !important; background-color: rgba(0, 109, 240, 0.05); }
+    .btn-niche:hover { border-color: #05F0BD !important; color: #05F0BD !important; }
+    .active-niche { border-color: #006DF0 !important; color: #006DF0 !important; background-color: rgba(0, 109, 240, 0.1); }
 
-    /* BOTÕES TÉCNICOS Hardware Pro (Fixo Verde, Hover Azul) */
     .btn-tech {
       background-color: rgba(255, 255, 255, 0.03);
       border: 1px solid #52525B;
@@ -121,30 +108,15 @@
       border-radius: 0.5rem;
       font-size: 0.65rem;
       font-weight: 700;
-      text-transform: uppercase;
       transition: all 0.2s ease;
     }
-    .btn-tech:hover { border-color: #006DF0 !important; color: #006DF0 !important; }
     .active-tech { border-color: #05F0BD !important; color: #05F0BD !important; background-color: rgba(5, 240, 189, 0.05); }
 
-    /* MODO CLARO - CARTÕES BRANCOS */
-    html:not(.dark) .btn-niche, html:not(.dark) .btn-tech {
-      background-color: #FFFFFF !important;
-      border-color: #343540 !important;
-      color: #18181B !important;
-    }
-
-    /* INPUTS COMPACTOS */
     .cyber-input {
       background: rgba(13, 13, 17, 0.6);
       border: 1px solid #27272A;
       color: #FFFFFF;
       padding: 0.6rem 1rem;
-    }
-    html:not(.dark) .cyber-input {
-      background: #E8E8E8 !important;
-      border: 1px solid #343540 !important;
-      color: #1A1A1B !important;
     }
 
     .logo-gradient {
@@ -154,14 +126,12 @@
     }
 
     .icon-tech-gradient {
-      background: linear-gradient(135deg, rgba(5, 240, 189, 0.3) 0%, #006DF0 100%);
+      background: linear-gradient(135deg, #05F0BD 0%, #006DF0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .icon-squircle { border-radius: 30%; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: #05F0BD; border-radius: 10px; }
   </style>
 </head>
 <body class="text-zinc-900 dark:text-zinc-100 overflow-x-hidden antialiased">
@@ -212,17 +182,39 @@
       };
 
       const generate = async () => {
+        if (!selectedNiche && !customNiche && !freePrompt) {
+          alert("Por favor, selecione um nicho ou descreva a missão.");
+          return;
+        }
+
         setIsGenerating(true);
-        // Lógica de Supabase mantida e protegida
+        
+        // Simulação de delay de processamento
         setTimeout(() => {
-          setPrompts([{ id: 1, prompt: "Prompt profissional gerado com consistência visual Studio Pro..." }]);
+          const novosPrompts = Array.from({ length: quantity }, (_, i) => ({
+            id: Date.now() + i,
+            prompt: `[${visualStyle}] Prompt Profissional Codex #${i+1}: Foto ${realismLevel} focado em ${selectedNiche || customNiche}. Elementos: ${extraDetails || 'Iluminação de estúdio'}. Parâmetros: --ar ${aspectRatio.split(' ')[0]} --v 6.0 --stylize 250`
+          }));
+          
+          setPrompts(novosPrompts);
           setIsGenerating(false);
+
+          // Scroll suave para os resultados
+          setTimeout(() => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          }, 100);
         }, 1500);
+      };
+
+      const copyAll = () => {
+        const text = prompts.map(p => p.prompt).join('\n\n');
+        navigator.clipboard.writeText(text);
+        alert("Todos os prompts copiados!");
       };
 
       return (
         <div className="flex flex-col min-h-screen">
-          <header className="px-6 py-3 flex items-center justify-between border-b border-white/5 bg-panelDark/20 backdrop-blur-md">
+          <header className="px-6 py-3 flex items-center justify-between border-b border-white/5 bg-panelDark/20 backdrop-blur-md sticky top-0 z-50">
             <div className="flex items-center gap-3">
                <div className="w-8 h-8 icon-squircle bg-panelDark flex items-center justify-center border border-greenSolid">
                   <i className="ph-bold ph-aperture text-xl text-greenSolid"></i>
@@ -243,7 +235,8 @@
           </header>
 
           <main className="p-4 grid grid-cols-12 gap-4 max-w-[1400px] mx-auto w-full flex-1">
-            <div className="col-span-8 flex flex-col gap-4">
+            {/* COLUNA ESQUERDA - INPUTS */}
+            <div className="col-span-12 lg:col-span-8 flex flex-col gap-4">
               
               <section className="neon-panel">
                 <div className="flex items-center gap-3 mb-3">
@@ -284,10 +277,10 @@
                   value={freePrompt}
                   onChange={e=>{setFreePrompt(e.target.value); setSelectedNiche('');}}
                   placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..."
-                  className="cyber-input w-full rounded-xl text-[10px] h-16 resize-none font-bold placeholder:text-zinc-600"
+                  className="cyber-input w-full rounded-xl text-[10px] h-16 resize-none font-bold placeholder:text-zinc-600 mb-3"
                 />
 
-                <div className="grid grid-cols-2 gap-3 mt-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                      <label className="text-[8px] font-black uppercase opacity-60 ml-1">Nicho Customizado</label>
                      <input type="text" value={customNiche} onChange={e=>setCustomNiche(e.target.value)} placeholder="EX: ODONTOPEDIATRA" className="cyber-input w-full rounded-lg text-[10px] font-black text-greenSolid" />
@@ -299,21 +292,35 @@
                 </div>
               </section>
 
+              {/* ÁREA DE RESULTADOS MELHORADA */}
               {prompts.length > 0 && (
-                <div className="flex flex-col gap-3">
-                  <button className="btn-forjar !py-3 !text-[9px]">Copiar Todos na Ordem</button>
+                <div className="flex flex-col gap-4 mt-2">
+                  <div className="flex items-center justify-between px-2">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-greenSolid">Resultados Gerados</h3>
+                    <button onClick={copyAll} className="text-[8px] font-bold bg-greenSolid/10 text-greenSolid border border-greenSolid/20 px-3 py-1 rounded-full hover:bg-greenSolid hover:text-panelDark transition-all">
+                      COPIAR TODOS NA ORDEM
+                    </button>
+                  </div>
+
                   {prompts.map((p, i) => (
-                    <div key={p.id} className="neon-panel relative group !p-4">
-                      <span className="text-[8px] font-black text-blueSolid uppercase tracking-widest mb-2 block">Codex #{i+1}</span>
-                      <p className="text-[9px] font-mono text-zinc-400">{p.prompt}</p>
-                      <button className="absolute top-4 right-4 text-blueSolid hover:text-white"><i className="ph-bold ph-copy text-lg"></i></button>
+                    <div key={p.id} className="neon-panel relative group !p-5 !border-l-4 !border-l-blueSolid bg-white/[0.02]">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="text-[9px] font-black text-blueSolid uppercase tracking-widest">Codex #{i+1}</span>
+                        <button onClick={() => {navigator.clipboard.writeText(p.prompt); alert("Copiado!")}} className="text-zinc-500 hover:text-greenSolid transition-colors">
+                          <i className="ph-bold ph-copy text-xl"></i>
+                        </button>
+                      </div>
+                      <p className="text-[11px] font-mono leading-relaxed text-zinc-200">
+                        {p.prompt}
+                      </p>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="col-span-4 flex flex-col gap-4">
+            {/* COLUNA DIREITA - CONFIGURAÇÕES */}
+            <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
               <section className="neon-panel sticky top-20">
                 <div className="flex items-center gap-3 mb-6">
                   <i className="ph-bold ph-cpu text-lg icon-tech-gradient"></i>
@@ -326,7 +333,7 @@
                       <label className="text-[8px] font-black uppercase opacity-60">Volume</label>
                       <span className="text-[8px] font-black text-blueSolid">{quantity}X UNIDADES</span>
                     </div>
-                    <input type="range" min="1" max="20" value={quantity} onChange={e=>setQuantity(e.target.value)} className="w-full accent-blueSolid h-1 rounded-full cursor-pointer bg-zinc-700" />
+                    <input type="range" min="1" max="20" value={quantity} onChange={e=>setQuantity(parseInt(e.target.value))} className="w-full accent-blueSolid h-1 rounded-full cursor-pointer bg-zinc-700" />
                   </div>
 
                   <div>
@@ -357,8 +364,13 @@
                   </div>
 
                   <div className="pt-2">
-                    <button onClick={generate} disabled={isGenerating} className="btn-forjar">
-                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-xl"></i> : 'GERAR PROMPTS'}
+                    <button onClick={generate} disabled={isGenerating} className="btn-forjar flex items-center justify-center gap-2">
+                      {isGenerating ? (
+                        <>
+                          <i className="ph-bold ph-arrows-clockwise ph-spin text-xl"></i>
+                          <span>FORJANDO...</span>
+                        </>
+                      ) : 'GERAR PROMPTS'}
                     </button>
                   </div>
                 </div>
@@ -376,7 +388,7 @@
       const handleLogin = async (e) => {
         e.preventDefault();
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("Acesso Negado");
+        if (error) alert("Acesso Negado: Verifique suas credenciais.");
       };
 
       return (
@@ -392,19 +404,20 @@
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full rounded-xl font-bold text-xs" />
               <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full rounded-xl font-bold text-xs" />
             </div>
-            <button className="btn-forjar">ENTRAR</button>
+            <button className="btn-forjar">ENTRAR NO SISTEMA</button>
           </form>
         </div>
       );
     }
 
     function App() {
-      const [session, setSession] = useState(true);
+      const [session, setSession] = useState(null);
       const [isDark, setIsDark] = useState(true);
 
       useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-        supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+        return () => subscription.unsubscribe();
       }, []);
 
       const toggleTheme = () => {
@@ -412,7 +425,13 @@
         document.documentElement.classList.toggle('dark');
       };
 
-      return session ? <MainApp onLogout={()=>setSession(false)} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen />;
+      if (session === null) return <div className="min-h-screen bg-panelDark flex items-center justify-center text-greenSolid font-black tracking-widest animate-pulse">CARREGANDO STUDIO PRO...</div>;
+
+      return session ? (
+        <MainApp onLogout={() => supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} />
+      ) : (
+        <LoginScreen />
+      );
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
