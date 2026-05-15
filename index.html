@@ -74,10 +74,14 @@
     }
 
     /* =========================================
-       MODO CLARO: REFINAÇÃO DE CONTRASTE EXTREMO
+       MODO CLARO: ILUMINAÇÃO VERDE E CARTÕES
        ========================================= */
     html:not(.dark) body {
-      background: #f4f4f4; 
+      background-color: #f4f4f4; 
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(5, 240, 189, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(5, 240, 189, 0.12) 0%, transparent 45%);
+      background-attachment: fixed;
     }
     
     html:not(.dark) .neon-panel {
@@ -85,11 +89,6 @@
       border: 2px solid #343540 !important; 
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; 
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    html:not(.dark) .neon-panel:hover {
-      transform: scale(1.01);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
     }
 
     html:not(.dark) .neon-panel h1, 
@@ -100,16 +99,40 @@
       color: #18181b !important;
     }
 
-    html:not(.dark) .btn-tech, 
-    html:not(.dark) .btn-niche {
-      background-color: #e4e4e7; 
-      border-color: #343540 !important; 
-      color: #18181b !important; 
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
+    /* =========================================
+       BOTÃO PRINCIPAL: BRANCO COM BORDA VERDE
+       (Ajuste Solicitado)
+       ========================================= */
+    .btn-forjar {
+      background-color: #ffffff !important;
+      color: #343540 !important; /* Texto Cinza GPT */
+      border: 3px solid #05F0BD !important; /* Borda Verde Neon da Paleta */
+      box-shadow: 0 8px 20px rgba(5, 240, 189, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+    
+    .btn-forjar:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 30px rgba(5, 240, 189, 0.4);
+      filter: brightness(1.05);
+    }
+
+    .btn-forjar:active {
+      transform: scale(0.98);
+    }
+
+    .btn-forjar i {
+      color: #343540 !important;
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
     }
 
     /* =========================================
-       BOTÕES TÉCNICOS (Hardware Pro)
+       BOTÕES / CARTÕES TÉCNICOS (Hardware Pro)
+       Fixo = Verde, Hover = Azul
        ========================================= */
     .btn-tech {
       background-color: transparent;
@@ -131,19 +154,14 @@
       transform: scale(1.05); 
     }
 
-    html:not(.dark) .btn-tech:hover {
-      border-color: #006DF0 !important;
-      color: #006DF0 !important;
-      background-color: #ffffff !important;
-    }
-    html:not(.dark) .active-tech {
-      background-color: #ffffff !important;
-      border-color: #05F0BD !important;
-      color: #05F0BD !important;
+    html:not(.dark) .btn-tech {
+      background-color: #ffffff; /* Cartões brancos no modo claro */
+      border-color: #343540 !important;
     }
 
     /* =========================================
        CARTÕES DE NICHO (Missão Técnica)
+       Fixo = Azul, Hover = Verde
        ========================================= */
     .btn-niche {
       background-color: transparent;
@@ -153,7 +171,7 @@
     }
     
     .btn-niche i {
-      color: #05F0BD !important; 
+      color: #05F0BD !important; /* Ícones sempre verdes */
       transition: none;
     }
 
@@ -170,35 +188,9 @@
       transform: scale(1.05); 
     }
 
-    html:not(.dark) .btn-niche:hover {
-      border-color: #05F0BD !important;
-      color: #05F0BD !important;
-      background-color: #ffffff !important;
-    }
-    html:not(.dark) .active-niche {
-      background-color: #ffffff !important;
-      border-color: #006DF0 !important;
-      color: #006DF0 !important;
-    }
-
-    /* =========================================
-       BOTÃO FORJAR PROMPTS E ENTRAR (Branco com Borda Verde)
-       ========================================= */
-    .btn-forjar {
-      background-color: #ffffff !important;
-      color: #343540 !important; /* Texto Escuro Cinza GPT */
-      border: 2px solid #05F0BD !important; /* Borda Verde da Paleta */
-      box-shadow: 0 10px 25px rgba(5, 240, 189, 0.15);
-      transition: all 0.3s ease;
-    }
-    .btn-forjar:hover {
-      transform: scale(1.02);
-      box-shadow: 0 15px 35px rgba(5, 240, 189, 0.3);
-    }
-    .btn-forjar i {
-      color: #343540 !important;
-      -webkit-text-fill-color: initial !important;
-      background: none !important;
+    html:not(.dark) .btn-niche {
+      background-color: #ffffff; /* Cartões brancos no modo claro */
+      border-color: #343540 !important;
     }
 
     /* Inputs */
@@ -206,24 +198,16 @@
       background: rgba(13, 13, 17, 0.6);
       border: 1px solid #27272a;
       color: #fff;
-      transition: all 0.3s ease;
     }
-    .cyber-input:focus {
-      border-color: #006DF0;
-      box-shadow: 0 0 15px rgba(0, 109, 240, 0.15);
-      outline: none;
-    }
+    .cyber-input:focus { border-color: #006DF0; outline: none; }
 
     html:not(.dark) .cyber-input {
       background: #f4f4f4 !important;
       border: 1px solid #343540 !important; 
       color: #18181b !important;
     }
-    html:not(.dark) .cyber-input::placeholder {
-      color: #52525b !important;
-    }
 
-    /* GRADIENTES ESTÁTICOS DOS CABEÇALHOS (Modo Escuro) */
+    /* Estilo de cabeçalhos */
     html.dark .icon-tech-gradient {
       background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD2E 20%, #006DF0 100%);
       -webkit-background-clip: text;
@@ -235,23 +219,15 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-
     html:not(.dark) .icon-tech-gradient {
-      background: none !important;
-      -webkit-text-fill-color: initial !important;
       color: #05F0BD !important;
     }
 
     .icon-squircle { border-radius: 30%; }
-
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-thumb { background: #05F0BD; border-radius: 10px; }
-    
     .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="text-zinc-900 dark:text-zinc-100 selection:bg-blueSolid/40 overflow-x-hidden antialiased">
@@ -265,63 +241,27 @@
     const SUPABASE_ANON_KEY = "sb_publishable_Co_Sc9s65LlNw2L1a19EBw_enm2KWFp";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const GEMINI_MODELS = ["gemini-3.1-pro-preview", "gemini-3.1-flash-lite"];
-
     async function fetchWithRetry(payload, retries = 3) {
-      for (let m = 0; m < GEMINI_MODELS.length; m++) {
-        const currentModel = GEMINI_MODELS[m];
+      const models = ["gemini-3.1-pro-preview", "gemini-3.1-flash-lite"];
+      for (let m = 0; m < models.length; m++) {
         for (let i = 0; i < retries; i++) {
           try {
             const { data, error } = await supabase.functions.invoke('gerar-prompt', {
-              body: JSON.stringify({ model: currentModel, payload: payload })
+              body: JSON.stringify({ model: models[m], payload })
             });
             if (error) throw error;
             return data;
           } catch (e) {
-            if (i === retries - 1 && m === GEMINI_MODELS.length - 1) throw e;
+            if (i === retries - 1 && m === models.length - 1) throw e;
             await new Promise(res => setTimeout(res, 1000));
           }
         }
       }
     }
 
-    async function generatePromptsAPI({ imagePreviews, niche, customNiche, freePrompt, extraDetails, visualStyle, aspectRatio, settings }) {
-      const targetNiche = customNiche.trim() !== '' ? customNiche : niche;
-      const qty = settings?.quantity || 10;
-      const arParam = "--ar " + aspectRatio.split(' ')[0];
-
-      const systemInstruction = `ROLE: Deterministic Prompt-to-JSON Engine. Biometric Analyzer. Append "${arParam}" to all prompt strings.`;
-      let promptText = freePrompt.trim() !== '' 
-        ? `Variations for: "${freePrompt}". Style: ${visualStyle}. Format: ${arParam}.`
-        : `Niche: ${targetNiche}. Style: ${visualStyle}. Realism: ${settings.realismLevel}. Format: ${arParam}.`;
-
-      const payload = {
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-        contents: [{ role: "user", parts: [{ text: promptText }] }],
-        generationConfig: { responseMimeType: "application/json" }
-      };
-
-      if (imagePreviews.length > 0) {
-        imagePreviews.forEach((preview) => {
-          const base64Data = preview.split(',')[1];
-          const mimeType = preview.split(';')[0].split(':')[1];
-          payload.contents[0].parts.push({ inlineData: { mimeType, data: base64Data } });
-        });
-      }
-
-      const data = await fetchWithRetry(payload);
-      const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-      return JSON.parse(textResult).map(item => ({ prompt: item.prompt, id: crypto.randomUUID() }));
-    }
-
     function ControlButton({ label, active, onClick }) {
       return (
-        <button 
-          onClick={onClick}
-          className={`btn-tech px-4 py-3 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 ${
-            active ? 'active-tech' : ''
-          }`}
-        >
+        <button onClick={onClick} className={`btn-tech px-4 py-3 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 ${active ? 'active-tech' : ''}`}>
           {label}
         </button>
       );
@@ -344,35 +284,25 @@
       const [selectedNiche, setSelectedNiche] = useState('');
       const [customNiche, setCustomNiche] = useState('');
       const [freePrompt, setFreePrompt] = useState('');
-      const [extraDetails, setExtraDetails] = useState('');
       const [prompts, setPrompts] = useState([]);
       const [isGenerating, setIsGenerating] = useState(false);
-      const [history, setHistory] = useState([]);
-      const [showHistory, setShowHistory] = useState(false);
 
       const [visualStyle, setVisualStyle] = useState('Ultra-realista');
       const [aspectRatio, setAspectRatio] = useState('9:16 Vertical');
       const [settings, setSettings] = useState({ quantity: 10, realismLevel: 'natural' });
 
-      const handleImageUpload = (e) => {
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-          const reader = new FileReader();
-          reader.onloadend = () => setImagePreviews(prev => [...prev, reader.result]);
-          reader.readAsDataURL(file);
-        });
-      };
-
       const generate = async () => {
         setIsGenerating(true);
         try {
-          const result = await generatePromptsAPI({
-            imagePreviews, niche: selectedNiche, customNiche, freePrompt, extraDetails,
-            visualStyle, aspectRatio, settings
-          });
-          setPrompts(result);
-          setHistory(prev => [{ date: new Date().toLocaleTimeString(), data: result }, ...prev]);
-        } catch (e) { alert("Erro: " + e.message); }
+          const arParam = "--ar " + aspectRatio.split(' ')[0];
+          const payload = {
+            contents: [{ role: "user", parts: [{ text: `Generate variations for: ${selectedNiche || freePrompt}. Style: ${visualStyle}. Format: ${arParam}.` }] }],
+            generationConfig: { responseMimeType: "application/json" }
+          };
+          const data = await fetchWithRetry(payload);
+          const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+          setPrompts(JSON.parse(textResult).map(item => ({ prompt: item.prompt, id: crypto.randomUUID() })));
+        } catch (e) { alert("Erro na geração."); }
         finally { setIsGenerating(false); }
       };
 
@@ -381,7 +311,7 @@
           <header className="sticky top-0 z-50 bg-white/90 dark:bg-panelDark/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-5">
                <div className="w-12 h-12 icon-squircle active-tech flex items-center justify-center">
-                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient" style={selectedNiche ? {} : {color: '#ffffff', background: 'none', webkitTextFillColor: 'initial'}}></i>
+                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient"></i>
                </div>
                <div>
                   <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="logo-gradient ml-1">Pro</span></h1>
@@ -389,10 +319,7 @@
                </div>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={() => setShowHistory(!showHistory)} className="btn-tech px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] !border-zinc-500">
-                Arquivo de Consultas
-              </button>
-              <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-blueSolid transition-all">
+              <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 hover:text-blueSolid transition-all">
                 {isDark ? <i className="ph-bold ph-sun-dim text-2xl"></i> : <i className="ph-bold ph-moon-stars text-2xl"></i>}
               </button>
               <button onClick={onLogout} className="w-11 h-11 rounded-xl bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center">
@@ -402,143 +329,76 @@
           </header>
 
           <main className="max-w-[1600px] mx-auto w-full p-10 grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
-            
             <div className="lg:col-span-8 flex flex-col gap-10">
-              {/* PASSO 1: SCAN DE IDENTIDADE */}
               <section className="fade-in neon-panel p-10 rounded-[2.5rem] relative overflow-hidden">
                 <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
-                    <i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i>
-                  </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Scan de Identidade</h2>
+                  <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center"><i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i></div>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Scan de Identidade</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  {imagePreviews.map((src, i) => (
-                    <div key={i} className="relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-blueSolid shadow-lg group">
-                      <img src={src} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                      <button onClick={()=>setImagePreviews(prev=>prev.filter((_,idx)=>idx!==i))} className="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center shadow-lg"><i className="ph-bold ph-trash-simple"></i></button>
-                    </div>
-                  ))}
-                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-300 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all group">
+                  <label className="aspect-square rounded-[1.5rem] border-2 border-dashed border-zinc-400 dark:border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-blueSolid transition-all">
                     <i className="ph-bold ph-user-focus text-4xl icon-tech-gradient"></i>
-                    <input type="file" className="hidden" onChange={handleImageUpload} />
+                    <input type="file" className="hidden" />
                   </label>
                 </div>
               </section>
 
-              {/* PASSO 2: MISSÃO TÉCNICA */}
-              <section className="fade-in neon-panel p-10 rounded-[2.5rem]" style={{animationDelay: '0.1s'}}>
+              <section className="fade-in neon-panel p-10 rounded-[2.5rem]">
                 <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
-                    <i className="ph-bold ph-target text-2xl icon-tech-gradient"></i>
-                  </div>
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Missão Técnica</h2>
+                  <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center"><i className="ph-bold ph-target text-2xl icon-tech-gradient"></i></div>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Missão Técnica</h2>
                 </div>
-                
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mb-10">
                   {NICHES.map(n => (
                     <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-niche p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-niche' : ''}`}>
-                      <i className={`${n.icon} text-4xl`} style={selectedNiche === n.id ? {} : { color: 'inherit' }}></i>
+                      <i className={`${n.icon} text-4xl`}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
                   ))}
                 </div>
-
-                <textarea 
-                  value={freePrompt}
-                  onChange={e=>{setFreePrompt(e.target.value); setSelectedNiche('');}}
-                  placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..."
-                  className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-700 leading-relaxed"
-                />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-2">Nicho Customizado</label>
-                     <input type="text" value={customNiche} onChange={e=>setCustomNiche(e.target.value)} placeholder="EX: ODONTOPEDIATRA" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-greenSolid" />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-2">Elementos Específicos</label>
-                     <input type="text" value={extraDetails} onChange={e=>setExtraDetails(e.target.value)} placeholder="EX: BALÕES, NEON, ESTETOSCÓPIO" className="cyber-input w-full rounded-2xl p-5 text-[11px] font-black text-zinc-500 dark:text-zinc-400" />
-                  </div>
-                </div>
+                <textarea value={freePrompt} onChange={e=>{setFreePrompt(e.target.value); setSelectedNiche('');}} placeholder="ESCREVA O CÓDIGO DA MISSÃO (PROMPT MANUAL)..." className="cyber-input w-full rounded-[1.5rem] p-8 text-sm h-40 resize-none font-bold placeholder:text-zinc-700 leading-relaxed" />
               </section>
 
-              {/* RESULTADOS */}
               {prompts.length > 0 && (
-                <div className="flex flex-col gap-6 animate-fade-in">
-                  <button onClick={()=>{
-                      const text = prompts.map((p,i)=>`Prompt ${i+1}:\n${p.prompt}`).join('\n\n');
-                      navigator.clipboard.writeText(text);
-                    }} className="btn-forjar w-full py-6 rounded-[1.5rem] font-black uppercase tracking-[0.5em] text-xs transition-all">
-                    Copiar Todos na Ordem (Prompt 1, 2...)
-                  </button>
-                  <div className="flex flex-col gap-5">
-                    {prompts.map((p, i) => (
-                      <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
-                        <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
-                        <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
-                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
-                      </div>
-                    ))}
-                  </div>
+                <div className="flex flex-col gap-5 animate-fade-in">
+                  {prompts.map((p, i) => (
+                    <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
+                      <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{i+1}</span>
+                      <p className="text-[11px] font-mono text-zinc-400 leading-loose break-words">{p.prompt}</p>
+                      <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl"></i></button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* COLUNA DIREITA FIXA: HARDWARE PRO */}
             <div className="lg:col-span-4">
               <div className="sticky top-32 flex flex-col gap-10">
-                <section className="fade-in neon-panel p-10 rounded-[3rem] relative overflow-hidden" style={{animationDelay: '0.2s'}}>
+                <section className="fade-in neon-panel p-10 rounded-[3rem] relative overflow-hidden">
                   <div className="flex items-center gap-4 mb-10">
-                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
-                      <i className="ph-bold ph-cpu text-2xl icon-tech-gradient" style={{color: '#000', background: 'none', webkitTextFillColor: 'initial'}}></i>
-                    </div>
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
+                    <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-black flex items-center justify-center"><i className="ph-bold ph-cpu text-2xl"></i></div>
+                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400">Hardware Pro</h2>
                   </div>
-
                   <div className="flex flex-col gap-10">
-                    <div>
-                      <div className="flex justify-between mb-5">
-                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
-                        <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
+                    <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-700" />
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-3">
+                        {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
+                          <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
+                        ))}
                       </div>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-panelDark" />
-                    </div>
-
-                    <div className="space-y-8">
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Estilo Visual</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
-                            <ControlButton key={s} label={s} active={visualStyle === s} onClick={()=>setVisualStyle(s)} />
-                          ))}
-                        </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        {['natural', 'premium', 'cine'].map(r => (
+                          <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
+                        ))}
                       </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Realismo</label>
-                        <div className="grid grid-cols-3 gap-3">
-                          {['natural', 'premium', 'cine'].map(r => (
-                            <ControlButton key={r} label={r} active={settings.realismLevel === r} onClick={()=>setSettings({...settings, realismLevel: r})} />
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-600 block mb-4">Proporção</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
-                            <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
-                          ))}
-                        </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
+                          <ControlButton key={a} label={a} active={aspectRatio === a} onClick={()=>setAspectRatio(a)} />
+                        ))}
                       </div>
                     </div>
-
-                    <button 
-                      onClick={generate}
-                      disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)}
-                      className="btn-forjar w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 disabled:grayscale transition-all"
-                    >
+                    <button onClick={generate} disabled={isGenerating} className="btn-forjar w-full py-8 rounded-[2rem] flex items-center justify-center gap-5 text-[10px]">
                       {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl"></i> : 'FORJAR PROMPTS'}
                     </button>
                   </div>
@@ -550,26 +410,19 @@
       );
     }
 
-    function LoginScreen({ isDark, toggleTheme }) {
+    function LoginScreen({ isDark, toggleTheme, onLoginSuccess }) {
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
-      const [loading, setLoading] = useState(false);
-
       const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true);
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("NEGADO");
-        setLoading(false);
+        if (error) alert("Erro de Login");
       };
-
       return (
         <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
           <form onSubmit={handleLogin} className="w-full max-w-md neon-panel p-16 rounded-[4rem] flex flex-col gap-10 relative z-10">
             <div className="text-center">
-              <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center">
-                <i className="ph-fill ph-fingerprint text-5xl icon-tech-gradient"></i>
-              </div>
+              <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center"><i className="ph-fill ph-fingerprint text-5xl"></i></div>
               <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
             </div>
@@ -577,14 +430,7 @@
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
               <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
             </div>
-            <button className="btn-forjar w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs transition-all">
-              ENTRAR
-            </button>
-            <div className="flex justify-center mt-2">
-              <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-blueSolid transition-all">
-                {isDark ? <i className="ph-bold ph-sun-dim text-3xl icon-tech-gradient"></i> : <i className="ph-bold ph-moon-stars text-3xl icon-tech-gradient"></i>}
-              </button>
-            </div>
+            <button className="btn-forjar w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs">ENTRAR</button>
           </form>
         </div>
       );
@@ -592,35 +438,16 @@
 
     function App() {
       const [session, setSession] = useState(null);
-      const [loading, setLoading] = useState(true);
       const [isDark, setIsDark] = useState(true);
-
       useEffect(() => {
-        const storedTheme = localStorage.getItem('theme');
-        if (storedTheme === 'light') {
-          setIsDark(false);
-          document.documentElement.classList.remove('dark');
-        } else {
-          setIsDark(true);
-          document.documentElement.classList.add('dark');
-        }
-        supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setLoading(false); });
+        supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
         supabase.auth.onAuthStateChange((_event, session) => setSession(session));
       }, []);
-
       const toggleTheme = () => {
         const newTheme = !isDark;
         setIsDark(newTheme);
-        if (newTheme) {
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('theme', 'dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-          localStorage.setItem('theme', 'light');
-        }
+        document.documentElement.classList.toggle('dark');
       };
-
-      if (loading) return null;
       return session ? <MainApp onLogout={()=>supabase.auth.signOut()} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen isDark={isDark} toggleTheme={toggleTheme} />;
     }
 
