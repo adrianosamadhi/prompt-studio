@@ -74,15 +74,10 @@
     }
 
     /* =========================================
-       MODO CLARO: FUNDO F4F4F4 + GLOW VERDE
+       MODO CLARO: REFINAÇÃO DE CONTRASTE EXTREMO
        ========================================= */
     html:not(.dark) body {
-      background-color: #f4f4f4; 
-      background-image: 
-        /* Iluminações suaves verdes solicitadas para o modo claro */
-        radial-gradient(circle at 10% 20%, rgba(5, 240, 189, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(5, 240, 189, 0.12) 0%, transparent 40%);
-      background-attachment: fixed;
+      background: #f4f4f4; 
     }
     
     html:not(.dark) .neon-panel {
@@ -105,70 +100,16 @@
       color: #18181b !important;
     }
 
-    /* =========================================
-       MODO CLARO: CARTÕES INATIVOS EM CINZA GPT
-       ========================================= */
     html:not(.dark) .btn-tech, 
     html:not(.dark) .btn-niche {
-      /* Gradiente Cinza GPT como solicitado */
-      background: linear-gradient(135deg, #343540 0%, #27272a 100%) !important; 
-      border-color: #1e1e22 !important; 
-      color: #ffffff !important; /* Textos brancos */
+      background-color: #e4e4e7; 
+      border-color: #343540 !important; 
+      color: #18181b !important; 
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
     }
-    
-    /* Força os textos (spans) a ficarem brancos nos cartões inativos */
-    html:not(.dark) .btn-tech span, 
-    html:not(.dark) .btn-niche span {
-      color: #ffffff !important;
-    }
-    
-    /* Garante que o ícone do nicho continue verde na caixa Cinza GPT */
-    html:not(.dark) .btn-niche i {
-      color: #05F0BD !important;
-    }
 
     /* =========================================
-       MODO CLARO: HOVER / PASSAR O MOUSE (Mantido como estava)
-       ========================================= */
-    /* Hover Hardware Pro */
-    html:not(.dark) .btn-tech:hover {
-      border-color: #006DF0 !important;
-      color: #006DF0 !important;
-      background: #ffffff !important; /* Retorna ao visual limpo ao focar */
-    }
-    html:not(.dark) .btn-tech:hover span {
-      color: #006DF0 !important;
-    }
-    html:not(.dark) .active-tech {
-      background: #ffffff !important;
-      border-color: #05F0BD !important;
-      color: #05F0BD !important;
-    }
-    html:not(.dark) .active-tech span {
-      color: #05F0BD !important;
-    }
-
-    /* Hover Missão Técnica */
-    html:not(.dark) .btn-niche:hover {
-      border-color: #05F0BD !important;
-      color: #05F0BD !important;
-      background: #ffffff !important; 
-    }
-    html:not(.dark) .btn-niche:hover span {
-      color: #05F0BD !important;
-    }
-    html:not(.dark) .active-niche {
-      background: #ffffff !important;
-      border-color: #006DF0 !important;
-      color: #006DF0 !important;
-    }
-    html:not(.dark) .active-niche span {
-      color: #006DF0 !important;
-    }
-
-    /* =========================================
-       BOTÕES TÉCNICOS (Modo Escuro Padrão)
+       BOTÕES TÉCNICOS (Hardware Pro)
        ========================================= */
     .btn-tech {
       background-color: transparent;
@@ -190,8 +131,19 @@
       transform: scale(1.05); 
     }
 
+    html:not(.dark) .btn-tech:hover {
+      border-color: #006DF0 !important;
+      color: #006DF0 !important;
+      background-color: #ffffff !important;
+    }
+    html:not(.dark) .active-tech {
+      background-color: #ffffff !important;
+      border-color: #05F0BD !important;
+      color: #05F0BD !important;
+    }
+
     /* =========================================
-       CARTÕES DE NICHO (Modo Escuro Padrão)
+       CARTÕES DE NICHO (Missão Técnica)
        ========================================= */
     .btn-niche {
       background-color: transparent;
@@ -218,22 +170,33 @@
       transform: scale(1.05); 
     }
 
+    html:not(.dark) .btn-niche:hover {
+      border-color: #05F0BD !important;
+      color: #05F0BD !important;
+      background-color: #ffffff !important;
+    }
+    html:not(.dark) .active-niche {
+      background-color: #ffffff !important;
+      border-color: #006DF0 !important;
+      color: #006DF0 !important;
+    }
+
     /* =========================================
-       BOTÃO FORJAR PROMPTS (Gradiente Verde + Texto Cinza GPT)
+       BOTÃO FORJAR PROMPTS E ENTRAR (Branco com Borda Verde)
        ========================================= */
     .btn-forjar {
-      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD 100%);
-      color: #343540 !important; 
-      border: none !important;
-      box-shadow: 0 10px 25px rgba(5, 240, 189, 0.2);
+      background-color: #ffffff !important;
+      color: #343540 !important; /* Texto Escuro Cinza GPT */
+      border: 2px solid #05F0BD !important; /* Borda Verde da Paleta */
+      box-shadow: 0 10px 25px rgba(5, 240, 189, 0.15);
       transition: all 0.3s ease;
     }
     .btn-forjar:hover {
       transform: scale(1.02);
-      box-shadow: 0 15px 35px rgba(5, 240, 189, 0.4);
+      box-shadow: 0 15px 35px rgba(5, 240, 189, 0.3);
     }
     .btn-forjar i {
-      color: #343540 !important; 
+      color: #343540 !important;
       -webkit-text-fill-color: initial !important;
       background: none !important;
     }
@@ -359,7 +322,7 @@
             active ? 'active-tech' : ''
           }`}
         >
-          <span>{label}</span>
+          {label}
         </button>
       );
     }
@@ -427,7 +390,7 @@
             </div>
             <div className="flex items-center gap-4">
               <button onClick={() => setShowHistory(!showHistory)} className="btn-tech px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] !border-zinc-500">
-                <span>Arquivo de Consultas</span>
+                Arquivo de Consultas
               </button>
               <button onClick={toggleTheme} className="w-11 h-11 rounded-xl border border-zinc-200 dark:border-white/5 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:text-blueSolid transition-all">
                 {isDark ? <i className="ph-bold ph-sun-dim text-2xl"></i> : <i className="ph-bold ph-moon-stars text-2xl"></i>}
