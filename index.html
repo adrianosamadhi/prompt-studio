@@ -6,7 +6,7 @@
   <title>Prompt Consistency Studio Pro</title>
   
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#000000" />
+  <meta name="theme-color" content="#10111B" />
   <link rel="icon" type="image/png" href="icone-192.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,9 +20,11 @@
       theme: {
         extend: {
           colors: { 
-            background: '#000000',
-            panel: '#090A11',
+            /* Nova Paleta Refinada */
+            panelDark: '#10111B', // Cinza Acento
+            cinzaGPT: '#343540',
             accent: '#00f2ff', 
+            greenSolid: '#05F0BD', 
             greenTransp: '#05F0BD2E',
             blueSolid: '#006DF0'
           },
@@ -42,55 +44,139 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.4s ease; }
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      transition: background 0.5s ease;
+      min-height: 100vh;
+    }
 
-    /* 1. Bordas das sessões na cor Transparente solicitada */
-    .neon-panel {
+    /* =========================================
+       FUNDO ESCURO: RADIAL + PONTOS DE LUZ
+       ========================================= */
+    html.dark body {
+      background-color: #10111B;
+      background-image: 
+        /* Pontos de luz verde transparente (#05F0BD2E) bem suaves */
+        radial-gradient(circle at 15% 20%, rgba(5, 240, 189, 0.08) 0%, transparent 35%),
+        radial-gradient(circle at 85% 75%, rgba(5, 240, 189, 0.08) 0%, transparent 35%),
+        /* Gradiente Central: Cinza GPT -> Cinza Acento */
+        radial-gradient(circle at center, #343540 0%, #10111B 80%);
+      background-attachment: fixed;
+    }
+
+    /* MODO ESCURO - Bordas e Painéis */
+    html.dark .neon-panel {
+      background-color: rgba(16, 17, 27, 0.6); 
+      backdrop-filter: blur(16px);
       border: 2px solid #05F0BD2E;
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .neon-panel:hover {
+    html.dark .neon-panel:hover {
       transform: scale(1.01);
     }
 
-    /* 2. GRADIENTE ESTÁTICO NOS ÍCONES (Verde Transp + Azul) */
-    .icon-tech-gradient {
+    /* =========================================
+       MODO CLARO: CINZA GPT E SOMBRAS 15%
+       ========================================= */
+    html:not(.dark) body {
+      background: #fafafa;
+    }
+    
+    html:not(.dark) .neon-panel {
+      background-color: #ffffff;
+      border: 2px solid #343540 !important; 
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20) !important; 
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    html:not(.dark) .neon-panel:hover {
+      transform: scale(1.01);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    html:not(.dark) .btn-tech {
+      border-color: #d4d4d8;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); 
+      color: #52525b;
+    }
+    html:not(.dark) .btn-tech:hover {
+      border-color: #006DF0 !important;
+      color: #006DF0 !important;
+    }
+    
+    html:not(.dark) .icon-tech-gradient,
+    html:not(.dark) .icon-transp {
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+      color: #05F0BD !important;
+    }
+    html:not(.dark) .active-tech .icon-tech-gradient,
+    html:not(.dark) .active-tech .icon-transp {
+      color: #ffffff !important; 
+    }
+
+    /* =========================================
+       BOTÃO FORJAR PROMPTS (Gradiente Triplo)
+       ========================================= */
+    .btn-forjar {
+      background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD 40%, #006DF0 100%);
+      color: #ffffff !important;
+      border: none !important;
+      box-shadow: 0 10px 25px rgba(0, 109, 240, 0.3);
+      transition: all 0.3s ease;
+    }
+    .btn-forjar:hover {
+      transform: scale(1.02);
+      box-shadow: 0 15px 35px rgba(5, 240, 189, 0.4);
+    }
+    .btn-forjar i {
+      color: #ffffff !important;
+      -webkit-text-fill-color: initial !important;
+      background: none !important;
+    }
+
+    /* GRADIENTES ORIGINAIS DOS ÍCONES (Modo Escuro) */
+    html.dark .icon-tech-gradient {
       background: linear-gradient(135deg, #05F0BD2E 0%, #05F0BD2E 20%, #006DF0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      transition: none; /* Mantém a cor estática mesmo no zoom */
       display: inline-block;
     }
-
-    /* Logo principal também segue o padrão */
-    .logo-gradient {
+    html.dark .logo-gradient {
       background: linear-gradient(135deg, #05F0BD 0%, #006DF0 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    html.dark .icon-transp {
+      color: #05F0BD2E;
+    }
 
-    /* 3. Botões/Cartões Técnicos (Zoom no Cartão Inteiro) */
+    /* =========================================
+       BOTÕES / CARTÕES TÉCNICOS (INVERTIDO)
+       ========================================= */
     .btn-tech {
       background-color: transparent;
-      border: 1px solid #52525b; /* Borda Cinza Claro */
+      border: 1px solid #52525b; 
       color: #a1a1aa; 
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .btn-tech:hover {
-      border-color: #05F0BD;
-      transform: scale(1.05); /* Zoom no Cartão */
+      border-color: #006DF0 !important; /* Azul no Hover */
+      color: #006DF0 !important; /* Texto/Ícone Azul no Hover */
+      transform: scale(1.05);
     }
     
     .active-tech {
-      background-color: rgba(0, 109, 240, 0.05); /* Fundo azul levíssimo */
-      border-color: #006DF0 !important;
-      transform: scale(1.05); /* Mantém o zoom quando ativo */
+      background-color: rgba(5, 240, 189, 0.05); /* Fundo Verde super sutil */
+      border-color: #05F0BD !important; /* Verde Fixo no Selecionado */
+      color: #05F0BD !important; /* Texto/Ícone Verde no Selecionado */
+      transform: scale(1.05); 
     }
 
-    /* Estilo de Inputs */
+    /* Inputs */
     .cyber-input {
-      background: #0d0d11;
+      background: rgba(13, 13, 17, 0.6);
       border: 1px solid #27272a;
       color: #fff;
       transition: all 0.3s ease;
@@ -101,19 +187,10 @@
       outline: none;
     }
 
-    /* Ajustes Modo Claro */
     html:not(.dark) .cyber-input {
       background: #f4f4f5;
       border: 1px solid #d4d4d8;
       color: #18181b;
-    }
-    html:not(.dark) .neon-panel {
-      background-color: #ffffff;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    }
-    html:not(.dark) .btn-tech {
-      border-color: #d4d4d8;
-      color: #52525b;
     }
 
     .icon-squircle { border-radius: 30%; }
@@ -128,7 +205,7 @@
     }
   </style>
 </head>
-<body class="bg-zinc-50 dark:bg-background text-zinc-900 dark:text-zinc-100 selection:bg-blueSolid/40 overflow-x-hidden antialiased">
+<body class="text-zinc-900 dark:text-zinc-100 selection:bg-blueSolid/40 overflow-x-hidden antialiased">
   
   <div id="root"></div>
 
@@ -252,10 +329,10 @@
 
       return (
         <div className="min-h-screen flex flex-col">
-          <header className="sticky top-0 z-50 bg-white/90 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
+          <header className="sticky top-0 z-50 bg-white/90 dark:bg-panelDark/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5 px-10 py-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-5">
                <div className="w-12 h-12 icon-squircle active-tech flex items-center justify-center">
-                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient"></i>
+                  <i className="ph-bold ph-aperture text-3xl icon-tech-gradient" style={selectedNiche ? {} : {color: '#ffffff', background: 'none', webkitTextFillColor: 'initial'}}></i>
                </div>
                <div>
                   <h1 className="text-xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">Studio<span className="logo-gradient ml-1">Pro</span></h1>
@@ -275,11 +352,11 @@
             </div>
           </header>
 
-          <main className="max-w-[1600px] mx-auto w-full p-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <main className="max-w-[1600px] mx-auto w-full p-10 grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
             
             <div className="lg:col-span-8 flex flex-col gap-10">
               {/* PASSO 1: SCAN DE IDENTIDADE */}
-              <section className="fade-in bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel relative overflow-hidden">
+              <section className="fade-in neon-panel p-10 rounded-[2.5rem] relative overflow-hidden">
                 <div className="flex items-center gap-4 mb-10">
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
                     <i className="ph-bold ph-scan text-2xl icon-tech-gradient"></i>
@@ -301,7 +378,7 @@
               </section>
 
               {/* PASSO 2: MISSÃO TÉCNICA */}
-              <section className="fade-in bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel" style={{animationDelay: '0.1s'}}>
+              <section className="fade-in neon-panel p-10 rounded-[2.5rem]" style={{animationDelay: '0.1s'}}>
                 <div className="flex items-center gap-4 mb-10">
                   <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center">
                     <i className="ph-bold ph-target text-2xl icon-tech-gradient"></i>
@@ -312,7 +389,8 @@
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mb-10">
                   {NICHES.map(n => (
                     <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-tech p-6 rounded-[1.5rem] flex flex-col items-center gap-4 ${selectedNiche === n.id ? 'active-tech' : ''}`}>
-                      <i className={`${n.icon} text-4xl icon-tech-gradient`}></i>
+                      {/* O ícone não tem mais classe de gradiente aqui para que herde a cor correta dos cartões */}
+                      <i className={`${n.icon} text-4xl`} style={selectedNiche === n.id ? {} : { color: 'inherit' }}></i>
                       <span className="text-[9px] font-black uppercase tracking-[0.2em]">{n.name}</span>
                     </button>
                   ))}
@@ -332,15 +410,15 @@
                   <button onClick={()=>{
                       const text = prompts.map((p,i)=>`Prompt ${i+1}:\n${p.prompt}`).join('\n\n');
                       navigator.clipboard.writeText(text);
-                    }} className="active-tech w-full py-6 rounded-[1.5rem] font-black uppercase tracking-[0.5em] text-xs transition-all hover:scale-[1.01]">
+                    }} className="btn-forjar w-full py-6 rounded-[1.5rem] font-black uppercase tracking-[0.5em] text-xs transition-all">
                     Copiar Todos na Ordem (Prompt 1, 2...)
                   </button>
                   <div className="flex flex-col gap-5">
                     {prompts.map((p, i) => (
-                      <div key={p.id} className="bg-white dark:bg-panel p-10 rounded-[2.5rem] neon-panel relative group">
+                      <div key={p.id} className="neon-panel p-10 rounded-[2.5rem] relative group">
                         <span className="text-[10px] font-black text-blueSolid uppercase tracking-[0.5em] mb-4 block">Objeto Codex #{String(i+1).padStart(2, '0')}</span>
                         <p className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 leading-loose break-words bg-zinc-50 dark:bg-black/40 p-8 rounded-3xl border border-dashed border-zinc-200 dark:border-white/5">{p.prompt}</p>
-                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl icon-tech-gradient"></i></button>
+                        <button onClick={()=>navigator.clipboard.writeText(p.prompt)} className="absolute top-10 right-10 w-12 h-12 rounded-2xl bg-blueSolid/10 text-blueSolid flex items-center justify-center hover:bg-blueSolid hover:text-white transition-all"><i className="ph-bold ph-copy text-2xl"></i></button>
                       </div>
                     ))}
                   </div>
@@ -351,10 +429,10 @@
             {/* COLUNA DIREITA FIXA: HARDWARE PRO */}
             <div className="lg:col-span-4">
               <div className="sticky top-32 flex flex-col gap-10">
-                <section className="fade-in bg-white dark:bg-panel p-10 rounded-[3rem] neon-panel relative overflow-hidden" style={{animationDelay: '0.2s'}}>
+                <section className="fade-in neon-panel p-10 rounded-[3rem] relative overflow-hidden" style={{animationDelay: '0.2s'}}>
                   <div className="flex items-center gap-4 mb-10">
                     <div className="w-10 h-10 icon-squircle bg-zinc-100 dark:bg-white text-zinc-900 dark:text-black flex items-center justify-center">
-                      <i className="ph-bold ph-cpu text-2xl icon-tech-gradient"></i>
+                      <i className="ph-bold ph-cpu text-2xl icon-tech-gradient" style={{color: '#000', background: 'none', webkitTextFillColor: 'initial'}}></i>
                     </div>
                     <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Hardware Pro</h2>
                   </div>
@@ -365,7 +443,7 @@
                         <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">Volume</label>
                         <span className="text-[10px] font-black text-blueSolid italic tracking-widest">{settings.quantity}X UNIDADES</span>
                       </div>
-                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-black" />
+                      <input type="range" min="1" max="20" value={settings.quantity} onChange={e=>setSettings({...settings, quantity: e.target.value})} className="w-full accent-blueSolid h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-panelDark" />
                     </div>
 
                     <div className="space-y-8">
@@ -400,9 +478,9 @@
                     <button 
                       onClick={generate}
                       disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)}
-                      className="active-tech w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 transition-all hover:scale-[1.02]"
+                      className="btn-forjar w-full py-8 rounded-[2rem] font-black uppercase tracking-[0.6em] flex items-center justify-center gap-5 text-[10px] disabled:opacity-30 disabled:grayscale transition-all"
                     >
-                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl icon-tech-gradient"></i> : 'FORJAR PROMPTS'}
+                      {isGenerating ? <i className="ph-bold ph-arrows-clockwise ph-spin text-3xl"></i> : 'FORJAR PROMPTS'}
                     </button>
                   </div>
                 </section>
@@ -428,24 +506,24 @@
 
       return (
         <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-8 transition-all relative">
-          <form onSubmit={handleLogin} className="w-full max-w-md bg-white dark:bg-panel p-16 rounded-[4rem] flex flex-col gap-10 shadow-2xl border-2 border-blueSolid relative z-10">
+          <form onSubmit={handleLogin} className="w-full max-w-md neon-panel p-16 rounded-[4rem] flex flex-col gap-10 relative z-10">
             <div className="text-center">
               <div className="w-24 h-24 icon-squircle active-tech mx-auto mb-10 flex items-center justify-center">
                 <i className="ph-fill ph-fingerprint text-5xl"></i>
               </div>
-              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient">PRO</span></h1>
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">STUDIO<span className="logo-gradient ml-1">PRO</span></h1>
               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] mt-3 leading-none">authorized access only</p>
             </div>
             <div className="space-y-4">
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="USUÁRIO" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
               <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="SENHA" className="cyber-input w-full p-5 rounded-2xl font-bold text-xs tracking-widest" />
             </div>
-            <button className="active-tech w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs transition-all hover:scale-105 active:scale-95">
+            <button className="btn-forjar w-full py-6 rounded-3xl font-black uppercase tracking-[0.4em] text-xs transition-all">
               ENTRAR
             </button>
             <div className="flex justify-center mt-2">
               <button type="button" onClick={toggleTheme} className="text-zinc-400 hover:text-blueSolid transition-all">
-                {isDark ? <i className="ph-bold ph-sun-dim text-3xl icon-tech-gradient"></i> : <i className="ph-bold ph-moon-stars text-3xl icon-tech-gradient"></i>}
+                {isDark ? <i className="ph-bold ph-sun-dim text-3xl"></i> : <i className="ph-bold ph-moon-stars text-3xl"></i>}
               </button>
             </div>
           </form>
