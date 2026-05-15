@@ -13,6 +13,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class', // Ativa o modo escuro por classe
       theme: {
         extend: {
           colors: { background: '#0A0A0B' },
@@ -37,7 +38,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-background text-white selection:bg-orange-500/30 overflow-x-hidden antialiased">
+<body class="bg-zinc-50 dark:bg-background text-zinc-900 dark:text-white transition-colors duration-300 selection:bg-orange-500/30 overflow-x-hidden antialiased">
   
   <div id="root"></div>
 
@@ -262,8 +263,8 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
     function Toggle({ label, checked, onChange }) {
       return (
         <label className="flex items-center justify-between cursor-pointer group py-1">
-          <span className="text-[10px] uppercase tracking-widest text-zinc-400 group-hover:text-zinc-300 transition-colors">{label}</span>
-          <div className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-none border border-transparent transition-colors duration-200 ease-in-out ${checked ? 'bg-orange-500' : 'bg-zinc-800'}`}>
+          <span className="text-[10px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-300 transition-colors">{label}</span>
+          <div className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-none border border-transparent transition-colors duration-200 ease-in-out ${checked ? 'bg-orange-500' : 'bg-zinc-300 dark:bg-zinc-800'}`}>
             <span aria-hidden="true" className={`pointer-events-none inline-block h-3 w-3 transform bg-white shadow ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
           </div>
           <input type="checkbox" checked={checked} onChange={(e)=>onChange(e.target.checked)} className="hidden" />
@@ -274,7 +275,7 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
     // ==========================================
     // TELA DE LOGIN REAL
     // ==========================================
-    function LoginScreen() {
+    function LoginScreen({ isDark, toggleTheme }) {
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
       const [showPassword, setShowPassword] = useState(false);
@@ -295,48 +296,53 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
       };
 
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#0A0A0B] border border-white/10 p-8 animate-fade-in shadow-2xl rounded-2xl">
+        <div className="min-h-screen bg-zinc-50 dark:bg-background flex items-center justify-center p-4 transition-colors duration-300 relative">
+          
+          <button onClick={toggleTheme} className="absolute top-4 right-4 p-3 rounded-full border border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+            {isDark ? <i className="ph ph-sun text-xl"></i> : <i className="ph ph-moon text-xl"></i>}
+          </button>
+
+          <div className="w-full max-w-md bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-8 animate-fade-in shadow-2xl rounded-2xl transition-colors duration-300">
             <div className="flex flex-col items-center mb-8">
               <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-600 to-amber-400 flex items-center justify-center mb-4">
                 <i className="ph ph-lock-key text-2xl text-white"></i>
               </div>
-              <h1 className="text-2xl font-bold tracking-tighter uppercase text-white text-center">Acesso Exclusivo</h1>
+              <h1 className="text-2xl font-bold tracking-tighter uppercase text-zinc-900 dark:text-white text-center">Acesso Exclusivo</h1>
               <p className="text-xs text-zinc-500 mt-2 text-center">Faça login para usar o Studio.</p>
             </div>
 
             <form onSubmit={handleLogin} className="flex flex-col gap-5">
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 block">E-mail</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2 block">E-mail</label>
                 <div className="relative">
-                  <i className="ph ph-envelope-simple absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-lg"></i>
+                  <i className="ph ph-envelope-simple absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500 text-lg"></i>
                   <input 
                     type="email" 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)} 
                     required 
-                    className="w-full bg-[#0A0A0B] border border-white/10 focus:border-orange-500 outline-none pl-12 pr-4 py-3.5 text-sm text-white placeholder-zinc-600 transition-colors rounded-xl" 
+                    className="w-full bg-zinc-50 dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 focus:border-orange-500 outline-none pl-12 pr-4 py-3.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 transition-colors rounded-xl" 
                     placeholder="Seu e-mail da Kiwify" 
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 block">Senha</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2 block">Senha</label>
                 <div className="relative">
-                  <i className="ph ph-key absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-lg"></i>
+                  <i className="ph ph-key absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500 text-lg"></i>
                   <input 
                     type={showPassword ? "text" : "password"} 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)} 
                     required 
-                    className="w-full bg-[#0A0A0B] border border-white/10 focus:border-orange-500 outline-none pl-12 pr-12 py-3.5 text-sm text-white placeholder-zinc-600 transition-colors rounded-xl" 
+                    className="w-full bg-zinc-50 dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 focus:border-orange-500 outline-none pl-12 pr-12 py-3.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 transition-colors rounded-xl" 
                     placeholder="Sua senha" 
                   />
                   <button 
                     type="button" 
                     onClick={() => setShowPassword(!showPassword)} 
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-white transition-colors"
                   >
                     <i className={`ph ${showPassword ? 'ph-eye-slash' : 'ph-eye'} text-xl`}></i>
                   </button>
@@ -344,8 +350,8 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                 
                 <div className="flex items-center gap-2 mt-3 pl-1">
                   <i className="ph ph-info text-orange-500 text-sm"></i>
-                  <p className="text-[11px] text-zinc-400">
-                    Aviso: Use o e-mail da compra. Senha: <span className="font-bold text-orange-400">Prompt@123</span>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    Aviso: Use o e-mail da compra. Senha: <span className="font-bold text-orange-500 dark:text-orange-400">Prompt@123</span>
                   </p>
                 </div>
               </div>
@@ -364,7 +370,7 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
     // ==========================================
     // APP PRINCIPAL
     // ==========================================
-    function MainApp({ onLogout }) {
+    function MainApp({ onLogout, isDark, toggleTheme }) {
       const [activeTab, setActiveTab] = useState('prompts');
       const [referenceImages, setReferenceImages] = useState([]);
       const [imagePreviews, setImagePreviews] = useState([]);
@@ -472,12 +478,12 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
       };
 
       return (
-        <div className="min-h-screen bg-background text-white font-sans overflow-x-hidden animate-fade-in">
-          <header className="sticky top-0 z-40 bg-[#0A0A0B]/90 backdrop-blur-md border-b border-white/10 flex flex-col">
+        <div className="min-h-screen font-sans overflow-x-hidden animate-fade-in transition-colors duration-300">
+          <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#0A0A0B]/90 backdrop-blur-md border-b border-zinc-200 dark:border-white/10 flex flex-col transition-colors duration-300">
             <div className="p-6 lg:px-8 pb-4 flex items-end justify-between">
               <div>
-                <h1 className="text-xl md:text-2xl font-bold tracking-tighter uppercase italic text-white flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-600 to-amber-400 flex items-center justify-center">
+                <h1 className="text-xl md:text-2xl font-bold tracking-tighter uppercase italic text-zinc-900 dark:text-white flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-600 to-amber-400 flex items-center justify-center shrink-0">
                     <i className="ph ph-camera text-white"></i>
                   </div>
                   Prompt Consistency Studio
@@ -485,18 +491,21 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                 <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest hidden sm:block">Motor Multi-Modelo: Gemini 3.1 Pro & Flash</p>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => setShowSettings(!showSettings)} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-white/20 hover:bg-white/5 text-white transition-colors flex items-center gap-2" title="Configurações e Histórico">
+                <button onClick={toggleTheme} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-zinc-200 dark:border-white/20 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-white transition-colors flex items-center gap-2" title="Alternar Tema">
+                  {isDark ? <i className="ph ph-sun"></i> : <i className="ph ph-moon"></i>}
+                </button>
+                <button onClick={() => setShowSettings(!showSettings)} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-zinc-200 dark:border-white/20 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-white transition-colors flex items-center gap-2" title="Configurações e Histórico">
                   <i className="ph ph-faders"></i> Configs
                 </button>
-                <button onClick={onLogout} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-red-500/20 hover:bg-red-500/10 text-red-400 transition-colors" title="Sair do Sistema">
+                <button onClick={onLogout} className="px-4 py-2 text-[11px] uppercase tracking-widest border border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 dark:text-red-400 transition-colors" title="Sair do Sistema">
                   <i className="ph ph-sign-out"></i>
                 </button>
               </div>
             </div>
             
-            <div className="flex px-6 lg:px-8 gap-6 border-t border-white/5 bg-[#0A0A0B]">
-              <button onClick={() => setActiveTab('prompts')} className={`py-4 text-[11px] uppercase tracking-widest font-bold border-b-2 transition-colors ${activeTab === 'prompts' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-500 hover:text-white'}`}>Ensaios / Prompts</button>
-              <button onClick={() => setActiveTab('ads')} className={`py-4 text-[11px] uppercase tracking-widest font-bold border-b-2 transition-colors ${activeTab === 'ads' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-500 hover:text-white'}`}>Anúncios (Copys)</button>
+            <div className="flex px-6 lg:px-8 gap-6 border-t border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-[#0A0A0B] transition-colors duration-300">
+              <button onClick={() => setActiveTab('prompts')} className={`py-4 text-[11px] uppercase tracking-widest font-bold border-b-2 transition-colors ${activeTab === 'prompts' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>Ensaios / Prompts</button>
+              <button onClick={() => setActiveTab('ads')} className={`py-4 text-[11px] uppercase tracking-widest font-bold border-b-2 transition-colors ${activeTab === 'ads' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>Anúncios (Copys)</button>
             </div>
           </header>
 
@@ -509,37 +518,37 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                     <div className="flex justify-between items-center mb-1">
                       <label className="text-[10px] uppercase tracking-widest text-zinc-500">1. Biometria do Cliente / Referência (Recomendado)</label>
                     </div>
-                    <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-2">
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">
                       Faça o upload da foto do cliente. A IA irá atuar como um Scanner Biométrico.
                     </p>
-                    <div className="relative group flex-1 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center bg-zinc-900/40 overflow-hidden hover:border-orange-500/30 transition-colors p-6 sm:p-8">
+                    <div className="relative group flex-1 border-2 border-dashed border-zinc-300 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center bg-white dark:bg-zinc-900/40 overflow-hidden hover:border-orange-500/50 dark:hover:border-orange-500/30 transition-colors p-6 sm:p-8">
                       <input ref={fileInputRef} type="file" multiple accept="image/jpeg, image/png, image/webp" onChange={handleImageUpload} className="hidden" id="file-upload" />
                       {imagePreviews.length === 0 ? (
                         <label htmlFor="file-upload" className="flex flex-col items-center justify-center w-full h-full cursor-pointer py-6 z-10 relative">
-                          <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center mb-4 bg-[#0A0A0B]">
+                          <div className="w-12 h-12 rounded-full border border-zinc-200 dark:border-white/20 flex items-center justify-center mb-4 bg-zinc-50 dark:bg-[#0A0A0B]">
                             <i className="ph ph-cloud-arrow-up text-xl text-zinc-400"></i>
                           </div>
-                          <p className="text-sm font-medium text-white mb-1">Adicionar Foto do Cliente</p>
-                          <div className="mt-4 px-4 py-2 bg-white/5 rounded-full text-[10px] text-zinc-300 border border-white/10 uppercase tracking-widest">Clique ou Arraste arquivos aqui</div>
+                          <p className="text-sm font-medium text-zinc-800 dark:text-white mb-1">Adicionar Foto do Cliente</p>
+                          <div className="mt-4 px-4 py-2 bg-zinc-100 dark:bg-white/5 rounded-full text-[10px] text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-white/10 uppercase tracking-widest">Clique ou Arraste arquivos aqui</div>
                         </label>
                       ) : (
                         <div className="flex flex-col w-full z-10 gap-6">
                           <div className="flex flex-wrap gap-4">
                             {imagePreviews.map((preview, index) => (
                               <div key={index} className="relative shrink-0">
-                                <img src={preview} alt="Preview" className="h-24 w-24 sm:h-32 sm:w-32 object-cover rounded-xl border border-white/10 shadow-lg" />
-                                <button onClick={() => handleRemoveImage(index)} className="absolute -top-3 -right-3 w-7 h-7 bg-zinc-900 border border-white/20 rounded-full flex items-center justify-center hover:bg-zinc-800 transition-colors shadow-lg">
-                                  <i className="ph ph-x text-zinc-400 text-xs"></i>
+                                <img src={preview} alt="Preview" className="h-24 w-24 sm:h-32 sm:w-32 object-cover rounded-xl border border-zinc-200 dark:border-white/10 shadow-lg" />
+                                <button onClick={() => handleRemoveImage(index)} className="absolute -top-3 -right-3 w-7 h-7 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/20 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-lg">
+                                  <i className="ph ph-x text-zinc-500 dark:text-zinc-400 text-xs"></i>
                                 </button>
                               </div>
                             ))}
-                            <label htmlFor="file-upload" className="cursor-pointer h-24 w-24 sm:h-32 sm:w-32 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-xl hover:border-orange-500/50 transition-colors bg-white/5 group">
-                              <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center mb-2 bg-zinc-900 group-hover:bg-orange-500 transition-colors">
+                            <label htmlFor="file-upload" className="cursor-pointer h-24 w-24 sm:h-32 sm:w-32 flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-white/20 rounded-xl hover:border-orange-500/50 transition-colors bg-zinc-50 dark:bg-white/5 group">
+                              <div className="w-8 h-8 rounded-full border border-zinc-300 dark:border-white/20 flex items-center justify-center mb-2 bg-white dark:bg-zinc-900 group-hover:bg-orange-500 transition-colors">
                                 <i className="ph ph-plus text-zinc-400 group-hover:text-white"></i>
                               </div>
                             </label>
                           </div>
-                          <button onClick={handleClearImages} className="text-[9px] uppercase font-bold text-red-500/80 hover:text-red-400 tracking-wider py-1.5 px-3 bg-red-500/10 rounded-full w-full">
+                          <button onClick={handleClearImages} className="text-[9px] uppercase font-bold text-red-600 dark:text-red-500/80 hover:text-red-500 dark:hover:text-red-400 tracking-wider py-1.5 px-3 bg-red-50 dark:bg-red-500/10 rounded-full w-full">
                             Remover Imagens
                           </button>
                         </div>
@@ -547,17 +556,17 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                     </div>
                   </section>
 
-                  <section className="flex flex-col gap-4 border-t border-white/10 pt-6">
+                  <section className="flex flex-col gap-4 border-t border-zinc-200 dark:border-white/10 pt-6">
                     <div className="flex justify-between items-center mb-1">
                       <label className="text-[10px] uppercase tracking-widest text-zinc-500">2. Nicho e Cenário Desejado</label>
                     </div>
                     
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {NICHES.map((niche) => (
-                        <button key={niche.id} onClick={() => { setSelectedNiche(niche.id); setCustomNiche(''); setFreePrompt(''); }} className={`relative p-4 rounded-xl border flex flex-col items-center justify-center gap-3 transition-all ${selectedNiche === niche.id && !customNiche && !freePrompt ? 'bg-orange-500/10 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.1)]' : 'bg-[#0A0A0B] border-white/10 hover:bg-white/5'}`}>
+                        <button key={niche.id} onClick={() => { setSelectedNiche(niche.id); setCustomNiche(''); setFreePrompt(''); }} className={`relative p-4 rounded-xl border flex flex-col items-center justify-center gap-3 transition-all ${selectedNiche === niche.id && !customNiche && !freePrompt ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-400 dark:border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.1)]' : 'bg-white dark:bg-[#0A0A0B] border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5'}`}>
                           <div className="text-2xl mb-1">{niche.icon}</div>
                           <div className="text-center">
-                            <span className={`block text-[11px] font-medium uppercase tracking-widest mb-1 ${selectedNiche === niche.id && !customNiche ? 'text-orange-100' : 'text-white'}`}>{niche.name}</span>
+                            <span className={`block text-[11px] font-medium uppercase tracking-widest mb-1 ${selectedNiche === niche.id && !customNiche ? 'text-orange-600 dark:text-orange-100' : 'text-zinc-800 dark:text-white'}`}>{niche.name}</span>
                             <span className="block text-[9px] text-zinc-500 uppercase tracking-widest line-clamp-1">{niche.desc}</span>
                           </div>
                         </button>
@@ -565,30 +574,30 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                     </div>
 
                     <div className="w-full">
-                      <input type="text" value={customNiche} onChange={(e) => { setCustomNiche(e.target.value); setSelectedNiche(''); setFreePrompt(''); }} placeholder="Ou digite um nicho específico... (ex: Odontopediatria)" className="w-full bg-[#0A0A0B] border-b border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-white placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
+                      <input type="text" value={customNiche} onChange={(e) => { setCustomNiche(e.target.value); setSelectedNiche(''); setFreePrompt(''); }} placeholder="Ou digite um nicho específico... (ex: Odontopediatria)" className="w-full bg-white dark:bg-[#0A0A0B] border-b border-zinc-300 dark:border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
                     </div>
 
-                    <div className="w-full mt-4 bg-orange-950/20 border border-orange-500/20 p-4 rounded-xl">
-                      <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-orange-400 flex items-center gap-2 mb-3">✨ Elementos Específicos na Imagem (Opcional)</label>
-                      <input type="text" value={extraDetails} onChange={(e) => setExtraDetails(e.target.value)} placeholder="Ex: Balões chiques dourados, bolo com velas..." className="w-full bg-[#0A0A0B]/50 border-b border-orange-500/50 focus:border-orange-500 outline-none px-4 py-3 text-sm text-white placeholder-zinc-500 transition-colors rounded-none font-serif italic" />
+                    <div className="w-full mt-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-500/20 p-4 rounded-xl">
+                      <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-orange-600 dark:text-orange-400 flex items-center gap-2 mb-3">✨ Elementos Específicos na Imagem (Opcional)</label>
+                      <input type="text" value={extraDetails} onChange={(e) => setExtraDetails(e.target.value)} placeholder="Ex: Balões chiques dourados, bolo com velas..." className="w-full bg-white dark:bg-[#0A0A0B]/50 border-b border-orange-300 dark:border-orange-500/50 focus:border-orange-500 outline-none px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 transition-colors rounded-none font-serif italic" />
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-white/10 w-full">
+                    <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-white/10 w-full">
                       <label className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 flex items-center gap-2 mb-3">✍️ Modo Alternativo: Prompt Livre</label>
-                      <textarea value={freePrompt} onChange={(e) => { setFreePrompt(e.target.value); setSelectedNiche(''); setCustomNiche(''); }} placeholder="Descreva a cena livremente (ex: Em Paris à noite...)" className="w-full h-32 bg-[#0A0A0B] border border-white/20 focus:border-orange-500 outline-none p-4 text-sm text-white placeholder-zinc-600 transition-colors resize-none font-serif italic" />
+                      <textarea value={freePrompt} onChange={(e) => { setFreePrompt(e.target.value); setSelectedNiche(''); setCustomNiche(''); }} placeholder="Descreva a cena livremente (ex: Em Paris à noite...)" className="w-full h-32 bg-zinc-50 dark:bg-[#0A0A0B] border border-zinc-300 dark:border-white/20 focus:border-orange-500 outline-none p-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 transition-colors resize-none font-serif italic" />
                     </div>
                   </section>
 
-                  <section className="flex flex-col gap-4 pt-6 border-t border-white/10">
+                  <section className="flex flex-col gap-4 pt-6 border-t border-zinc-200 dark:border-white/10">
                     <div className="flex justify-between items-center mb-1">
                       <label className="text-[10px] uppercase tracking-widest text-zinc-500">3. Configuração da Geração</label>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#0A0A0B] border border-white/10 p-4 sm:p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-4 sm:p-6 transition-colors duration-300">
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] uppercase tracking-widest text-zinc-500">Estilo Visual</label>
                         <div className="relative">
-                          <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)} className="w-full appearance-none bg-zinc-900/50 border border-white/10 rounded-none px-4 py-3 text-[11px] text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
-                            {VISUAL_STYLES.map(s => <option key={s} value={s} className="bg-[#0A0A0B]">{s}</option>)}
+                          <select value={visualStyle} onChange={(e) => setVisualStyle(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                            {VISUAL_STYLES.map(s => <option key={s} value={s} className="bg-white dark:bg-[#0A0A0B]">{s}</option>)}
                           </select>
                           <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
                         </div>
@@ -596,8 +605,8 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] uppercase tracking-widest text-zinc-500">Formato</label>
                         <div className="relative">
-                          <select value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value)} className="w-full appearance-none bg-zinc-900/50 border border-white/10 rounded-none px-4 py-3 text-[11px] text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
-                            {ASPECT_RATIOS.map(a => <option key={a} value={a} className="bg-[#0A0A0B]">{a}</option>)}
+                          <select value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                            {ASPECT_RATIOS.map(a => <option key={a} value={a} className="bg-white dark:bg-[#0A0A0B]">{a}</option>)}
                           </select>
                           <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
                         </div>
@@ -605,8 +614,8 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] uppercase tracking-widest text-zinc-500">Idioma</label>
                         <div className="relative">
-                          <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full appearance-none bg-zinc-900/50 border border-white/10 rounded-none px-4 py-3 text-[11px] text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
-                            {LANGUAGES.map(l => <option key={l} value={l} className="bg-[#0A0A0B]">{l}</option>)}
+                          <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full appearance-none bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none px-4 py-3 text-[11px] text-zinc-900 dark:text-white focus:outline-none focus:border-orange-500/50 uppercase tracking-widest cursor-pointer">
+                            {LANGUAGES.map(l => <option key={l} value={l} className="bg-white dark:bg-[#0A0A0B]">{l}</option>)}
                           </select>
                           <i className="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"></i>
                         </div>
@@ -614,50 +623,50 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                     </div>
                     
                     <div className="pt-6 flex flex-col items-center gap-4">
-                      <button onClick={generate} disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)} className="group relative w-full md:w-auto px-12 py-5 bg-white text-zinc-950 hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden">
+                      <button onClick={generate} disabled={isGenerating || (!selectedNiche && !customNiche && !freePrompt)} className="group relative w-full md:w-auto px-12 py-5 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden shadow-lg">
                         <div className="flex items-center justify-center gap-3 relative z-10">
                           {isGenerating ? (
                             <><i className="ph ph-spinner ph-spin text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-widest">Gerando {settings.quantity} Prompts...</span></>
                           ) : (
-                            <><i className="ph ph-magic-wand text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Prompts Otimizados</span></>
+                            <><i className="ph ph-magic-wand text-orange-500 dark:text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Prompts Otimizados</span></>
                           )}
                         </div>
                       </button>
-                      {error && <p className="text-red-400 text-sm">{error}</p>}
+                      {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
                     </div>
                   </section>
 
                   {prompts.length > 0 && (
-                    <section className="pt-12 border-t border-white/10" id="results">
+                    <section className="pt-12 border-t border-zinc-200 dark:border-white/10" id="results">
                       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-                        <h2 className="text-2xl font-serif italic text-white tracking-tight">Resultados</h2>
+                        <h2 className="text-2xl font-serif italic text-zinc-900 dark:text-white tracking-tight">Resultados</h2>
                         <div className="flex flex-wrap items-center gap-2">
-                          <button onClick={copyAll} className="flex items-center gap-2 px-3 py-1.5 bg-white text-zinc-950 text-[10px] uppercase tracking-widest font-bold hover:bg-zinc-200 transition-colors"><i className="ph ph-copy"></i> Copiar Todos</button>
+                          <button onClick={copyAll} className="flex items-center gap-2 px-3 py-1.5 bg-zinc-200 text-zinc-900 dark:bg-white dark:text-zinc-950 text-[10px] uppercase tracking-widest font-bold hover:bg-zinc-300 dark:hover:bg-zinc-200 transition-colors"><i className="ph ph-copy"></i> Copiar Todos</button>
                         </div>
                       </div>
 
                       <div className="flex flex-col gap-6">
                         {prompts.map((p, i) => (
-                          <div key={p.id} className="bg-[#0A0A0B] border border-white/10 p-4 sm:p-8 hover:border-white/20 transition-colors animate-fade-in" style={{ animationDelay: `${i * 0.05}s` }}>
+                          <div key={p.id} className="bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-4 sm:p-8 hover:border-zinc-300 dark:hover:border-white/20 transition-colors animate-fade-in" style={{ animationDelay: `${i * 0.05}s` }}>
                             <div className="flex flex-col lg:flex-row gap-6">
                               <div className="lg:w-1/3 flex flex-col gap-4">
                                 <div className="flex items-start justify-between">
-                                  <h3 className="text-lg font-serif italic text-white tracking-tight">{String(i+1).padStart(2, '0')}. Prompt {i + 1}</h3>
-                                  <button onClick={() => toggleFavorite(p)} className="p-1 text-zinc-500 hover:text-orange-500 transition-colors">
+                                  <h3 className="text-lg font-serif italic text-zinc-900 dark:text-white tracking-tight">{String(i+1).padStart(2, '0')}. Prompt {i + 1}</h3>
+                                  <button onClick={() => toggleFavorite(p)} className="p-1 text-zinc-400 dark:text-zinc-500 hover:text-orange-500 transition-colors">
                                     <i className={`ph ph-heart text-lg ${favorites.find(f=>f.id===p.id) ? 'ph-fill text-orange-500' : ''}`}></i>
                                   </button>
                                 </div>
                               </div>
 
                               <div className="lg:w-full flex flex-col gap-4">
-                                <div className="bg-zinc-900/30 p-4 sm:p-6 border border-white/5 overflow-hidden">
+                                <div className="bg-zinc-50 dark:bg-zinc-900/30 p-4 sm:p-6 border border-zinc-200 dark:border-white/5 overflow-hidden">
                                   <div className="flex items-center justify-between mb-4">
                                     <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 hidden sm:block">Prompt Principal</span>
-                                    <button onClick={() => copyToClipboard(p.prompt)} className="text-[9px] font-bold px-3 py-1.5 uppercase tracking-widest bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/20 transition-colors flex items-center gap-1.5 justify-center sm:w-auto">
+                                    <button onClick={() => copyToClipboard(p.prompt)} className="text-[9px] font-bold px-3 py-1.5 uppercase tracking-widest bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-500/30 border border-orange-200 dark:border-orange-500/20 transition-colors flex items-center gap-1.5 justify-center sm:w-auto">
                                       <i className="ph ph-copy"></i> Copiar Prompt
                                     </button>
                                   </div>
-                                  <p className="text-xs text-zinc-300 font-mono leading-relaxed select-all selection:bg-orange-500/30 whitespace-pre-wrap overflow-x-auto">{p.prompt}</p>
+                                  <p className="text-xs text-zinc-800 dark:text-zinc-300 font-mono leading-relaxed select-all selection:bg-orange-500/30 whitespace-pre-wrap overflow-x-auto">{p.prompt}</p>
                                 </div>
                               </div>
                             </div>
@@ -673,58 +682,58 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                       <div className="flex justify-between items-center mb-1">
                         <label className="text-[10px] uppercase tracking-widest text-zinc-500">1. Nicho do Criativo</label>
                       </div>
-                      <input type="text" value={adNiche} onChange={(e) => setAdNiche(e.target.value)} placeholder="Ex: Aniversário, Profissões..." className="w-full bg-[#0A0A0B] border-b border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-white placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
+                      <input type="text" value={adNiche} onChange={(e) => setAdNiche(e.target.value)} placeholder="Ex: Aniversário, Profissões..." className="w-full bg-white dark:bg-[#0A0A0B] border-b border-zinc-300 dark:border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
                    </section>
 
                    <section className="flex flex-col gap-4">
                       <div className="flex justify-between items-center mb-1">
                         <label className="text-[10px] uppercase tracking-widest text-zinc-500">2. Tabela de Valores / Promoção</label>
                       </div>
-                      <textarea value={adPackagesText} onChange={(e) => setAdPackagesText(e.target.value)} placeholder="Cole aqui sua tabela de valores..." className="w-full bg-zinc-900/40 border border-white/10 focus:border-orange-500 outline-none p-4 text-sm text-zinc-300 resize-none h-40 font-mono transition-colors" />
+                      <textarea value={adPackagesText} onChange={(e) => setAdPackagesText(e.target.value)} placeholder="Cole aqui sua tabela de valores..." className="w-full bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/10 focus:border-orange-500 outline-none p-4 text-sm text-zinc-800 dark:text-zinc-300 resize-none h-40 font-mono transition-colors" />
                    </section>
 
                    <section className="flex flex-col gap-4">
                       <div className="flex justify-between items-center mb-1">
                         <label className="text-[10px] uppercase tracking-widest text-zinc-500">3. Foco Específico (Opcional)</label>
                       </div>
-                      <input type="text" value={adExtraDetails} onChange={(e) => setAdExtraDetails(e.target.value)} placeholder="Ex: Focar no Dia das Mães..." className="w-full bg-[#0A0A0B] border-b border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-white placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
+                      <input type="text" value={adExtraDetails} onChange={(e) => setAdExtraDetails(e.target.value)} placeholder="Ex: Focar no Dia das Mães..." className="w-full bg-white dark:bg-[#0A0A0B] border-b border-zinc-300 dark:border-white/20 focus:border-orange-500 outline-none px-4 py-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 transition-colors rounded-none font-serif italic" />
                    </section>
 
-                   <div className="pt-6 border-t border-white/10 flex flex-col items-center gap-4">
-                      <button onClick={generateAds} disabled={isGeneratingAds || !adNiche} className="group relative w-full md:w-auto px-12 py-5 bg-white text-zinc-950 hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden">
+                   <div className="pt-6 border-t border-zinc-200 dark:border-white/10 flex flex-col items-center gap-4">
+                      <button onClick={generateAds} disabled={isGeneratingAds || !adNiche} className="group relative w-full md:w-auto px-12 py-5 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-none overflow-hidden shadow-lg">
                         <div className="flex items-center justify-center gap-3 relative z-10">
                           {isGeneratingAds ? (
                             <><i className="ph ph-spinner ph-spin text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-widest">Escrevendo...</span></>
                           ) : (
-                            <><i className="ph ph-magic-wand text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Anúncios de Alta Conversão</span></>
+                            <><i className="ph ph-magic-wand text-orange-500 dark:text-orange-600 text-lg"></i> <span className="text-[11px] font-bold uppercase tracking-[0.2em] group-hover:tracking-[0.25em] transition-all">Gerar Anúncios de Alta Conversão</span></>
                           )}
                         </div>
                       </button>
-                      {error && <p className="text-red-400 text-sm">{error}</p>}
+                      {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
                    </div>
 
                    {adResults.length > 0 && (
-                     <section className="pt-12 border-t border-white/10" id="results">
+                     <section className="pt-12 border-t border-zinc-200 dark:border-white/10" id="results">
                        <div className="flex items-end justify-between mb-8">
-                         <h2 className="text-2xl font-serif italic text-white tracking-tight">Criativos Gerados</h2>
+                         <h2 className="text-2xl font-serif italic text-zinc-900 dark:text-white tracking-tight">Criativos Gerados</h2>
                        </div>
                        <div className="flex flex-col gap-12">
                          {adResults.map((ad, idx) => (
                            <div key={ad.id} className="relative border-l-2 border-orange-500/50 pl-6 md:pl-8">
-                              <div className="absolute -left-[5px] top-0 w-2 h-2 rounded-full border-2 border-[#0A0A0B] bg-orange-500 shrink-0 mt-1.5"></div>
+                              <div className="absolute -left-[5px] top-0 w-2 h-2 rounded-full border-2 border-zinc-50 dark:border-[#0A0A0B] bg-orange-500 shrink-0 mt-1.5"></div>
                               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pr-2">
-                                <h3 className="text-lg font-serif italic text-white flex-1">Ideia {idx + 1}: {ad.creativeIdea}</h3>
+                                <h3 className="text-lg font-serif italic text-zinc-900 dark:text-white flex-1">Ideia {idx + 1}: {ad.creativeIdea}</h3>
                               </div>
                               <div className="flex flex-col gap-6 mb-6">
                                  <div className="w-full">
-                                   <div className="bg-zinc-900/30 p-4 sm:p-6 border border-white/5">
+                                   <div className="bg-zinc-50 dark:bg-zinc-900/30 p-4 sm:p-6 border border-zinc-200 dark:border-white/5">
                                      <div className="flex items-center justify-between mb-4">
                                        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 hidden sm:block">Prompt do Anúncio</span>
-                                       <button onClick={() => copyToClipboard(ad.imagePrompt)} className="text-[9px] font-bold px-3 py-2 uppercase tracking-widest bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 transition-colors flex items-center justify-center gap-1.5 w-full sm:w-auto">
+                                       <button onClick={() => copyToClipboard(ad.imagePrompt)} className="text-[9px] font-bold px-3 py-2 uppercase tracking-widest bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-500/30 border border-orange-200 dark:border-orange-500/30 transition-colors flex items-center justify-center gap-1.5 w-full sm:w-auto">
                                          <i className="ph ph-copy"></i> Copiar Prompt
                                        </button>
                                      </div>
-                                     <p className="text-sm text-zinc-300 font-mono leading-relaxed select-all selection:bg-orange-500/30 overflow-x-auto">{ad.imagePrompt}</p>
+                                     <p className="text-sm text-zinc-800 dark:text-zinc-300 font-mono leading-relaxed select-all selection:bg-orange-500/30 overflow-x-auto">{ad.imagePrompt}</p>
                                    </div>
                                  </div>
                               </div>
@@ -739,45 +748,45 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
 
             <div className={`lg:col-span-4 transition-all duration-300 ${showSettings ? 'opacity-100 block' : 'hidden lg:block'}`}>
               <div className="sticky top-24 flex flex-col gap-6">
-                <div className="bg-[#0A0A0B] border border-white/10 p-6">
+                <div className="bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-6 transition-colors duration-300">
                   <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
                     <i className="ph ph-faders"></i> Ajustes Finos
                   </h3>
                   <div className="flex flex-col gap-6">
                     <div>
-                      <label className="flex justify-between text-[11px] uppercase tracking-widest text-zinc-400 mb-3">Volume <span>{settings.quantity}</span></label>
+                      <label className="flex justify-between text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-3">Volume <span>{settings.quantity}</span></label>
                       <input type="range" min="1" max="20" value={settings.quantity} onChange={(e)=>setSettings({...settings, quantity: parseInt(e.target.value)})} className="w-full accent-orange-500" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Realismo</label>
-                        <select value={settings.realismLevel} onChange={(e)=>setSettings({...settings, realismLevel: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-white outline-none focus:border-orange-500/50">
-                          <option value="natural" className="bg-[#0A0A0B]">Natural</option>
-                          <option value="premium" className="bg-[#0A0A0B]">Premium</option>
-                          <option value="cinematográfico" className="bg-[#0A0A0B]">Cine</option>
+                        <select value={settings.realismLevel} onChange={(e)=>setSettings({...settings, realismLevel: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                          <option value="natural" className="bg-white dark:bg-[#0A0A0B]">Natural</option>
+                          <option value="premium" className="bg-white dark:bg-[#0A0A0B]">Premium</option>
+                          <option value="cinematográfico" className="bg-white dark:bg-[#0A0A0B]">Cine</option>
                         </select>
                       </div>
                       <div>
                         <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Criatividade</label>
-                        <select value={settings.creativeIntensity} onChange={(e)=>setSettings({...settings, creativeIntensity: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-white outline-none focus:border-orange-500/50">
-                          <option value="baixa" className="bg-[#0A0A0B]">Baixa</option>
-                          <option value="média" className="bg-[#0A0A0B]">Média</option>
-                          <option value="alta" className="bg-[#0A0A0B]">Alta</option>
+                        <select value={settings.creativeIntensity} onChange={(e)=>setSettings({...settings, creativeIntensity: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                          <option value="baixa" className="bg-white dark:bg-[#0A0A0B]">Baixa</option>
+                          <option value="média" className="bg-white dark:bg-[#0A0A0B]">Média</option>
+                          <option value="alta" className="bg-white dark:bg-[#0A0A0B]">Alta</option>
                         </select>
                       </div>
                     </div>
                     <div>
                       <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 block mb-2">Gênero da Pessoa</label>
-                      <select value={settings.targetGender} onChange={(e)=>setSettings({...settings, targetGender: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-white outline-none focus:border-orange-500/50">
-                        <option value="auto" className="bg-[#0A0A0B]">Auto (Detectar)</option>
-                        <option value="feminino" className="bg-[#0A0A0B]">Feminino</option>
-                        <option value="masculino" className="bg-[#0A0A0B]">Masculino</option>
-                        <option value="criança" className="bg-[#0A0A0B]">Criança</option>
+                      <select value={settings.targetGender} onChange={(e)=>setSettings({...settings, targetGender: e.target.value})} className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-none text-[10px] uppercase tracking-widest p-2.5 text-zinc-900 dark:text-white outline-none focus:border-orange-500/50">
+                        <option value="auto" className="bg-white dark:bg-[#0A0A0B]">Auto (Detectar)</option>
+                        <option value="feminino" className="bg-white dark:bg-[#0A0A0B]">Feminino</option>
+                        <option value="masculino" className="bg-white dark:bg-[#0A0A0B]">Masculino</option>
+                        <option value="criança" className="bg-white dark:bg-[#0A0A0B]">Criança</option>
                       </select>
                     </div>
                     {imagePreviews.length > 0 && (
                       <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
+                        <div className="flex flex-col gap-3 pt-4 border-t border-zinc-200 dark:border-white/10">
                           <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-zinc-600 mb-1">Preservação da Imagem</span>
                           <Toggle label="Roupa original" checked={settings.keepClothes} onChange={(v)=>setSettings({...settings, keepClothes: v})} />
                           <Toggle label="Fundo original" checked={settings.keepBackground} onChange={(v)=>setSettings({...settings, keepBackground: v})} />
@@ -787,16 +796,16 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
                   </div>
                 </div>
                 {history.length > 0 && (
-                  <div className="bg-[#0A0A0B] border border-white/10 p-6">
+                  <div className="bg-white dark:bg-[#0A0A0B] border border-zinc-200 dark:border-white/10 p-6 transition-colors duration-300">
                     <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2"><i className="ph ph-clock-counter-clockwise"></i> Arquivo</h3>
                     <div className="flex flex-col gap-3">
                       {history.slice(0, 3).map((h, i) => (
-                        <div key={i} className="flex justify-between items-center bg-zinc-900/30 p-3 border border-white/5 hover:border-white/10 transition-colors">
+                        <div key={i} className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/30 p-3 border border-zinc-200 dark:border-white/5 hover:border-zinc-300 dark:hover:border-white/10 transition-colors">
                           <div className="overflow-hidden">
-                            <p className="text-[11px] text-zinc-300 font-medium truncate tracking-wider">{h.data[0]?.id ? 'Geração de Prompts' : 'Anúncios'}</p>
-                            <p className="text-[9px] text-zinc-600 uppercase tracking-widest mt-1">{h.date}</p>
+                            <p className="text-[11px] text-zinc-800 dark:text-zinc-300 font-medium truncate tracking-wider">{h.data[0]?.id ? 'Geração de Prompts' : 'Anúncios'}</p>
+                            <p className="text-[9px] text-zinc-500 dark:text-zinc-600 uppercase tracking-widest mt-1">{h.date}</p>
                           </div>
-                          <button onClick={() => setPrompts(h.data)} className="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 bg-white/5 text-white hover:bg-white/10 transition-colors ml-2">Abrir</button>
+                          <button onClick={() => setPrompts(h.data)} className="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 bg-zinc-200 dark:bg-white/5 text-zinc-900 dark:text-white hover:bg-zinc-300 dark:hover:bg-white/10 transition-colors ml-2">Abrir</button>
                         </div>
                       ))}
                     </div>
@@ -807,7 +816,7 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
           </main>
 
           {toastMessage && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900 border border-white/20 text-white px-6 py-3 shadow-2xl z-50 flex items-center gap-3">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900 dark:bg-white border border-zinc-800 dark:border-zinc-200 text-white dark:text-zinc-900 px-6 py-3 shadow-2xl z-50 flex items-center gap-3 rounded-lg">
               <i className="ph ph-check text-orange-500"></i>
               <span className="text-[11px] font-bold uppercase tracking-widest">{toastMessage}</span>
             </div>
@@ -822,8 +831,21 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
     function App() {
       const [session, setSession] = useState(null);
       const [loading, setLoading] = useState(true);
+      
+      // Controle do Modo Claro/Escuro
+      const [isDark, setIsDark] = useState(true);
 
       useEffect(() => {
+        // Carrega a preferência do usuário ou usa Dark como padrão
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'light') {
+          setIsDark(false);
+          document.documentElement.classList.remove('dark');
+        } else {
+          setIsDark(true);
+          document.documentElement.classList.add('dark');
+        }
+
         supabase.auth.getSession().then(({ data: { session } }) => {
           setSession(session);
           setLoading(false);
@@ -836,13 +858,24 @@ Use a estrutura de prompt: "A highly converting Facebook Ad image. A beautiful v
         return () => subscription.unsubscribe();
       }, []);
 
+      const toggleTheme = () => {
+        setIsDark(!isDark);
+        if (isDark) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      };
+
       const handleLogout = async () => {
         await supabase.auth.signOut();
       };
 
-      if (loading) return <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center"><i className="ph ph-spinner ph-spin text-3xl text-orange-500"></i></div>;
+      if (loading) return <div className="min-h-screen bg-zinc-50 dark:bg-[#0A0A0B] flex items-center justify-center"><i className="ph ph-spinner ph-spin text-3xl text-orange-500"></i></div>;
       
-      return session ? <MainApp onLogout={handleLogout} /> : <LoginScreen />;
+      return session ? <MainApp onLogout={handleLogout} isDark={isDark} toggleTheme={toggleTheme} /> : <LoginScreen isDark={isDark} toggleTheme={toggleTheme} />;
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
