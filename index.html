@@ -48,6 +48,7 @@
       font-size: 13px; 
     }
 
+    /* MODO ESCURO - DARK PIANO */
     html.dark body {
       background-color: #000000;
       background-image: 
@@ -55,11 +56,13 @@
         radial-gradient(circle at 80% 100%, rgba(0, 109, 240, 0.04) 0%, transparent 25%);
     }
 
+    /* MODO CLARO */
     html:not(.dark) body {
       background-color: #E5E7EB; 
       color: #111827;
     }
 
+    /* PAINÉIS */
     .neon-panel {
       border-radius: 1.25rem;
       padding: 1.25rem;
@@ -68,6 +71,7 @@
       transition: all 0.3s ease;
     }
 
+    /* GLASSMORPHISM DARK PIANO */
     html.dark .neon-panel { 
       background: linear-gradient(180deg, rgba(24, 24, 27, 0.8) 0%, rgba(0, 0, 0, 0.95) 100%);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -87,6 +91,7 @@
       color: #1F2937 !important; 
     }
 
+    /* BOTÃO PRINCIPAL */
     .btn-forjar {
       background-color: #FFFFFF !important;
       color: #1F2937 !important; 
@@ -107,6 +112,7 @@
     }
     .btn-forjar:disabled { opacity: 0.6; cursor: not-allowed; }
 
+    /* CARTÕES DE MISSÃO */
     .btn-niche {
       background-color: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -122,6 +128,7 @@
     .btn-niche:hover { border-color: #05F0BD !important; color: #05F0BD !important; transform: scale(1.02); }
     .active-niche { border-color: #006DF0 !important; color: #006DF0 !important; background-color: rgba(0, 109, 240, 0.1); }
 
+    /* BOTÕES TÉCNICOS */
     .btn-tech {
       background-color: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -135,12 +142,14 @@
     .btn-tech:hover { border-color: #006DF0 !important; color: #006DF0 !important; }
     .active-tech { border-color: #05F0BD !important; color: #05F0BD !important; background-color: rgba(5, 240, 189, 0.1); }
 
+    /* MODO CLARO BOTÕES INATIVOS */
     html:not(.dark) .btn-niche, html:not(.dark) .btn-tech {
       background-color: #F9FAFB !important;
       border-color: #D1D5DB !important;
       color: #374151 !important;
     }
 
+    /* INPUTS GERAIS */
     .cyber-input {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -327,7 +336,7 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
       const [realismLevel, setRealismLevel] = useState('natural');
       const [aspectRatio, setAspectRatio] = useState('9:16 Vertical');
       const [quantity, setQuantity] = useState(10);
-      const [colorize, setColorize] = useState(false); // Estado para o botão de Colorir
+      const [colorize, setColorize] = useState(false); 
       
       const [prompts, setPrompts] = useState([]);
       const [isGenerating, setIsGenerating] = useState(false);
@@ -432,7 +441,8 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
                   <label className="w-28 h-28 shrink-0 rounded-2xl border-2 border-dashed border-zinc-400 dark:border-zinc-600 flex flex-col items-center justify-center cursor-pointer hover:border-greenSolid transition-all gap-2 bg-zinc-50 dark:bg-transparent">
                     <i className="ph-bold ph-upload-simple text-2xl text-zinc-500"></i>
                     <span className="text-[10px] font-black uppercase text-zinc-500 text-center leading-tight">Faça o<br/>Upload</span>
-                    <input type="file" className="hidden" onChange={handleImageUpload} />
+                    {/* INPUT COM MULTIPLE ADICIONADO AQUI */}
+                    <input type="file" className="hidden" multiple onChange={handleImageUpload} accept="image/*" />
                   </label>
                 </div>
               </section>
@@ -506,7 +516,6 @@ REQUIRED JSON SCHEMA (this exact structure must be outputted for EACH item in th
                 
                 <div className="space-y-7 mb-8">
                   
-                  {/* CONDIÇÃO PARA MOSTRAR VOLUME OU OPÇÃO DE RESTAURAÇÃO */}
                   {selectedNiche === 'restauracao' ? (
                     <div className="p-5 border border-blueSolid/30 bg-blueSolid/5 rounded-xl animate-fade-in">
                       <label className="flex items-center gap-3 cursor-pointer">
