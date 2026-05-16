@@ -223,16 +223,19 @@
       const arParam = "--ar " + aspectRatio.split(' ')[0];
       const actualQuantity = isRestoration ? 1 : quantity;
 
-      // INSTRUÇÃO DO SISTEMA SEM METADADOS QUE CONFUNDEM A IA EMISSORA
+      // INSTRUÇÃO INTELIGENTE DO SISTEMA COM DE TEÇÃO AUTOMÁTICA DE COR
       const systemInstruction = `ROLE & OBJECTIVE: You are an expert Image Descriptor Engine. 
 Your objective is to generate high-fidelity blueprint descriptions of target images formatted inside a declarative JSON array. 
-The downstream execution layer will read this JSON directly to render the image. 
+The downstream execution layer will read this JSON directly to render the image.
 
 CRITICAL RESTORATION RULE:
 If the mode is Restoration, you must act as a master photo restorer.
-- Do NOT describe artifacts, dust, tears, tape, or aging damage.
+- Do NOT describe artifacts, dust, tears, tape, chemical degradation, or aging damage.
 - Recreate the pristine, brand-new visual state of the subjects and environment from the reference image.
-- COLOR SCHEME: ${colorize ? 'Render full historical realistic colors.' : 'Render clean, high-contrast, vintage monochrome black and white, removing any yellow/purple age decay cast.'}
+- COLOR POLICY: Carefully analyze image_0.png. If it contains original color data (even if shifted, faded, or purplish due to age), you MUST restore it to full, vibrant, natural realistic colors. 
+- ONLY if the original image is strictly Black and White or Sepia, apply the colorize flag setting:
+  * If COLORIZE is true: generate a prompt to colorize it with realistic historical colors.
+  * If COLORIZE is false: preserve it as a clean, beautiful, high-contrast monochrome black and white image, completely removing chemical aging tints.
 
 OUTPUT DISCIPLINE: RETURN ONLY A VALID RAW JSON ARRAY. NO MARKDOWN. NO \`\`\`json.`;
 
@@ -240,7 +243,8 @@ OUTPUT DISCIPLINE: RETURN ONLY A VALID RAW JSON ARRAY. NO MARKDOWN. NO \`\`\`jso
         ? `\n\n[RESTORATION DIRECTIVE]
            - Analyze the individuals, poses, clothes, and domestic/external layout of image_0.png.
            - Generate a flawless descriptive rendering profile of this scene.
-           - Strip all physical image wear, scratches, fading, and borders. Describe it as a brand new capture.`
+           - Strip all physical image wear, scratches, fading, and borders. Describe it as a brand new capture.
+           - Color Handling: Check if the original has color. If yes, restore to natural color. If strictly monochrome, apply toggle state: ${colorize ? 'Realistic colorization' : 'Clean high-contrast black and white'}.`
         : '';
 
       let promptText = `Create exactly ${actualQuantity} clean declarative JSON object configuration profiles in a root array.
@@ -281,7 +285,8 @@ REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payloa
   },
   "rendering_style_profile": {
     "type_value": "${isRestoration ? 'Masterpiece photo restoration print, crystal clear, 8k resolution, removed noise and artifacts' : visualStyle}",
-    "aspect_ratio_parameter": "${arParam}"
+    "aspect_ratio_parameter": "${arParam}",
+    "chromatic_profile": "${isRestoration ? '[Auto-detect: If original image has color data, value is full natural color. If original is monochrome, follow toggle settings]' : 'Standard profile'}"
   }
 }`;
 
