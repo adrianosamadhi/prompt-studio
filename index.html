@@ -220,7 +220,6 @@
         targetNiche = "Vintage Photo Professional Restoration"; 
       }
 
-      // CORREÇÃO CRÍTICA DA PROPORÇÃO: Se for Original, instrui a IA a espelhar o formato nativo da foto
       const arParam = aspectRatio === 'Original' 
         ? 'Match the exact aspect ratio of the original reference image (image_0.png)' 
         : "--ar " + aspectRatio.split(' ')[0];
@@ -230,6 +229,12 @@
       const systemInstruction = `ROLE & OBJECTIVE: You are an expert Image Descriptor Engine. 
 Your objective is to generate high-fidelity blueprint descriptions of target images formatted inside a declarative JSON array. 
 The downstream execution layer will read this JSON directly to render the image.
+
+CRITICAL VARIATION RULE (FOR NON-RESTORATION):
+If mode is NOT restoration, you MUST aggressively vary the generated configuration across the array items:
+1. DIVERSIFY CLOTHING: Do NOT repeat the same outfit style or colors (e.g., vary between neon tank tops, dark hoodies, compression gear, t-shirts).
+2. DIVERSIFY POSES: Do NOT repeat simple standing poses or mirror reflections. Force action poses relevant to the niche (e.g., lifting weights, running, stretching, mid-exercise).
+3. DIVERSIFY ENVIRONMENT: Do NOT use the same exact gym style. Alternate sub-locations (e.g., crossfit box, outdoor track, brightly lit premium fitness studio, heavy iron warehouse).
 
 CRITICAL RESTORATION RULE:
 If the mode is Restoration, you must act as a master photo restorer.
@@ -249,7 +254,9 @@ OUTPUT DISCIPLINE: RETURN ONLY A VALID RAW JSON ARRAY. NO MARKDOWN. NO \`\`\`jso
            - Strip all physical image wear, scratches, fading, and borders. Describe it as a brand new capture.
            - Aspect Ratio Policy: ${aspectRatio === 'Original' ? 'Detect and maintain the exact physical aspect ratio of the original image_0.png.' : 'Force aspect ratio to ' + arParam}
            - Color Handling: Check if the original has color. If yes, restore to natural color. If strictly monochrome, apply toggle state: ${colorize ? 'Realistic colorization' : 'Clean high-contrast black and white'}.`
-        : '';
+        : `\n\n[CREATIVE VARIATION DIRECTIVE]
+           - Generate exactly ${actualQuantity} profiles.
+           - Drastically vary colors, specific actions, equipment in view, and lighting style across each single profile item to prevent duplicates.`;
 
       let promptText = `Create exactly ${actualQuantity} clean declarative JSON object configuration profiles in a root array.
 
@@ -262,29 +269,29 @@ ${restorationInstruction}
 
 REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payload structure):
 {
-  "image_description": "${isRestoration ? 'A flawless professionally restored high-fidelity photograph showing [Describe the clear subjects and scene]' : 'A stunning high-fidelity photograph showing [Describe the main scene]'}",
+  "image_description": "${isRestoration ? 'A flawless professionally restored high-fidelity photograph showing [Describe the clear subjects and scene]' : 'A stunning unique high-fidelity photograph showing [Describe a distinct unique scene setup matching ' + targetNiche + ']'}",
   "subject_biometrics": {
-    "primary_subject_identity": "[Detailed description of people/subjects from reference image, represented crystal clear]",
-    "body_proportions": "[Exact build, athletic/youthful profile, and stance extracted safely]",
+    "primary_subject_identity": "[Detailed description of people/subjects, represented crystal clear]",
+    "body_proportions": "[Exact build, athletic profile, and stance extracted or customized safely]",
     "facial_architecture": "[Face shape, sharp features, clear skin details, jawline]",
     "hair_and_complexion": "[Accurate hair styling, volume, and skin tones]",
-    "expressions": "[Natural genuine facial expressions and mood]",
-    "clothing_profile": "${isRestoration ? '[Describe the original clothing items completely clean, brand new fabric texture]' : '[Describe thematic custom clothes matching the niche]'}"
+    "expressions": "[Natural genuine facial expressions matching the current specific action]",
+    "clothing_profile": "${isRestoration ? '[Describe the original clothing items completely clean, brand new fabric texture]' : '[CRITICAL: Specify unique custom sportswear, changing colors and garment types completely across array items]'}"
   },
   "spatial_composition": {
-    "subject_pose": "${isRestoration ? 'Pristine reproduction of the exact original poses and interaction' : '[Detailed unique pose setting]'}",
-    "clothing_style_override": "${isRestoration ? 'Cleaned flawless original outfit capture' : '[Outfit style elements]'}"
+    "subject_pose": "${isRestoration ? 'Pristine reproduction of the exact original poses and interaction' : '[CRITICAL: Describe a unique dynamic action pose or distinct pose configuration. Do NOT repeat mirror setups unless requested]'}",
+    "clothing_style_override": "${isRestoration ? 'Cleaned flawless original outfit capture' : '[Unique functional outfit style traits]'}"
   },
   "scenery_environment": {
-    "location_details": "${isRestoration ? 'Perfect clean reproduction of the background scene from reference image' : 'Immersive environment matching ' + targetNiche}",
-    "foreground_elements": "${extraDetails || 'Harmonious pristine background detailing matching the scenario'}"
+    "location_details": "${isRestoration ? 'Perfect clean reproduction of the background scene from reference image' : '[CRITICAL: Describe a distinct environmental sub-location background matching ' + targetNiche + ' with high variety]'}",
+    "foreground_elements": "${extraDetails || '[Vary specific equipment or objects in view unique to this scene profile]'}"
   },
   "camera_and_optics": {
-    "framing": "${isRestoration ? 'Exact matching original group/individual camera framing' : '[Cinematic specific framing format]'}",
+    "framing": "${isRestoration ? 'Exact matching original group/individual camera framing' : '[Vary framing across items: medium shot, full-body, close-up dynamic shot]'}",
     "lens_angle": "Eye level, clean perspective"
   },
   "lighting_signature": {
-    "lighting_type": "${isRestoration ? 'Clean corrected camera flash illumination, optimized exposure, high contrast' : 'Professional optimized environment lighting'}"
+    "lighting_type": "${isRestoration ? 'Clean corrected camera flash illumination, optimized exposure, high contrast' : '[Vary lighting setup style matching the specific mood profile]'}"
   },
   "rendering_style_profile": {
     "type_value": "${isRestoration ? 'Masterpiece photo restoration print, crystal clear, 8k resolution, removed noise and artifacts' : visualStyle}",
@@ -373,14 +380,13 @@ REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payloa
         });
       };
 
-      // CONTROLADOR SELETOR DE NICHO INTELIGENTE
       const selectNicheHandler = (nicheId) => {
         setSelectedNiche(nicheId);
         setFreePrompt('');
         if (nicheId === 'restauracao') {
-          setAspectRatio('Original'); // Trava no formato nativo da foto automaticamente
+          setAspectRatio('Original'); 
         } else {
-          setAspectRatio('9:16 Vertical'); // Volta pro padrão comercial nos outros nichos
+          setAspectRatio('9:16 Vertical'); 
         }
       };
 
@@ -582,7 +588,6 @@ REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payloa
                   <div>
                     <label className="text-[10px] font-black uppercase mb-3 block opacity-70">Proporção</label>
                     <div className="grid grid-cols-2 gap-3">
-                      {/* BOTÃO EXCLUSIVO DE PROPORÇÃO ORIGINAL CONDICIONAL */}
                       {selectedNiche === 'restauracao' && (
                         <button onClick={()=>setAspectRatio('Original')} className={`btn-tech ${aspectRatio === 'Original' ? 'active-tech' : ''}`}>Original</button>
                       )}
