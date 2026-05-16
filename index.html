@@ -220,10 +220,13 @@
         targetNiche = "Vintage Photo Professional Restoration"; 
       }
 
-      const arParam = "--ar " + aspectRatio.split(' ')[0];
+      // CORREÇÃO CRÍTICA DA PROPORÇÃO: Se for Original, instrui a IA a espelhar o formato nativo da foto
+      const arParam = aspectRatio === 'Original' 
+        ? 'Match the exact aspect ratio of the original reference image (image_0.png)' 
+        : "--ar " + aspectRatio.split(' ')[0];
+        
       const actualQuantity = isRestoration ? 1 : quantity;
 
-      // INSTRUÇÃO INTELIGENTE DO SISTEMA COM DE TEÇÃO AUTOMÁTICA DE COR
       const systemInstruction = `ROLE & OBJECTIVE: You are an expert Image Descriptor Engine. 
 Your objective is to generate high-fidelity blueprint descriptions of target images formatted inside a declarative JSON array. 
 The downstream execution layer will read this JSON directly to render the image.
@@ -244,6 +247,7 @@ OUTPUT DISCIPLINE: RETURN ONLY A VALID RAW JSON ARRAY. NO MARKDOWN. NO \`\`\`jso
            - Analyze the individuals, poses, clothes, and domestic/external layout of image_0.png.
            - Generate a flawless descriptive rendering profile of this scene.
            - Strip all physical image wear, scratches, fading, and borders. Describe it as a brand new capture.
+           - Aspect Ratio Policy: ${aspectRatio === 'Original' ? 'Detect and maintain the exact physical aspect ratio of the original image_0.png.' : 'Force aspect ratio to ' + arParam}
            - Color Handling: Check if the original has color. If yes, restore to natural color. If strictly monochrome, apply toggle state: ${colorize ? 'Realistic colorization' : 'Clean high-contrast black and white'}.`
         : '';
 
@@ -252,7 +256,6 @@ OUTPUT DISCIPLINE: RETURN ONLY A VALID RAW JSON ARRAY. NO MARKDOWN. NO \`\`\`jso
 Context for creation profile:
 - Theme/Niche: ${targetNiche}
 - Render Style profile: ${visualStyle}
-- Spatial Framing format: ${arParam}
 - Realism Profile: ${realismLevel}
 - Specific Scenario details: ${extraDetails || 'None'}
 ${restorationInstruction}
@@ -285,7 +288,7 @@ REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payloa
   },
   "rendering_style_profile": {
     "type_value": "${isRestoration ? 'Masterpiece photo restoration print, crystal clear, 8k resolution, removed noise and artifacts' : visualStyle}",
-    "aspect_ratio_parameter": "${arParam}",
+    "aspect_ratio_parameter": "${aspectRatio === 'Original' ? 'Match the exact aspect ratio of the original reference image' : arParam}",
     "chromatic_profile": "${isRestoration ? '[Auto-detect: If original image has color data, value is full natural color. If original is monochrome, follow toggle settings]' : 'Standard profile'}"
   }
 }`;
@@ -368,6 +371,17 @@ REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payloa
           reader.onloadend = () => setImagePreviews(prev => [...prev, reader.result]);
           reader.readAsDataURL(file);
         });
+      };
+
+      // CONTROLADOR SELETOR DE NICHO INTELIGENTE
+      const selectNicheHandler = (nicheId) => {
+        setSelectedNiche(nicheId);
+        setFreePrompt('');
+        if (nicheId === 'restauracao') {
+          setAspectRatio('Original'); // Trava no formato nativo da foto automaticamente
+        } else {
+          setAspectRatio('9:16 Vertical'); // Volta pro padrão comercial nos outros nichos
+        }
       };
 
       const generate = async () => {
@@ -466,7 +480,7 @@ REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payloa
                 
                 <div className="grid grid-cols-3 gap-3 mb-5">
                   {NICHES.map(n => (
-                    <button key={n.id} onClick={()=>{setSelectedNiche(n.id); setFreePrompt('');}} className={`btn-niche ${selectedNiche === n.id ? 'active-niche' : ''}`}>
+                    <button key={n.id} onClick={()=>selectNicheHandler(n.id)} className={`btn-niche ${selectedNiche === n.id ? 'active-niche' : ''}`}>
                       <i className={n.icon}></i>
                       <span className="text-[10px] font-black uppercase tracking-wide mt-1">{n.name}</span>
                     </button>
@@ -568,6 +582,10 @@ REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payloa
                   <div>
                     <label className="text-[10px] font-black uppercase mb-3 block opacity-70">Proporção</label>
                     <div className="grid grid-cols-2 gap-3">
+                      {/* BOTÃO EXCLUSIVO DE PROPORÇÃO ORIGINAL CONDICIONAL */}
+                      {selectedNiche === 'restauracao' && (
+                        <button onClick={()=>setAspectRatio('Original')} className={`btn-tech ${aspectRatio === 'Original' ? 'active-tech' : ''}`}>Original</button>
+                      )}
                       {['9:16 Vertical', '16:9 Horizontal', '1:1 Quadrado', '4:5 Feed'].map(a => (
                         <button key={a} onClick={()=>setAspectRatio(a)} className={`btn-tech ${aspectRatio === a ? 'active-tech' : ''}`}>{a}</button>
                       ))}
