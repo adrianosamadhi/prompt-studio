@@ -425,6 +425,7 @@ REQUIRED JSON SCHEMA FOR EACH ARRAY ITEM:
       const [extraDetails, setExtraDetails] = useState('');
       
       const [visualStyle, setVisualStyle] = useState('Ultra-realista');
+      const [customVisualStyle, setCustomVisualStyle] = useState(''); // NOVO: Estado para Estilo Livre
       const [realismLevel, setRealismLevel] = useState('natural');
       const [aspectRatio, setAspectRatio] = useState('9:16 Vertical');
       const [quantity, setQuantity] = useState(10);
@@ -450,13 +451,21 @@ REQUIRED JSON SCHEMA FOR EACH ARRAY ITEM:
         });
       };
 
+      // NOVA LÓGICA DE TOGGLE PARA O NICHO
       const selectNicheHandler = (nicheId) => {
-        setSelectedNiche(nicheId);
-        setFreePrompt('');
-        if (nicheId === 'restauracao') {
-          setAspectRatio('Original'); 
+        if (selectedNiche === nicheId) {
+          // Se clicar no botão que já está ativo, ele desmarca e reseta
+          setSelectedNiche('');
+          setAspectRatio('9:16 Vertical');
         } else {
-          setAspectRatio('9:16 Vertical'); 
+          // Marca o botão novo
+          setSelectedNiche(nicheId);
+          setFreePrompt('');
+          if (nicheId === 'restauracao') {
+            setAspectRatio('Original'); 
+          } else {
+            setAspectRatio('9:16 Vertical'); 
+          }
         }
       };
 
@@ -468,6 +477,9 @@ REQUIRED JSON SCHEMA FOR EACH ARRAY ITEM:
 
         setIsGenerating(true);
         
+        // Define o estilo final: Se o cliente digitou no campo livre, usa ele. Se não, usa o botão.
+        const finalVisualStyle = customVisualStyle.trim() !== '' ? customVisualStyle : visualStyle;
+        
         try {
           const result = await generatePromptsAPI({
             imagePreviews, 
@@ -475,7 +487,7 @@ REQUIRED JSON SCHEMA FOR EACH ARRAY ITEM:
             customNiche, 
             freePrompt, 
             extraDetails,
-            visualStyle, 
+            visualStyle: finalVisualStyle, 
             aspectRatio, 
             quantity,
             realismLevel,
@@ -639,11 +651,25 @@ REQUIRED JSON SCHEMA FOR EACH ARRAY ITEM:
 
                   <div>
                     <label className="text-[10px] font-black uppercase mb-3 block opacity-70">Estilo Visual</label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3 mb-3">
                       {['Ultra-realista', 'Luxo Premium', 'Estúdio', 'Cinematográfico'].map(s => (
-                        <button key={s} onClick={()=>setVisualStyle(s)} className={`btn-tech ${visualStyle === s ? 'active-tech' : ''}`}>{s}</button>
+                        <button 
+                          key={s} 
+                          onClick={()=>{setVisualStyle(s); setCustomVisualStyle('');}} 
+                          className={`btn-tech ${visualStyle === s && !customVisualStyle ? 'active-tech' : ''}`}
+                        >
+                          {s}
+                        </button>
                       ))}
                     </div>
+                    {/* CAMPO DE ESTILO LIVRE ADICIONADO AQUI */}
+                    <input 
+                      type="text" 
+                      value={customVisualStyle} 
+                      onChange={e=>setCustomVisualStyle(e.target.value)} 
+                      placeholder="OU DIGITE UM ESTILO (EX: 3D, ANIME)..." 
+                      className="cyber-input w-full rounded-xl font-black text-xs" 
+                    />
                   </div>
 
                   <div>
