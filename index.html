@@ -91,7 +91,6 @@
       color: #1F2937 !important; 
     }
 
-    /* BOTÃO PRINCIPAL */
     .btn-forjar {
       background-color: #FFFFFF !important;
       color: #1F2937 !important; 
@@ -112,7 +111,6 @@
     }
     .btn-forjar:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* CARTÕES DE MISSÃO */
     .btn-niche {
       background-color: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -128,7 +126,6 @@
     .btn-niche:hover { border-color: #05F0BD !important; color: #05F0BD !important; transform: scale(1.02); }
     .active-niche { border-color: #006DF0 !important; color: #006DF0 !important; background-color: rgba(0, 109, 240, 0.1); }
 
-    /* BOTÕES TÉCNICOS */
     .btn-tech {
       background-color: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -142,14 +139,12 @@
     .btn-tech:hover { border-color: #006DF0 !important; color: #006DF0 !important; }
     .active-tech { border-color: #05F0BD !important; color: #05F0BD !important; background-color: rgba(5, 240, 189, 0.1); }
 
-    /* MODO CLARO BOTÕES INATIVOS */
     html:not(.dark) .btn-niche, html:not(.dark) .btn-tech {
       background-color: #F9FAFB !important;
       border-color: #D1D5DB !important;
       color: #374151 !important;
     }
 
-    /* INPUTS GERAIS */
     .cyber-input {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -221,82 +216,157 @@
       }
 
       const arParam = aspectRatio === 'Original' 
-        ? 'Match the exact aspect ratio of the original reference image (image_0.png)' 
+        ? 'Maintain original reference image aspect ratio' 
         : "--ar " + aspectRatio.split(' ')[0];
         
       const actualQuantity = isRestoration ? 1 : quantity;
 
-      const systemInstruction = `ROLE & OBJECTIVE: You are an expert Image Descriptor Engine. 
-Your objective is to generate high-fidelity blueprint descriptions of target images formatted inside a declarative JSON array. 
-The downstream execution layer will read this JSON directly to render the image.
+      // STRICT NANO BANANA INSTRUCTION DIRECTIVE (From User Guide)
+      const systemInstruction = `ROLE & OBJECTIVE
+You are JsonPromptMaker, a deterministic Prompt-to-JSON Engine.
+Your task is to convert a user’s text prompt into a precise, production-ready JSON prompt array following the strict Nano Banana schema.
+You do NOT analyze images. You ONLY declare how the image generation model must use them.
 
-CRITICAL VARIATION RULE (FOR NON-RESTORATION):
-If mode is NOT restoration, you MUST aggressively vary the generated configuration across the array items:
-1. DIVERSIFY CLOTHING: Do NOT repeat the same outfit style or colors (e.g., vary between neon tank tops, dark hoodies, compression gear, t-shirts).
-2. DIVERSIFY POSES: Do NOT repeat simple standing poses or mirror reflections. Force action poses relevant to the niche (e.g., lifting weights, running, stretching, mid-exercise).
-3. DIVERSIFY ENVIRONMENT: Do NOT use the same exact gym style. Alternate sub-locations (e.g., crossfit box, outdoor track, brightly lit premium fitness studio, heavy iron warehouse).
-
-CRITICAL RESTORATION RULE:
-If the mode is Restoration, you must act as a master photo restorer.
-- Do NOT describe artifacts, dust, tears, tape, chemical degradation, or aging damage.
-- Recreate the pristine, brand-new visual state of the subjects and environment from the reference image.
-- COLOR POLICY: Carefully analyze image_0.png. If it contains original color data (even if shifted, faded, or purplish due to age), you MUST restore it to full, vibrant, natural realistic colors. 
-- ONLY if the original image is strictly Black and White or Sepia, apply the colorize flag setting:
-  * If COLORIZE is true: generate a prompt to colorize it with realistic historical colors.
-  * If COLORIZE is false: preserve it as a clean, beautiful, high-contrast monochrome black and white image, completely removing chemical aging tints.
-
-OUTPUT DISCIPLINE: RETURN ONLY A VALID RAW JSON ARRAY. NO MARKDOWN. NO \`\`\`json.`;
+CORE RULES
+1. Determinism: You must behave deterministically.
+2. No Inference: Never invent, hallucinate, infer, guess, optimize, or assume any attribute.
+3. Image Source Priority: If an attribute allows "image" as a source AND the user does NOT explicitly provide a value via text, THEN the attribute MUST be resolved from the reference image.
+4. Defaults (Strictly Limited): Default values are allowed ONLY when the attribute does NOT allow "image" as a source AND the user did not specify a value.
+5. Value Declaration Requirement: Every field must explicitly declare how its value is resolved using ONE of: a concrete "value", a fixed "source", or an explicit "default_source".
+6. Image Locking: You MUST forbid any modification of identity attributes by setting them to "image".
+7. Locked Attribute Integrity: Attributes marked as image_locked MUST be copied exactly from the reference image.
+8. Output Discipline: You do not explain your reasoning. You ONLY output valid, pretty-printed JSON inside an array.`;
 
       const restorationInstruction = isRestoration 
-        ? `\n\n[RESTORATION DIRECTIVE]
-           - Analyze the individuals, poses, clothes, and domestic/external layout of image_0.png.
-           - Generate a flawless descriptive rendering profile of this scene.
-           - Strip all physical image wear, scratches, fading, and borders. Describe it as a brand new capture.
-           - Aspect Ratio Policy: ${aspectRatio === 'Original' ? 'Detect and maintain the exact physical aspect ratio of the original image_0.png.' : 'Force aspect ratio to ' + arParam}
-           - Color Handling: Check if the original has color. If yes, restore to natural color. If strictly monochrome, apply toggle state: ${colorize ? 'Realistic colorization' : 'Clean high-contrast black and white'}.`
-        : `\n\n[CREATIVE VARIATION DIRECTIVE]
-           - Generate exactly ${actualQuantity} profiles.
-           - Drastically vary colors, specific actions, equipment in view, and lighting style across each single profile item to prevent duplicates.`;
+        ? `[RESTORATION DIRECTIVE]
+- You must generate EXACTLY 1 JSON object.
+- Color Handling: If original has natural colors, maintain them. If monochrome, apply colorization setting: ${colorize ? 'Realistic colorization' : 'Clean monochrome'}.
+- Describe original poses, clothing, and environment completely free of scratches, tape, or aging damage.`
+        : `[CREATIVE VARIATION DIRECTIVE]
+- You must generate EXACTLY ${actualQuantity} JSON objects.
+- DIVERSIFY VALUES: You MUST aggressively vary the "value" properties in "pose", "clothing", "environment", and "camera" for each object matching the "${targetNiche}" niche to prevent duplicate clones.`;
 
-      let promptText = `Create exactly ${actualQuantity} clean declarative JSON object configuration profiles in a root array.
+      let promptText = `Generate a JSON array containing ${actualQuantity} objects based on the Nano Banana schema.
 
-Context for creation profile:
-- Theme/Niche: ${targetNiche}
-- Render Style profile: ${visualStyle}
-- Realism Profile: ${realismLevel}
-- Specific Scenario details: ${extraDetails || 'None'}
+CONTEXT:
+Niche/Theme: ${targetNiche}
+Style: ${visualStyle}
+Realism: ${realismLevel}
+User Extra Details: ${extraDetails || 'None'}
+Aspect Ratio: ${arParam}
+
 ${restorationInstruction}
 
-REQUIRED CLEAN STRUCTURE SCHEMATIC (Each item must fill out this semantic payload structure):
+REQUIRED JSON SCHEMA FOR EACH ARRAY ITEM:
 {
-  "image_description": "${isRestoration ? 'A flawless professionally restored high-fidelity photograph showing [Describe the clear subjects and scene]' : 'A stunning unique high-fidelity photograph showing [Describe a distinct unique scene setup matching ' + targetNiche + ']'}",
-  "subject_biometrics": {
-    "primary_subject_identity": "[Detailed description of people/subjects, represented crystal clear]",
-    "body_proportions": "[Exact build, athletic profile, and stance extracted or customized safely]",
-    "facial_architecture": "[Face shape, sharp features, clear skin details, jawline]",
-    "hair_and_complexion": "[Accurate hair styling, volume, and skin tones]",
-    "expressions": "[Natural genuine facial expressions matching the current specific action]",
-    "clothing_profile": "${isRestoration ? '[Describe the original clothing items completely clean, brand new fabric texture]' : '[CRITICAL: Specify unique custom sportswear, changing colors and garment types completely across array items]'}"
+  "task": "build_image_prompt_json",
+  "reference_image_policy": {
+    "used": true,
+    "represents": "full character identity unless explicitly overridden by text",
+    "instructions": [
+      "If an attribute allows image as a source and no text value is provided, the attribute must be copied exactly from the reference image",
+      "Inference or stylistic guessing is forbidden when image source is available",
+      "Never infer or optimize identity attributes"
+    ]
   },
-  "spatial_composition": {
-    "subject_pose": "${isRestoration ? 'Pristine reproduction of the exact original poses and interaction' : '[CRITICAL: Describe a unique dynamic action pose or distinct pose configuration. Do NOT repeat mirror setups unless requested]'}",
-    "clothing_style_override": "${isRestoration ? 'Cleaned flawless original outfit capture' : '[Unique functional outfit style traits]'}"
+  "subject": {
+    "type": "human",
+    "identity_lock": {
+      "face": "image",
+      "age": "image",
+      "skin_tone": "image",
+      "facial_features": "image",
+      "body_proportions": "image",
+      "hair_style": "image",
+      "hair_color": "image",
+      "eye_color": "image"
+    },
+    "pose": {
+      "value": "${isRestoration ? 'Maintain exact original pose from reference' : '[VARY: Provide unique specific action pose matching niche] '}",
+      "allowed_sources": ["text", "image"]
+    },
+    "expression": {
+      "value": "[VARY: Expression fitting the action and niche]",
+      "allowed_sources": ["text", "image"]
+    },
+    "gaze": {
+      "value": "[VARY: Gaze direction]",
+      "allowed_sources": ["text", "image"]
+    }
   },
-  "scenery_environment": {
-    "location_details": "${isRestoration ? 'Perfect clean reproduction of the background scene from reference image' : '[CRITICAL: Describe a distinct environmental sub-location background matching ' + targetNiche + ' with high variety]'}",
-    "foreground_elements": "${extraDetails || '[Vary specific equipment or objects in view unique to this scene profile]'}"
+  "appearance": {
+    "clothing": {
+      "value": "${isRestoration ? 'Cleaned original clothing from reference' : '[VARY: Distinct clothing style matching niche, vary colors and styles] '}",
+      "allowed_sources": ["text", "image"]
+    },
+    "colors": {
+      "primary_palette": {
+        "value": "${isRestoration ? (colorize ? 'Realistic colorization' : 'Clean high-contrast original palette') : 'neutral balanced palette harmonized with clothing and scene'}",
+        "allowed_sources": ["text", "image"]
+      }
+    }
   },
-  "camera_and_optics": {
-    "framing": "${isRestoration ? 'Exact matching original group/individual camera framing' : '[Vary framing across items: medium shot, full-body, close-up dynamic shot]'}",
-    "lens_angle": "Eye level, clean perspective"
+  "environment": {
+    "location": {
+      "value": "${isRestoration ? 'Original background location restored clean' : '[VARY: Distinct environment location matching niche] '}",
+      "allowed_sources": ["text", "image"]
+    },
+    "details": {
+      "value": "${extraDetails || '[Vary background elements to avoid repetition]'}",
+      "allowed_sources": ["text", "image"]
+    },
+    "time_of_day": {
+      "value": "controlled lighting environment",
+      "allowed_sources": ["text"]
+    },
+    "weather": {
+      "value": "indoor/outdoor appropriate to scene",
+      "allowed_sources": ["text"]
+    }
   },
-  "lighting_signature": {
-    "lighting_type": "${isRestoration ? 'Clean corrected camera flash illumination, optimized exposure, high contrast' : '[Vary lighting setup style matching the specific mood profile]'}"
+  "camera": {
+    "framing": {
+      "value": "[VARY: framing type (medium shot, full body, etc)]",
+      "allowed_sources": ["text"]
+    },
+    "angle": {
+      "value": "[VARY: camera angle]",
+      "allowed_sources": ["text"]
+    },
+    "lens_feel": {
+      "value": "natural perspective",
+      "allowed_sources": ["text", "image"]
+    }
   },
-  "rendering_style_profile": {
-    "type_value": "${isRestoration ? 'Masterpiece photo restoration print, crystal clear, 8k resolution, removed noise and artifacts' : visualStyle}",
-    "aspect_ratio_parameter": "${aspectRatio === 'Original' ? 'Match the exact aspect ratio of the original reference image' : arParam}",
-    "chromatic_profile": "${isRestoration ? '[Auto-detect: If original image has color data, value is full natural color. If original is monochrome, follow toggle settings]' : 'Standard profile'}"
+  "lighting": {
+    "type": {
+      "value": "${isRestoration ? 'clean corrected flash' : '[VARY: soft studio, cinematic contrast, etc.]'}",
+      "allowed_sources": ["text", "image"]
+    },
+    "direction": {
+      "value": "[VARY: Light direction]",
+      "allowed_sources": ["text"]
+    },
+    "intensity": {
+      "value": "medium intensity",
+      "allowed_sources": ["text"]
+    }
+  },
+  "style": {
+    "render_type": {
+      "value": "${visualStyle} with aspect ratio: ${arParam}",
+      "source_policy": "text_overrides_image",
+      "allowed_sources": ["text", "image"],
+      "forbid_value_generation": true
+    }
+  },
+  "quality_controls": {
+    "forbidden_changes": [
+      "modifying identity attributes sourced from image",
+      "implicit face or hair alteration",
+      "beautification or aging",
+      "conflicting multiple values for a single attribute"
+    ]
   }
 }`;
 
